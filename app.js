@@ -154,7 +154,7 @@ function commonTeammates(a, b) {
 }
 
 function newGame() {
-  Object.assign(game, pickMatchup(game.level), { log: [], guesses: 0, hint: null, hintsUsed: 0, over: false });
+  Object.assign(game, pickMatchup(game.level), { log: [], guesses: 0, hint: null, hintsUsed: 0, over: false, drawnLength: 1 });
   game.chain = [game.start];
   game.distToTarget = bfs(game.target).dist;
 
@@ -348,7 +348,10 @@ function render() {
   $("guesses").textContent = game.guesses;
   $("par").textContent = game.best.length - 2;
 
-  $("chain").innerHTML = chainHtml(game.chain);
+  // A link that's new since the last draw animates in.
+  const grew = game.chain.length > (game.drawnLength || 1);
+  game.drawnLength = game.chain.length;
+  $("chain").innerHTML = chainHtml(game.chain, { freshLast: grew });
 
   const end = game.chain[game.chain.length - 1];
   $("guess-label").textContent = `Name a teammate of ${name(end)}`;
@@ -393,7 +396,7 @@ function hintText(id) {
 
 // Draws a chain of player tiles with the linking team-season between them.
 // While playing, the target is drawn at the bottom, still unlinked.
-function chainHtml(path) {
+function chainHtml(path, { freshLast = false } = {}) {
   const complete = path[path.length - 1] === game.target;
   const parts = [];
 
@@ -401,7 +404,8 @@ function chainHtml(path) {
     if (i > 0) {
       const shared = sharedTeamSeasons(path[i - 1], id);
       const more = shared.length > 1 ? ` <span>+${shared.length - 1} more</span>` : "";
-      parts.push(`<li class="link">Teammates · <strong>${shared[0]}</strong>${more}</li>`);
+      const fresh = freshLast && i === path.length - 1 ? " fresh" : "";
+      parts.push(`<li class="link${fresh}">Teammates · <strong>${shared[0]}</strong>${more}</li>`);
     }
     const season = i > 0 ? sharedTeamSeasons(path[i - 1], id)[0].split(" ")[0] : null;
     const isEnd = id === game.start || id === game.target;

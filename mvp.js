@@ -137,6 +137,17 @@ function renderBallot() {
     .join("");
 }
 
+function saveImage() {
+  const { score, exact, emoji } = game.result;
+  shareImage({
+    title: "MVP Ballot",
+    kicker: `The ${game.season} race`,
+    big: `${score}/100`,
+    grid: [emoji],
+    lines: [`${exact} of 5 in the right spot`],
+  }, $("share-msg"));
+}
+
 function renderResult() {
   const { score, exact, emoji } = game.result;
   const winner = race()[0];
@@ -174,6 +185,7 @@ $("random-season").addEventListener("click", randomSeason);
 $("next").addEventListener("click", () => { randomSeason(); window.scrollTo({ top: 0, behavior: "smooth" }); });
 $("lock").addEventListener("click", lockIn);
 $("share").addEventListener("click", share);
+$("save-image").addEventListener("click", saveImage);
 
 loadData()
   .then(() => {

@@ -176,7 +176,9 @@ function lockIn() {
     save.progress = null;
     writeSave(save);
   }
-  if (play.result.score === 100) celebrate();
+  const milestone = play.mode === "daily" && streakMilestone(streaks(loadSave().history).current);
+  if (milestone) celebrate({ big: true });
+  else if (play.result.score === 100) celebrate();
   render();
   $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -285,7 +287,22 @@ function seasonContext(id, season) {
   return `${row.teams.join(" / ")} · ${row.g} games`;
 }
 
+function saveImage() {
+  const { score, exact, emoji } = play.result;
+  const streak = play.mode === "daily" ? streaks(loadSave().history).current : 0;
+  shareImage({
+    title: "Rank the Five",
+    kicker: play.mode === "daily" ? `Puzzle #${play.number}` : "Practice round",
+    big: `${score}/100`,
+    grid: [emoji],
+    lines: [`${exact} of 5 in the right spot`, ...(streak > 1 ? [`🔥 ${streak}-day streak`] : [])],
+  }, $("share-msg"));
+}
+
 function renderResult() {
+  const milestone = play.mode === "daily" && streakMilestone(streaks(loadSave().history).current);
+  $("milestone").hidden = !milestone;
+  $("milestone").textContent = milestone || "";
   const { score, exact, emoji } = play.result;
   $("result").classList.toggle("lose", score < 40);
   $("result-kicker").textContent =
@@ -360,6 +377,7 @@ $("rank-list").addEventListener("click", (e) => {
 $("reveal").addEventListener("click", reveal);
 $("lock").addEventListener("click", lockIn);
 $("share").addEventListener("click", share);
+$("save-image").addEventListener("click", saveImage);
 $("practice").addEventListener("click", startPractice);
 setInterval(updateCountdown, 30000);
 

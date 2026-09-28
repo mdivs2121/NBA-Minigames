@@ -215,6 +215,17 @@ function classRow(p) {
     </li>`;
 }
 
+function saveImage() {
+  const { score, inTop10, emoji } = game.result;
+  shareImage({
+    title: "Draft Redo",
+    kicker: `${game.year} draft class`,
+    big: `${score}/100`,
+    grid: [emoji],
+    lines: [`${inTop10} of 10 picks were real top-10 careers`],
+  }, $("share-msg"));
+}
+
 function renderResult() {
   const { score, inTop10, exact, emoji } = game.result;
   $("result").classList.toggle("lose", score < 40);
@@ -285,6 +296,7 @@ $("next-class").addEventListener("click", () => { randomClass(); window.scrollTo
 $("lock").addEventListener("click", lockIn);
 $("clear").addEventListener("click", () => { game.board = []; render(); });
 $("share").addEventListener("click", share);
+$("save-image").addEventListener("click", saveImage);
 
 loadData()
   .then(() => {

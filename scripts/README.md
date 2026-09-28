@@ -29,6 +29,7 @@ python3 build_snake_data.py        # Snake Draft
 python3 build_mvp_data.py          # MVP Ballot
 python3 build_connections_data.py  # Hoop Connections
 python3 build_player_pages.py      # player pages
+python3 build_facts.py             # "Did you know?" facts (reads the files above)
 ```
 
 Each script writes straight into `../data/`. Commit and push, and the live site

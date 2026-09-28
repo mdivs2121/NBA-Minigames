@@ -32,6 +32,7 @@ const play = {
   mistakes: 0,
   found: 0,         // groups you found yourself (the rest get revealed at the end)
   hints: [],        // [{ group, kind: "nudge" | "pair" | "name", ids? }]
+  busy: false,      // true while a found group does its little hop
   over: false,
   won: false,
 };
@@ -41,7 +42,7 @@ const play = {
 async function loadData() {
   const [, cx] = await Promise.all([loadCommon(), fetchJson("connections")]);
   for (const [id, n] of Object.entries(cx.players)) data.players[id] ||= { name: n };
-  data.categories = cx.categories.map((c) => ({ ...c, members: new Set(c.members) }));
+  data.categories = cx.categories.map((c) => ({ ...c, members: new Set(c.members), details: c.details || {} }));
   data.fame = cx.fame;
 }
 
@@ -69,7 +70,7 @@ function makePuzzle(random) {
       if (usable.length < 4) break;
       // Sort by fame (ties by id, so every device agrees), then pick 4 of the top few.
       usable.sort((a, b) => data.fame[b] - data.fame[a] || (a < b ? -1 : 1));
-      groups.push({ label: cat.label, tier: cat.tier, players: shuffle(usable.slice(0, FAMOUS_SHORTLIST)).slice(0, 4) });
+      groups.push({ label: cat.label, tier: cat.tier, details: cat.details, players: shuffle(usable.slice(0, FAMOUS_SHORTLIST)).slice(0, 4) });
     }
     if (groups.length === 4) return { groups, order: shuffle(groups.flatMap((g) => g.players)) };
   }
@@ -119,14 +120,14 @@ function startPractice() {
 }
 
 function toggle(id) {
-  if (play.over || play.solved.includes(groupOf(id))) return;
+  if (play.over || play.busy || play.solved.includes(groupOf(id))) return;
   if (play.selected.has(id)) play.selected.delete(id);
   else if (play.selected.size < 4) play.selected.add(id);
   render();
 }
 
 function submit() {
-  if (play.over || play.selected.size !== 4) return;
+  if (play.over || play.busy || play.selected.size !== 4) return;
   const picked = [...play.selected];
   const key = [...picked].sort().join(",");
   if (play.guessed.includes(key)) {
@@ -139,21 +140,37 @@ function submit() {
   const counts = [0, 1, 2, 3].map((g) => picked.filter((id) => groupOf(id) === g).length);
   const hit = counts.indexOf(4);
   if (hit >= 0) {
-    play.solved.push(hit);
-    play.selected.clear();
-    say(`✓ ${play.groups[hit].label}`, "good");
-    if (play.solved.length === 4) {
-      finish(true);
-      if (play.mistakes === 0 && !play.hints.length) celebrate();
+    // The four tiles hop, then the group slides up into place (skipped with reduced motion).
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      play.busy = true;
+      for (const id of picked) $("grid").querySelector(`[data-id="${id}"]`)?.classList.add("found");
+      setTimeout(() => { play.busy = false; solveGroup(hit); }, 560);
+      return;
     }
-  } else {
-    play.mistakes++;
-    const oneAway = counts.includes(3);
-    say(oneAway ? "One away…" : "Not a group.", "bad");
-    toast(oneAway ? "One away…" : "Not a group");
-    shake();
-    if (play.mistakes >= MISTAKES) finish(false);
+    solveGroup(hit);
+    return;
   }
+  play.mistakes++;
+  const oneAway = counts.includes(3);
+  say(oneAway ? "One away…" : "Not a group.", "bad");
+  toast(oneAway ? "One away…" : "Not a group");
+  shake();
+  if (play.mistakes >= MISTAKES) finish(false);
+  saveProgress();
+  render();
+}
+
+function solveGroup(hit) {
+  play.solved.push(hit);
+  play.selected.clear();
+  say(`✓ ${play.groups[hit].label}`, "good");
+  if (play.solved.length === 4) {
+    finish(true);
+    const milestone = play.mode === "daily" && streakMilestone(winStreak());
+    if (milestone) celebrate({ big: true });
+    else if (play.mistakes === 0 && !play.hints.length) celebrate();
+  }
+  play.justSolved = hit;   // the newest row slides in
   saveProgress();
   render();
 }
@@ -301,15 +318,23 @@ function render() {
   $("solved").innerHTML = play.solved
     .map((g) => {
       const group = play.groups[g];
-      const names = group.players.map((id) => (play.over ? playerLink(id) : escapeHtml(name(id)))).join(", ");
+      // Each name, plus why he's in the group (years with the team, award years, height…).
+      const names = group.players
+        .map((id) => {
+          const who = play.over ? playerLink(id) : escapeHtml(name(id));
+          const why = group.details?.[id];
+          return `<span class="cx-member">${who}${why ? ` <small>${escapeHtml(why)}</small>` : ""}</span>`;
+        })
+        .join("");
       return `
-        <li class="cx-group t${group.tier}">
+        <li class="cx-group t${group.tier} ${g === play.justSolved ? "fresh" : ""}">
           <span class="cx-group-label">${escapeHtml(group.label)}</span>
           <span class="cx-group-names">${names}</span>
         </li>`;
     })
     .join("");
 
+  play.justSolved = null;
   renderHints();
 
   const pairIds = new Set(play.hints.filter((h) => h.ids && !play.solved.includes(h.group)).flatMap((h) => h.ids));
@@ -363,7 +388,27 @@ function renderHints() {
   if (play.over) closeHintMenu();
 }
 
+// Days in a row you solved it.
+function winStreak() {
+  const history = loadSave().history;
+  return streaks(Object.fromEntries(Object.entries(history).filter(([, h]) => h.won))).current;
+}
+
+function saveImage() {
+  const n = play.hints.length;
+  shareImage({
+    title: "Hoop Connections",
+    kicker: play.mode === "daily" ? `Puzzle #${play.number}` : "Practice puzzle",
+    big: play.won ? "Solved" : `${play.found} of 4`,
+    grid: play.guesses.map((tiers) => tiers.map((t) => TIER_EMOJI[t]).join("")),
+    lines: [`${play.mistakes} mistake${play.mistakes === 1 ? "" : "s"}${n ? ` · ${n} hint${n === 1 ? "" : "s"}` : ""}`],
+  }, $("share-msg"));
+}
+
 function renderResult() {
+  const milestone = play.mode === "daily" && play.won && streakMilestone(winStreak());
+  $("milestone").hidden = !milestone;
+  $("milestone").textContent = milestone || "";
   const perfect = play.won && play.mistakes === 0 && !play.hints.length;
   $("result").classList.toggle("lose", !play.won);
   $("result-kicker").textContent = play.won ? (perfect ? "Perfect" : "Solved") : "Out of mistakes";
@@ -396,8 +441,7 @@ function renderStats() {
   $("st-played").textContent = history.length;
   $("st-win").textContent = Math.round((100 * history.filter((h) => h.won).length) / history.length);
   // A streak here counts days in a row you solved it.
-  const wins = Object.fromEntries(Object.entries(save.history).filter(([, h]) => h.won));
-  $("st-streak").textContent = streaks(wins).current;
+  $("st-streak").textContent = winStreak();
   $("st-perfect").textContent = history.filter((h) => h.won && h.mistakes === 0 && !h.hints).length;
 }
 
@@ -422,6 +466,7 @@ $("hint-menu").addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeHintMenu(); });
 $("share").addEventListener("click", share);
+$("save-image").addEventListener("click", saveImage);
 $("practice").addEventListener("click", startPractice);
 setInterval(updateCountdown, 30000);
 

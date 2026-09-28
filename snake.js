@@ -303,6 +303,19 @@ function poolCard(s) {
     </li>`;
 }
 
+function saveImage() {
+  const { a, b, you, bot } = finalScore();
+  shareImage({
+    title: "Snake Draft",
+    kicker: `vs the ${LEVELS[game.level].name}`,
+    big: `${a}–${b}`,
+    lines: [
+      you > bot ? "Won the draft" : you < bot ? "Lost the draft" : "Tied",
+      ...teamOf("you").map((s) => `${s.name} ${s.season}`),
+    ],
+  }, $("share-msg"));
+}
+
 function renderResult() {
   const { you, bot, a, b } = finalScore();
   const level = LEVELS[game.level];
@@ -350,6 +363,7 @@ for (const btn of document.querySelectorAll(".difficulty button")) {
 }
 $("again").addEventListener("click", () => { newGame(); window.scrollTo({ top: 0, behavior: "smooth" }); });
 $("share").addEventListener("click", share);
+$("save-image").addEventListener("click", saveImage);
 
 loadData()
   .then(() => {

@@ -1391,3 +1391,101 @@ input:focus-visible, select:focus-visible { outline: none; }   /* these show foc
 }
 .cx-toast.show { animation: toast-in 0.18s ease-out; }
 @keyframes toast-in { from { transform: translate(-50%, -30%) scale(0.9); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
+/* ---------- page transitions ---------- */
+/* Browsers that support it cross-fade between pages; others fade the page in. */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.22s; }
+main { animation: page-in 0.3s ease-out; }
+@keyframes page-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- "New" badge ---------- */
+.new-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--on-tile);
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+}
+
+/* ---------- streak milestone ---------- */
+.milestone {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, rgba(255, 107, 26, 0.25), rgba(255, 180, 58, 0.12));
+  color: var(--accent-2);
+  font-weight: 800;
+  animation: pop 0.3s ease-out;
+}
+
+/* Hoop Connections: found groups hop, then slide in with each player's "why" */
+.cx-tile.found { animation: hop 0.5s ease-in-out; background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.cx-tile.found:nth-child(2n) { animation-delay: 0.05s; }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px) scale(1.04); } }
+.cx-group { animation: none; }
+.cx-group.fresh { animation: group-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+@keyframes group-in { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: none; } }
+.cx-group-names { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; }
+.cx-member small { font-size: 0.78em; font-weight: 600; opacity: 0.7; }
+
+/* Higher or Lower: comparison bars and on-fire streak */
+.hl-bar { width: 80%; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); overflow: hidden; opacity: 0; transition: opacity 0.2s; }
+.hl-card.compare .hl-bar { opacity: 1; }
+.hl-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hl-card.hit .hl-bar, .hl-card.miss .hl-bar { background: rgba(11, 20, 17, 0.18); }
+.hl-card.hit .hl-bar i, .hl-card.miss .hl-bar i { background: var(--on-tile); }
+#streak.fire { color: var(--accent-2); text-shadow: 0 0 24px rgba(255, 107, 26, 0.6); animation: flicker 1.6s ease-in-out infinite; }
+@keyframes flicker { 50% { text-shadow: 0 0 36px rgba(255, 150, 40, 0.85); } }
+
+/* Teammate Chain: a new link draws itself, with a dot running down the line */
+.link { position: relative; }
+.link.fresh { border-left-color: transparent; }
+.link.fresh::before, .link.fresh::after { content: ""; position: absolute; left: -2px; top: 0; }
+.link.fresh::before {
+  width: 2px;
+  height: 100%;
+  background: var(--green);
+  transform-origin: top;
+  animation: draw-line 0.45s ease-out both;
+}
+.link.fresh::after {
+  width: 10px;
+  height: 10px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 12px var(--green);
+  animation: run-dot 0.6s ease-in-out both;
+}
+@keyframes draw-line { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes run-dot { from { top: 0; opacity: 1; } 85% { opacity: 1; } to { top: 100%; opacity: 0; } }
+.link.fresh + .tile { animation: pop 0.35s ease-out 0.3s both; }
+
+/* ---------- "Did you know?" (home page) ---------- */
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 22px;
+  padding: 16px 18px;
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  box-shadow: inset 4px 0 0 var(--accent-2);
+  animation: pop 0.3s ease-out;
+}
+.fact .avatar.md { width: 64px; }
+.fact-body { min-width: 0; flex: 1; }
+.fact-body .label { color: var(--accent-2); }
+.fact-body p { margin: 4px 0 8px; font-size: 1.08rem; font-weight: 700; line-height: 1.35; }
+.fact-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.fact-link { color: var(--accent); font-size: 0.85rem; font-weight: 800; text-decoration: none; }
+.fact-link:hover { text-decoration: underline; }
+.fact-actions .ghost { padding: 6px 12px; font-size: 0.72rem; }
+@media (max-width: 520px) { .fact { align-items: flex-start; } .fact .avatar.md { width: 48px; } }

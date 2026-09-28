@@ -5,7 +5,10 @@ Reads the Kaggle dataset "NBA Stats (1947-present)" and writes
 data/connections.json:
 
   { "players": { id: name }, "fame": { id: score },
-    "categories": [ { label, tier, members: [id, ...] }, ... ] }
+    "categories": [ { label, tier, members: [id, ...], details: { id: "why" } }, ... ] }
+
+details explain each member once a group is found: years with a team, award
+years, draft slot, height, and so on. Name and college groups don't need one.
 
 Only recognizable players (a 14+ PPG season, an All-Star pick, or a major
 award, all since 1979-80) are in the pool, and every category lists ALL of
@@ -88,6 +91,7 @@ def main():
     players = {p: names.get(p, info.at[p, "player"]) for p in pool}
 
     groups = defaultdict(set)   # (label, tier) -> members
+    details = defaultdict(dict)  # label -> { id: short explanation }
 
     # Tier 1: colleges
     for pid in pool:
@@ -106,33 +110,52 @@ def main():
     for pid, fs in franchises.items():
         for f in fs:
             groups[(f"Played for {f}", 2)].add(pid)
+    # Years with each franchise, e.g. "1997–2016" (seasons are labeled by the year they end)
+    stints = team_rows[team_rows["player_id"].isin(pool) & team_rows["team"].isin(FRANCHISES)].copy()
+    stints["franchise"] = stints["team"].map(FRANCHISES)
+    for (pid, f), years in stints.groupby(["player_id", "franchise"])["season"]:
+        first, last = int(years.min()) - 1, int(years.max())
+        details[f"Played for {f}"][pid] = str(last) if first + 1 == last else f"{first}–{last}"
     for r in winners.itertuples():
         if r.player_id in pool:
             groups[(AWARDS[r.award], 2)].add(r.player_id)
+    for award, rows in winners[winners["player_id"].isin(pool)].groupby("award"):
+        for pid, seasons_won in rows.groupby("player_id")["season"]:
+            years = sorted(int(s) for s in seasons_won)
+            details[AWARDS[award]][pid] = ", ".join(str(y) for y in years)
     for pid in pool:
         if pid in draft.index:
             d = draft.loc[pid]
             d = d.iloc[0] if isinstance(d, pd.DataFrame) else d
             if int(d["overall_pick"]) == 1:
                 groups[("#1 overall picks", 2)].add(pid)
+                details["#1 overall picks"][pid] = f"{int(d['season'])} draft"
             elif int(d["round"]) >= 2:
                 groups[("Second-round picks", 3)].add(pid)
+                details["Second-round picks"][pid] = f"#{int(d['overall_pick'])}, {int(d['season'])}"
 
     # Tier 3: career facts
     seasons = per_game[per_game["player_id"].isin(pool)].groupby("player_id")["season"].nunique()
     for pid in pool:
         ht = info.at[pid, "ht_in_in"]
+        height = "" if pd.isna(ht) else f"{int(ht) // 12}′{int(ht) % 12}″"
         if not pd.isna(ht) and ht >= 84:
             groups[("7 feet or taller", 3)].add(pid)
+            details["7 feet or taller"][pid] = height
         if not pd.isna(ht) and ht <= 72:
             groups[("6 feet or shorter", 3)].add(pid)
+            details["6 feet or shorter"][pid] = height
         fs = franchises.get(pid, set())
         if len(fs) >= 7:
             groups[("Played for 7+ franchises", 3)].add(pid)
+            details["Played for 7+ franchises"][pid] = f"{len(fs)} franchises"
         if len(fs) == 1 and seasons.get(pid, 0) >= 10:
             groups[("Spent 10+ seasons with only one franchise", 3)].add(pid)
+            only = next(iter(fs)).removeprefix("the ")
+            details["Spent 10+ seasons with only one franchise"][pid] = f"{only}, {seasons[pid]} seasons"
         if career_pts.get(pid, 0) >= 20000:
             groups[("Scored 20,000+ career points", 3)].add(pid)
+            details["Scored 20,000+ career points"][pid] = f"{int(career_pts[pid]):,} pts"
         if bool(info.at[pid, "hof"]):
             groups[("Hall of Famers", 3)].add(pid)
 
@@ -151,11 +174,15 @@ def main():
     for last, members in lasts.items():
         groups[(f"Last name {last}", 4)] |= members
 
-    categories = [
-        {"label": label, "tier": tier, "members": sorted(members)}
-        for (label, tier), members in sorted(groups.items())
-        if len(members) >= MIN_MEMBERS
-    ]
+    categories = []
+    for (label, tier), members in sorted(groups.items()):
+        if len(members) < MIN_MEMBERS:
+            continue
+        category = {"label": label, "tier": tier, "members": sorted(members)}
+        why = {pid: details[label][pid] for pid in sorted(members) if details[label].get(pid)}
+        if why:
+            category["details"] = why
+        categories.append(category)
     used = {m for c in categories for m in c["members"]}
 
     # Fame: how likely a casual fan knows the name. All-Star picks and awards

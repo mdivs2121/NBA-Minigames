@@ -92,7 +92,7 @@ function renderHub() {
         <a class="hub-card" href="${g.page}">
           <span class="hub-art">${GAME_ART[g.art] || ""}</span>
           <span class="hub-body">
-            <span class="hub-tag">${escapeHtml(g.tag)}</span>
+            <span class="hub-tag">${escapeHtml(g.tag)}${g.isNew ? ' <span class="new-badge">New</span>' : ""}</span>
             <span class="hub-title">${escapeHtml(g.title)}</span>
             <span class="hub-blurb">${escapeHtml(g.blurb)}</span>
             ${status}
@@ -102,6 +102,31 @@ function renderHub() {
       </li>`;
   }).join("");
 }
+
+// "Did you know?": a random stat fact each visit, with the player's photo.
+let facts = [];
+
+function renderFact() {
+  if (!facts.length) return;
+  const f = facts[Math.floor(Math.random() * facts.length)];
+  data.players[f.id] ||= { name: f.name };
+  $("fact").innerHTML = `
+    ${avatar(f.id, "md")}
+    <div class="fact-body">
+      <span class="label">Did you know?</span>
+      <p>${escapeHtml(f.text)}</p>
+      <span class="fact-actions">
+        <a class="fact-link" href="player.html?id=${encodeURIComponent(f.id)}">${escapeHtml(f.name)}'s page →</a>
+        <button type="button" id="another-fact" class="ghost">Another fact</button>
+      </span>
+    </div>`;
+  $("fact").hidden = false;
+  $("another-fact").addEventListener("click", renderFact);
+}
+
+Promise.all([fetchJson("facts"), fetchJson("photos").catch(() => ({}))])
+  .then(([list, photos]) => { facts = list; data.photos = photos; renderFact(); })
+  .catch(() => {});   // no facts file: the card just stays hidden
 
 renderHub();
 // Coming back to this tab (say, after finishing today's puzzle) refreshes the lines.

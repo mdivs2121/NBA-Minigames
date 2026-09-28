@@ -120,6 +120,14 @@ function revealRight(correct, done) {
   card.classList.add(correct ? "hit" : "miss");
   $("higher").disabled = $("lower").disabled = true;
 
+  // Bars under both numbers grow to show how far apart they really were.
+  const left = valueOf(game.left, game.category);
+  const most = Math.max(left, target) || 1;
+  $("left").querySelector(".hl-bar i").style.width = `${(left / most) * 100}%`;
+  card.querySelector(".hl-bar i").style.width = `${(target / most) * 100}%`;
+  $("left").classList.add("compare");
+  card.classList.add("compare");
+
   const start = performance.now(), duration = 700;
   const step = (now) => {
     const t = Math.min(1, (now - start) / duration);
@@ -151,6 +159,18 @@ function finish() {
   $("state").textContent = "Game over";
   $("state").className = "state lose";
   $("again").focus();
+}
+
+function saveImage() {
+  const rows = [];
+  for (let i = 0; i < game.history.length; i += 10) rows.push(game.history.slice(i, i + 10).map((ok) => (ok ? "🟩" : "🟥")).join(""));
+  shareImage({
+    title: "Higher or Lower",
+    kicker: "Career stats",
+    big: `${game.streak} in a row`,
+    grid: rows,
+    lines: [`Best ever: ${Math.max(loadBest(), game.streak)}`],
+  }, $("share-msg"));
 }
 
 function shareEmoji() {
@@ -185,12 +205,17 @@ function render() {
   $("lower").textContent = `▼ ${c.fewer}`;
   $("higher").disabled = $("lower").disabled = false;
   $("state").className = "state";
-  $("state").textContent = game.streak ? `${game.streak} in a row` : "New game";
+  $("state").textContent = game.streak >= ON_FIRE ? "On fire 🔥" : game.streak ? `${game.streak} in a row` : "New game";
   renderNumbers();
 }
 
+// 5 in a row and you're on fire.
+const ON_FIRE = 5;
+
 function renderNumbers() {
-  $("streak").textContent = game.streak;
+  const fire = game.streak >= ON_FIRE;
+  $("streak").textContent = fire ? `${game.streak} 🔥` : game.streak;
+  $("streak").classList.toggle("fire", fire);
   $("best").textContent = Math.max(loadBest(), game.streak);
 }
 
@@ -200,7 +225,8 @@ function card(id, value, link = false) {
   return `
     ${avatar(id, "hl")}
     <h2 class="hl-name">${link ? playerLink(id) : escapeHtml(name(id))}</h2>
-    <p class="hl-value">${value}</p>`;
+    <p class="hl-value">${value}</p>
+    <span class="hl-bar" aria-hidden="true"><i></i></span>`;
 }
 
 // ---------- wiring ----------
@@ -209,6 +235,7 @@ $("higher").addEventListener("click", () => guess(true));
 $("lower").addEventListener("click", () => guess(false));
 $("again").addEventListener("click", newGame);
 $("share").addEventListener("click", share);
+$("save-image").addEventListener("click", saveImage);
 document.addEventListener("keydown", (e) => {
   if (game.over || $("game").hidden) return;
   if (e.key === "ArrowUp") { e.preventDefault(); guess(true); }

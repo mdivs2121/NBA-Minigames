@@ -41,7 +41,7 @@ function photoUrl(id) {
 function avatar(id, size) {
   const initials = name(id)
     .split(/\s+/)
-    .filter((w) => /^[A-Za-zÀ-ž]/.test(w) && !/^(Jr|Sr|II|III|IV)\.?$/.test(w))
+    .filter((w) => /^[A-Za-z\u00C0-\u017E]/.test(w) && !/^(Jr|Sr|II|III|IV)\.?$/.test(w))   // letters, incl. accented
     .map((w) => w[0])
     .slice(0, 2)
     .join("")
@@ -73,6 +73,7 @@ function showLoadError(err) {
 // ---------- games ----------
 // Every game, in menu order. The home page cards, the Games menu, and each
 // game's how-to popup all come from here, so a new game needs one entry.
+//   isNew: shows a "New" badge on the home page and in the Games menu
 //   daily: the localStorage key of a daily puzzle's saved results
 //   howto: three [title, text] steps for the "How to play" popup
 const GAMES = [
@@ -86,7 +87,7 @@ const GAMES = [
     ],
   },
   {
-    page: "connections.html", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1",
+    page: "connections.html", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1", isNew: true,
     blurb: "Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. Find all four.",
     howto: [
       ["Pick four", "Tap four players you think share something: a college, a team, an award, a career fact, or their name."],
@@ -122,7 +123,7 @@ const GAMES = [
     ],
   },
   {
-    page: "mvp.html", title: "MVP Ballot", tag: "Voting", art: "mvp",
+    page: "mvp.html", title: "MVP Ballot", tag: "Voting", art: "mvp", isNew: true,
     blurb: "A season's top five MVP vote-getters, shuffled. Put them back in the order the voters had them.",
     howto: [
       ["Five finalists", "You get the top five MVP vote-getters from one season, shuffled."],
@@ -230,7 +231,7 @@ function renderNav() {
           <a href="index.html" class="panel-home">All games</a>
           ${GAMES.map((g) => `
             <a href="${g.page}"${g.page === HERE ? ' aria-current="page"' : ""}>
-              <span class="panel-title">${escapeHtml(g.title)}</span>
+              <span class="panel-title">${escapeHtml(g.title)}${g.isNew ? ' <span class="new-badge">New</span>' : ""}</span>
               <span class="panel-tag">${escapeHtml(g.tag)}</span>
             </a>`).join("")}
         </div>
@@ -308,7 +309,7 @@ async function shareResult(text, messageEl) {
 // A short burst for perfect scores and big wins. Skipped for people who've
 // asked their device for less motion.
 
-function celebrate() {
+function celebrate({ big = false } = {}) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const canvas = document.createElement("canvas");
   canvas.className = "confetti";
@@ -318,7 +319,7 @@ function celebrate() {
   const dpr = window.devicePixelRatio || 1;
   const w = (canvas.width = innerWidth * dpr), h = (canvas.height = innerHeight * dpr);
   const colors = ["#ff6b1a", "#ffb43a", "#36e2a4", "#ffc445", "#ff5a73", "#f6f3ee"];
-  const bits = Array.from({ length: 140 }, () => ({
+  const bits = Array.from({ length: big ? 360 : 140 }, () => ({
     x: w / 2 + (Math.random() - 0.5) * w * 0.3, y: h * 0.35,
     vx: (Math.random() - 0.5) * 22 * dpr, vy: (-Math.random() * 18 - 6) * dpr,
     size: (6 + Math.random() * 6) * dpr, spin: Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
@@ -332,15 +333,104 @@ function celebrate() {
       ctx.save();
       ctx.translate(b.x, b.y);
       ctx.rotate(b.spin);
-      ctx.globalAlpha = Math.max(0, 1 - t / 1800);
+      ctx.globalAlpha = Math.max(0, 1 - t / (big ? 2800 : 1800));
       ctx.fillStyle = b.color;
       ctx.fillRect(-b.size / 2, -b.size / 4, b.size, b.size / 2);
       ctx.restore();
     }
-    if (t < 1800) requestAnimationFrame(frame);
+    if (t < (big ? 2800 : 1800)) requestAnimationFrame(frame);
     else canvas.remove();
   };
   requestAnimationFrame(frame);
+}
+
+// ---------- streak milestones ----------
+// 7, 30, 100, and 365 days in a row of a daily puzzle get a callout and big confetti.
+
+const MILESTONES = { 7: "One week straight", 30: "A full month", 100: "Triple digits", 365: "A whole year" };
+
+function streakMilestone(streak) {
+  return MILESTONES[streak] ? `🔥 ${streak}-day streak. ${MILESTONES[streak]}!` : null;
+}
+
+// ---------- result images ----------
+// "Save image" draws your result as a 1080x1350 picture (good for Instagram)
+// and opens the phone share menu, or downloads it on a computer.
+//   title: the game, kicker: small line above, big: the score line,
+//   grid: emoji rows, lines: short text lines under the score
+
+async function shareImage(result, messageEl) {
+  const canvas = await resultCanvas(result);
+  const { title } = result;
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  const file = new File([blob], `${title.toLowerCase().replace(/\W+/g, "-")}-result.png`, { type: "image/png" });
+  if (navigator.canShare?.({ files: [file] }) && matchMedia("(pointer: coarse)").matches) {
+    try { await navigator.share({ files: [file] }); return; }
+    catch (err) { if (err.name === "AbortError") return; }
+  }
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = file.name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+  if (messageEl) messageEl.textContent = "Image saved.";
+}
+
+async function resultCanvas({ title, kicker = "", big, grid = [], lines = [] }) {
+  await document.fonts?.ready;
+  const W = 1080, H = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const css = getComputedStyle(document.documentElement);
+  const color = (v) => css.getPropertyValue(v).trim();
+  const font = (weight, size) => `${weight} ${size}px "Bricolage Grotesque", system-ui, sans-serif`;
+
+  // Ground, glow, and faint court lines
+  ctx.fillStyle = color("--bg"); ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W / 2, -120, 40, W / 2, -120, 900);
+  glow.addColorStop(0, "rgba(255,107,26,0.22)"); glow.addColorStop(1, "rgba(255,107,26,0)");
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "rgba(255,255,255,0.05)"; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(W / 2, 0, 230, 0, Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W / 2, H, 380, Math.PI, 2 * Math.PI); ctx.stroke();
+
+  // Top rule with the ball
+  const rule = ctx.createLinearGradient(90, 0, W - 90, 0);
+  rule.addColorStop(0, color("--accent")); rule.addColorStop(0.7, color("--accent-2")); rule.addColorStop(1, "rgba(255,180,58,0)");
+  ctx.fillStyle = rule; ctx.fillRect(100, 118, W - 190, 6);
+  ctx.fillStyle = color("--accent"); ctx.beginPath(); ctx.arc(96, 121, 16, 0, 2 * Math.PI); ctx.fill();
+
+  let y = 210;
+  ctx.fillStyle = color("--text"); ctx.font = font(800, 44);
+  ctx.fillText("NBA", 90, y);
+  ctx.fillStyle = color("--accent"); ctx.fillText("Minigames", 90 + ctx.measureText("NBA ").width, y);
+
+  y += 100;
+  ctx.fillStyle = color("--accent"); ctx.font = font(800, 34);
+  ctx.fillText(kicker.toUpperCase(), 90, y);
+  y += 90;
+  ctx.fillStyle = color("--text"); ctx.font = font(800, 88);
+  ctx.fillText(title, 90, y);
+  y += 170;
+  ctx.font = font(800, 170);
+  ctx.fillText(big, 84, y);
+
+  // Emoji rows: smaller when there are more of them, and at most six so they
+  // never run into the web address at the bottom.
+  const rows = grid.slice(0, 6);
+  const cell = rows.length > 4 ? 60 : rows.length > 2 ? 72 : 88;
+  ctx.font = `${cell}px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif`;
+  y += 30;
+  for (const row of rows) { y += cell + 14; ctx.fillText(row, 90, y); }
+
+  y += 70;
+  ctx.fillStyle = color("--muted"); ctx.font = font(600, 40);
+  for (const line of lines) { if (y > H - 170) break; ctx.fillText(line, 90, y); y += 54; }
+
+  ctx.fillStyle = color("--muted"); ctx.font = font(700, 34);
+  ctx.fillText(location.host + location.pathname.replace(/[^/]*$/, ""), 90, H - 90);
+  return canvas;
 }
 
 // ---------- page setup ----------
