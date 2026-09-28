@@ -1333,3 +1333,40 @@ input:focus-visible, select:focus-visible { outline: none; }   /* these show foc
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Hoop Connections hints */
+.cx-hint { margin: 0 0 10px; }
+.cx-hint p + p { margin-top: 6px; }
+.cx-hint-menu {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: calc(var(--radius) + 2px);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  animation: pop 0.15s ease-out;
+}
+.cx-hint-menu button {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cx-hint-menu button:hover:not(:disabled) { border-color: var(--accent); }
+.cx-hint-menu button:disabled { opacity: 0.4; cursor: default; }
+.cx-hint-menu b { font-weight: 800; }
+.cx-hint-menu span { color: var(--muted); font-size: 0.88rem; }
+.cx-hint-menu i { font-style: normal; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.cx-tile { position: relative; }
+.cx-tile.hinted { border-color: var(--accent-2); }
+.cx-bulb { position: absolute; top: 4px; right: 6px; font-size: 0.8rem; }
+@media (max-width: 520px) { .cx-hint-menu button { grid-template-columns: 1fr auto; } .cx-hint-menu span { grid-column: 1 / -1; } }

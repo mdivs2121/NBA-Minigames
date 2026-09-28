@@ -31,6 +31,7 @@ const play = {
   guesses: [],      // tiers of each guess's four players, for the share grid
   mistakes: 0,
   found: 0,         // groups you found yourself (the rest get revealed at the end)
+  hints: [],        // [{ group, kind: "nudge" | "pair" | "name", ids? }]
   over: false,
   won: false,
 };
@@ -83,7 +84,7 @@ const groupOf = (id) => play.groups.findIndex((g) => g.players.includes(id));
 
 function reset(puzzle) {
   Object.assign(play, puzzle, {
-    selected: new Set(), solved: [], guessed: [], guesses: [], mistakes: 0, found: 0, over: false, won: false,
+    selected: new Set(), solved: [], guessed: [], guesses: [], mistakes: 0, found: 0, hints: [], over: false, won: false,
   });
 }
 
@@ -99,6 +100,7 @@ function startDaily() {
     Object.assign(play, {
       solved: saved.solved, guessed: saved.guessed, guesses: saved.guesses,
       mistakes: saved.mistakes, order: saved.order || play.order, found: saved.found ?? saved.solved.length,
+      hints: saved.hintLog || [],
     });
     if (save.history[play.day]) finish(saved.won, { restoring: true });
   }
@@ -139,7 +141,7 @@ function submit() {
     say(`✓ ${play.groups[hit].label}`, "good");
     if (play.solved.length === 4) {
       finish(true);
-      if (play.mistakes === 0) celebrate();
+      if (play.mistakes === 0 && !play.hints.length) celebrate();
     }
   } else {
     play.mistakes++;
@@ -162,7 +164,7 @@ function finish(won, { restoring = false } = {}) {
     const save = loadSave();
     save.history[play.day] = {
       won, mistakes: play.mistakes, found: play.found, guesses: play.guesses, guessed: play.guessed,
-      solved: play.solved, order: play.order,
+      solved: play.solved, order: play.order, hints: play.hints.length, hintLog: play.hints,
     };
     save.progress = null;
     writeSave(save);
@@ -174,9 +176,62 @@ function saveProgress() {
   const save = loadSave();
   save.progress = {
     day: play.day, solved: play.solved, guessed: play.guessed, guesses: play.guesses,
-    mistakes: play.mistakes, order: play.order,
+    mistakes: play.mistakes, order: play.order, hintLog: play.hints,
   };
   writeSave(save);
+}
+
+// ---------- hints ----------
+// Three sizes, all aimed at the easiest group you haven't found yet:
+// a nudge (a vague clue), a pair (two of its players get selected), or the
+// category name itself. Each can be used once per group.
+
+const HINT_KINDS = ["nudge", "pair", "name"];
+const hintTarget = () => [0, 1, 2, 3].find((g) => !play.solved.includes(g));
+const hintsFor = (g) => play.hints.filter((h) => h.group === g);
+
+function useHint(kind) {
+  const g = hintTarget();
+  if (play.over || g === undefined || hintsFor(g).some((h) => h.kind === kind)) return;
+  const hint = { group: g, kind };
+  if (kind === "pair") {
+    // Two of the group's players, picked the same way every time (Shuffle doesn't change it).
+    hint.ids = [...play.groups[g].players].sort().slice(0, 2);
+    play.selected = new Set(hint.ids);
+  }
+  play.hints.push(hint);
+  closeHintMenu();
+  saveProgress();
+  render();
+}
+
+// A vague clue from the category's label.
+function nudge(label) {
+  if (label.startsWith("Went to")) return "Four of these guys went to the same college.";
+  if (label.startsWith("Played for 7+")) return "Four of these guys got around the league.";
+  if (label.startsWith("Spent 10+")) return "Four of these guys are about loyalty.";
+  if (label.startsWith("Played for")) return "Four of these guys all suited up for the same franchise.";
+  if (label.startsWith("Won ")) return "Four of these guys all took home the same award.";
+  if (label.includes("picks")) return "Four of these guys have something in common from draft night.";
+  if (label.includes("feet")) return "Four of these guys are about height.";
+  if (label.startsWith("Scored")) return "Four of these guys are about career scoring.";
+  if (label === "Hall of Famers") return "Four of these guys have a spot in Springfield, Massachusetts.";
+  if (label.startsWith("Never played in college")) return "Four of these guys took a different road to the NBA.";
+  if (label === "Last name is a color") return "Four of these last names belong in a box of crayons.";
+  if (label.startsWith("Same first letter")) return "Say these four names out loud and listen.";
+  if (label.startsWith("First name") || label.startsWith("Last name")) return "Four of these guys share part of their name.";
+  return "Four of these guys share something. Look closely.";
+}
+
+function toggleHintMenu() {
+  const menu = $("hint-menu");
+  menu.hidden = !menu.hidden;
+  $("hint-btn").setAttribute("aria-expanded", String(!menu.hidden));
+}
+
+function closeHintMenu() {
+  $("hint-menu").hidden = true;
+  $("hint-btn").setAttribute("aria-expanded", "false");
 }
 
 function shuffleGrid() {
@@ -194,7 +249,8 @@ function shuffleGrid() {
 function shareText() {
   const title = play.mode === "daily" ? `Hoop Connections #${play.number}` : "Hoop Connections (practice)";
   const rows = play.guesses.map((tiers) => tiers.map((t) => TIER_EMOJI[t]).join("")).join("\n");
-  return `${title}\n${rows}`;
+  const n = play.hints.length;
+  return `${title}\n${rows}${n ? `\n💡 ${n} hint${n === 1 ? "" : "s"}` : ""}`;
 }
 
 async function share() {
@@ -236,12 +292,16 @@ function render() {
     })
     .join("");
 
+  renderHints();
+
+  const pairIds = new Set(play.hints.filter((h) => h.ids && !play.solved.includes(h.group)).flatMap((h) => h.ids));
   const open = play.order.filter((id) => !play.solved.includes(groupOf(id)));
   $("grid").hidden = !open.length;
   $("grid").innerHTML = open
     .map((id) => `
-      <button type="button" class="cx-tile ${play.selected.has(id) ? "selected" : ""}" data-id="${id}"
+      <button type="button" class="cx-tile ${play.selected.has(id) ? "selected" : ""} ${pairIds.has(id) ? "hinted" : ""}" data-id="${id}"
               aria-pressed="${play.selected.has(id)}">
+        ${pairIds.has(id) ? `<span class="cx-bulb" aria-label="Hint pair">💡</span>` : ""}
         ${avatar(id, "xs")}
         <span>${escapeHtml(name(id))}</span>
       </button>`)
@@ -259,12 +319,40 @@ function render() {
   renderStats();
 }
 
+function renderHints() {
+  const g = hintTarget();
+  const used = g === undefined || play.over ? [] : hintsFor(g);
+  $("hint-box").hidden = !used.length;
+  if (used.length) {
+    const group = play.groups[g];
+    const line = (kind) => {
+      if (kind === "nudge") return `<p class="hint-line">${escapeHtml(nudge(group.label))}</p>`;
+      if (kind === "pair") {
+        const [a, b] = used.find((h) => h.kind === "pair").ids;
+        return `<p class="hint-sub">${escapeHtml(name(a))} and ${escapeHtml(name(b))} are in it together.</p>`;
+      }
+      return `<p class="hint-line">The category: <strong>${escapeHtml(group.label)}</strong></p>`;
+    };
+    $("hint-box").innerHTML = `
+      <span class="label">Hint · the ${TIER_EMOJI[group.tier]} group</span>
+      ${HINT_KINDS.filter((k) => used.some((h) => h.kind === k)).map(line).join("")}`;
+  }
+  for (const btn of document.querySelectorAll("#hint-menu [data-hint]")) {
+    btn.disabled = used.some((h) => h.kind === btn.dataset.hint);
+  }
+  $("hint-btn").disabled = play.over;
+  $("hint-btn").textContent = play.hints.length ? `Hint · ${play.hints.length}` : "Hint";
+  if (play.over) closeHintMenu();
+}
+
 function renderResult() {
-  const perfect = play.won && play.mistakes === 0;
+  const perfect = play.won && play.mistakes === 0 && !play.hints.length;
   $("result").classList.toggle("lose", !play.won);
   $("result-kicker").textContent = play.won ? (perfect ? "Perfect" : "Solved") : "Out of mistakes";
+  const n = play.hints.length;
+  const hintNote = n ? ` ${n} hint${n === 1 ? "" : "s"}.` : "";
   $("result-title").textContent = play.won
-    ? perfect ? "No mistakes." : `${play.mistakes} mistake${play.mistakes === 1 ? "" : "s"}.`
+    ? perfect ? "No mistakes." : `${play.mistakes} mistake${play.mistakes === 1 ? "" : "s"}.${hintNote}`
     : `${play.found} of 4 groups found.`;
   $("result-grid").textContent = play.guesses.map((tiers) => tiers.map((t) => TIER_EMOJI[t]).join("")).join("\n");
   $("result-text").textContent = "Colors, easiest to hardest: 🟩 colleges · 🟨 teams and awards · 🟧 career facts · 🟥 names.";
@@ -292,7 +380,7 @@ function renderStats() {
   // A streak here counts days in a row you solved it.
   const wins = Object.fromEntries(Object.entries(save.history).filter(([, h]) => h.won));
   $("st-streak").textContent = streaks(wins).current;
-  $("st-perfect").textContent = history.filter((h) => h.won && h.mistakes === 0).length;
+  $("st-perfect").textContent = history.filter((h) => h.won && h.mistakes === 0 && !h.hints).length;
 }
 
 function formatDay(key) {
@@ -309,6 +397,12 @@ $("grid").addEventListener("click", (e) => {
 $("submit").addEventListener("click", submit);
 $("deselect").addEventListener("click", () => { play.selected.clear(); render(); });
 $("shuffle").addEventListener("click", shuffleGrid);
+$("hint-btn").addEventListener("click", toggleHintMenu);
+$("hint-menu").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-hint]");
+  if (btn && !btn.disabled) useHint(btn.dataset.hint);
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeHintMenu(); });
 $("share").addEventListener("click", share);
 $("practice").addEventListener("click", startPractice);
 setInterval(updateCountdown, 30000);

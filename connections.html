@@ -41,15 +41,23 @@
       </div>
 
       <ol id="solved" class="cx-solved"></ol>
+      <div id="hint-box" class="hint cx-hint" hidden></div>
       <div id="grid" class="cx-grid" role="group" aria-label="Players"></div>
 
       <div id="bar" class="cx-bar">
         <span class="cx-mistakes">Mistakes left <span id="dots" class="cx-dots"></span></span>
         <div class="cx-buttons">
+          <button type="button" id="hint-btn" class="ghost hint-btn" aria-expanded="false" aria-controls="hint-menu">Hint</button>
           <button type="button" id="shuffle" class="ghost">Shuffle</button>
           <button type="button" id="deselect" class="ghost">Deselect</button>
           <button type="button" id="submit" class="primary" disabled>Submit</button>
         </div>
+      </div>
+      <div id="hint-menu" class="cx-hint-menu" hidden>
+        <span class="label">Hints point at the easiest group you haven't found</span>
+        <button type="button" data-hint="nudge"><b>Nudge</b><span>A vague clue about the group</span><i>Small</i></button>
+        <button type="button" data-hint="pair"><b>Pair</b><span>Select two players who belong together</span><i>Medium</i></button>
+        <button type="button" data-hint="name"><b>Name it</b><span>Show the group's category</span><i>Big</i></button>
       </div>
       <p id="message" class="message"></p>
 
