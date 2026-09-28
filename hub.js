@@ -5,11 +5,6 @@ function saved(key) {
   try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
 }
 
-function todayKey() {
-  const d = new Date();
-  return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, "0")).join("-");
-}
-
 // One short line per game, or null for a first-time visitor.
 const PROGRESS = {
   rank() {
@@ -17,6 +12,13 @@ const PROGRESS = {
     const today = history[todayKey()];
     const played = Object.keys(history).length;
     if (today) return { text: `Today: ${today.score}/100 ✓`, done: true };
+    return { text: played ? `Today's puzzle is ready · ${played} played` : "Today's puzzle is ready", fresh: true };
+  },
+  connections() {
+    const history = saved("cx-v1")?.history || {};
+    const today = history[todayKey()];
+    const played = Object.keys(history).length;
+    if (today) return { text: today.won ? `Today: solved with ${today.mistakes} mistake${today.mistakes === 1 ? "" : "s"} ✓` : `Today: ${today.found ?? 0} of 4 groups`, done: true };
     return { text: played ? `Today's puzzle is ready · ${played} played` : "Today's puzzle is ready", fresh: true };
   },
   chain() {
@@ -35,6 +37,11 @@ const PROGRESS = {
     const top = Math.max(...Object.values(best));
     return { text: `${years.length} class${years.length === 1 ? "" : "es"} played · best ${top}/100` };
   },
+  mvp() {
+    const best = saved("mvp-best") || {};
+    const seasons = Object.keys(best);
+    return seasons.length ? { text: `${seasons.length} race${seasons.length === 1 ? "" : "s"} voted · best ${Math.max(...Object.values(best))}/100` } : null;
+  },
   snake() {
     const record = saved("sd-record") || {};
     let w = 0, l = 0;
@@ -52,6 +59,13 @@ const ART = {
       <rect x="10" y="40" width="100" height="12" rx="4" fill="var(--green)"/>
       <rect x="10" y="56" width="100" height="12" rx="4" fill="var(--red)"/>
       <rect x="10" y="72" width="100" height="12" rx="4" fill="var(--green)"/>
+    </svg>`,
+  connections: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((c) => {
+        const fill = r === 0 ? "var(--green)" : r === 1 && c < 4 ? "var(--near)" : "var(--surface-2)";
+        return `<rect x="${14 + c * 24}" y="${5 + r * 21}" width="20" height="17" rx="4" fill="${fill}"/>`;
+      }).join("")).join("")}
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">
@@ -76,6 +90,16 @@ const ART = {
         <text x="12" y="${22 + i * 20}" font-size="13" font-weight="800" fill="var(--muted)">${i + 1}</text>
         <rect x="28" y="${11 + i * 20}" width="${[80, 62, 72, 50][i]}" height="13" rx="4" fill="${i === 0 ? "var(--accent)" : "var(--surface-2)"}"/>`).join("")}
       <text x="98" y="21" text-anchor="end" font-size="9" font-weight="800" fill="var(--on-accent)">#41</text>
+    </svg>`,
+  mvp: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="30" y="8" width="60" height="74" rx="6" fill="var(--surface-2)"/>
+      <path d="M44 30 l5 5 l10 -11" stroke="var(--green)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="64" y="26" width="18" height="6" rx="3" fill="var(--muted)"/>
+      <rect x="40" y="46" width="42" height="6" rx="3" fill="var(--line)"/>
+      <rect x="40" y="58" width="42" height="6" rx="3" fill="var(--line)"/>
+      <circle cx="90" cy="16" r="12" fill="var(--accent)"/>
+      <text x="90" y="20" text-anchor="middle" font-size="10" font-weight="800" fill="var(--on-accent)">MVP</text>
     </svg>`,
   snake: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

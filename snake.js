@@ -247,7 +247,7 @@ function renderTeam(who) {
              <span class="sd-pos">${slot}</span>
              ${avatar(s.id, "xs")}
              <span class="sd-slot-body">
-               <span class="sd-slot-name">${escapeHtml(s.name)}</span>
+               <span class="sd-slot-name">${game.over ? playerLink(s.id, s.name) : escapeHtml(s.name)}</span>
                <span class="sd-slot-sub">${s.season} · ${s.teams.join("/")}</span>
              </span>
              ${game.over ? `<span class="sd-ws">${s.ws.toFixed(1)}<small> WS</small></span>` : ""}

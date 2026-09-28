@@ -163,7 +163,7 @@ function renderBoard() {
         ${game.locked ? "" : `<span class="handle" aria-hidden="true">⋮⋮</span>`}
         ${avatar(id, "md")}
         <span class="rank-body">
-          <span class="rank-name">${escapeHtml(p.name)}</span>
+          <span class="rank-name">${game.locked ? playerLink(id, p.name) : escapeHtml(p.name)}</span>
           <span class="rank-sub">Drafted #${p.pick} · ${p.team}</span>
         </span>
         ${right}
@@ -212,7 +212,7 @@ function classRow(p) {
       <span class="dr-slot">${p.pick}</span>
       ${avatar(p.id, "xs")}
       <span class="dr-who">
-        <span class="dr-name">${escapeHtml(p.name)}</span>
+        <span class="dr-name">${game.locked ? playerLink(p.id, p.name) : escapeHtml(p.name)}</span>
         <span class="dr-meta">${p.team} · ${college}</span>
       </span>
       ${action}
@@ -242,7 +242,7 @@ function renderResult() {
           <span class="rank-num">${i + 1}</span>
           ${avatar(id, "md")}
           <span class="rank-body">
-            <span class="rank-name">${escapeHtml(p.name)} ${steal}</span>
+            <span class="rank-name">${playerLink(id, p.name)} ${steal}</span>
             <span class="rank-sub">Drafted #${p.pick} · ${p.team} · ${p.ppg} PPG, ${p.rpg} RPG, ${p.apg} APG · ${p.seasons} seasons</span>
           </span>
           <span class="value">${p.ws.toFixed(1)}<small> WS</small></span>

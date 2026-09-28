@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoop Connections</title>
+  <meta name="description" content="Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. A new puzzle every day.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NBA Minigames">
+  <meta property="og:title" content="Hoop Connections · NBA Minigames">
+  <meta property="og:description" content="Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. A new puzzle every day.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/connections.html">
+  <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Hoop Connections</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <p id="status" class="status">Loading players…</p>
+
+    <section id="game" hidden>
+      <div class="cx-head">
+        <span id="kicker" class="side-label"></span>
+        <h1 class="giant">Find four groups of four.</h1>
+        <p class="meta">Every player fits exactly one group: a college, a team, an award, a career fact, or something about their name. Pick four and submit. Four mistakes and you're out.</p>
+      </div>
+
+      <ol id="solved" class="cx-solved"></ol>
+      <div id="grid" class="cx-grid" role="group" aria-label="Players"></div>
+
+      <div id="bar" class="cx-bar">
+        <span class="cx-mistakes">Mistakes left <span id="dots" class="cx-dots"></span></span>
+        <div class="cx-buttons">
+          <button type="button" id="shuffle" class="ghost">Shuffle</button>
+          <button type="button" id="deselect" class="ghost">Deselect</button>
+          <button type="button" id="submit" class="primary" disabled>Submit</button>
+        </div>
+      </div>
+      <p id="message" class="message"></p>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-title" class="giant"></h2>
+        <pre id="result-grid" class="cx-emoji" aria-hidden="true"></pre>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="share" class="primary">Share result</button>
+          <button type="button" id="practice" class="ghost">Practice puzzle</button>
+        </div>
+        <p id="share-msg" class="message good"></p>
+        <p id="next" class="meta next"></p>
+      </section>
+    </section>
+
+    <section id="stats" class="stats-wrap" hidden>
+      <span class="label">Your stats</span>
+      <div class="stat-grid">
+        <div><b id="st-played">0</b><span>Played</span></div>
+        <div><b id="st-win">–</b><span>Win %</span></div>
+        <div><b id="st-streak">0</b><span>Streak</span></div>
+        <div><b id="st-perfect">0</b><span>Perfect</span></div>
+      </div>
+    </section>
+
+    <footer>
+      <span class="brand">Hoop Connections</span>
+      <span>Same sixteen for everyone. New puzzle every day.</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="connections.js"></script>
+</body>
+</html>

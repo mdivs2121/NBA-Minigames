@@ -377,7 +377,7 @@ function render() {
       <li class="${hit ? "hit" : "miss"}">
         <span class="top"><span>#${i + 1}</span><span>${hit ? "✓" : "✕"}</span></span>
         ${avatar(id, "sm")}
-        <span class="who">${escapeHtml(name(id))}</span>
+        <span class="who">${game.over ? playerLink(id) : escapeHtml(name(id))}</span>
       </li>`
         )
         .join("")
@@ -422,7 +422,7 @@ function tile(id, { label, season, isEnd, done }) {
       ${avatar(id, "md")}
       <div class="tile-body">
         <div class="num">${label}</div>
-        <h3>${escapeHtml(name(id))}</h3>
+        <h3>${game.over ? playerLink(id) : escapeHtml(name(id))}</h3>
         ${sub}
       </div>
     </li>`;

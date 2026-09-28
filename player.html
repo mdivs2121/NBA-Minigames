@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NBA Minigames</title>
-  <meta name="description" content="Prove you know ball. Daily puzzles and quick games built on real NBA stats. No sign-up.">
+  <title>Players · NBA Minigames</title>
+  <meta name="description" content="Look up any NBA player since 1979-80: bio, awards, and every season&#x27;s stats.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
-  <meta property="og:title" content="NBA Minigames">
-  <meta property="og:description" content="Prove you know ball. Daily puzzles and quick games built on real NBA stats. No sign-up.">
-  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/">
+  <meta property="og:title" content="Players · NBA Minigames">
+  <meta property="og:description" content="Look up any NBA player since 1979-80: bio, awards, and every season&#x27;s stats.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/player.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -26,20 +26,22 @@
     <nav class="site-nav" aria-label="Games"></nav>
     <div class="rule"></div>
 
-    <header class="hub-head">
-      <span class="side-label">Pick a game</span>
-      <h1 class="giant">Prove you know ball.</h1>
-      <p class="meta">Real NBA stats, from the 1980s to today. No sign-up, no download. Your streaks and scores save on this device.</p>
-    </header>
+    <form id="search-form" class="pl-search" role="search" autocomplete="off">
+      <label for="search" class="label">Look up a player</label>
+      <input id="search" type="search" placeholder="Search 4,000+ players by name…">
+      <ol id="results" class="pl-results" hidden></ol>
+    </form>
 
-    <ol id="hub" class="hub"></ol>
+    <p id="status" class="status">Loading players…</p>
+
+    <section id="profile" hidden></section>
 
     <footer>
-      <span class="brand">NBA Minigames</span>
-      <span>New Rank the Five puzzle every day.</span>
+      <span class="brand">Players</span>
+      <span>Everyone from 1979-80 on, plus every draft pick 1989–2021.</span>
     </footer>
   </main>
   <script src="common.js"></script>
-  <script src="hub.js"></script>
+  <script src="player.js"></script>
 </body>
 </html>

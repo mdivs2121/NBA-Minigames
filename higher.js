@@ -136,6 +136,9 @@ function finish() {
   game.busy = false;
   $("choices").hidden = true;
   const best = loadBest();
+  for (const [side, id] of [["left", game.left], ["right", game.right]]) {
+    $(side).querySelector(".hl-name").innerHTML = playerLink(id);
+  }
   $("result-title").textContent = `${game.streak} in a row`;
   $("result-emoji").textContent = shareEmoji();
   const a = valueOf(game.left, game.category), b = valueOf(game.right, game.category);
@@ -197,10 +200,10 @@ function renderNumbers() {
 
 // Just photo, name, and number: anything more (seasons, games) could give
 // away the answer on some stats.
-function card(id, value) {
+function card(id, value, link = false) {
   return `
     ${avatar(id, "hl")}
-    <h2 class="hl-name">${escapeHtml(name(id))}</h2>
+    <h2 class="hl-name">${link ? playerLink(id) : escapeHtml(name(id))}</h2>
     <p class="hl-value">${value}</p>`;
 }
 

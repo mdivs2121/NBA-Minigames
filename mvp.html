@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MVP Ballot</title>
+  <meta name="description" content="A season&#x27;s top five MVP vote-getters, shuffled. Put them back in the order the voters had them.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NBA Minigames">
+  <meta property="og:title" content="MVP Ballot · NBA Minigames">
+  <meta property="og:description" content="A season&#x27;s top five MVP vote-getters, shuffled. Put them back in the order the voters had them.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/mvp.html">
+  <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">MVP Ballot</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <p id="status" class="status">Loading MVP races…</p>
+
+    <section id="game" hidden>
+      <div class="dr-head">
+        <div>
+          <span class="side-label">Cast your ballot</span>
+          <h1 id="title" class="giant"></h1>
+          <p class="meta">These five got the most MVP votes that season. Put them in the order the voters did, winner on top.</p>
+        </div>
+        <div class="dr-picker">
+          <label for="season" class="label">Season</label>
+          <div class="dr-picker-row">
+            <select id="season"></select>
+            <button type="button" id="random-season" class="ghost">Random</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rank-wrap">
+        <span class="rank-end">▲ MVP</span>
+        <ol id="ballot" class="rank-list"></ol>
+        <span class="rank-end">▼ 5th in voting</span>
+      </div>
+      <p id="tip" class="meta drag-tip">Drag the rows (or use the arrows) to set your ballot.</p>
+      <button type="button" id="lock" class="primary wide">Submit ballot</button>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-score" class="giant"></h2>
+        <p id="result-emoji" class="emoji-row" aria-hidden="true"></p>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="next" class="primary">Another season</button>
+          <button type="button" id="share" class="ghost">Share</button>
+        </div>
+        <p id="share-msg" class="message good"></p>
+      </section>
+    </section>
+
+    <footer>
+      <span class="brand">MVP Ballot</span>
+      <span>Think like a voter, not a stat sheet.</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="mvp.js"></script>
+</body>
+</html>

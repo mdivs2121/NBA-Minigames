@@ -2,7 +2,6 @@
 // hidden stat; you order them highest to lowest and get scored on how close
 // you were. The puzzle is picked from the date, so no server is needed.
 
-const FIRST_DAY = "2026-09-28";   // puzzle #1
 const FIRST_SEASON = "2005-06";   // oldest season a season category can use
 const RECOGNIZABLE_PPG = 15;      // a player needs one 15+ PPG season (20+ games) to appear
 const SEASON_MIN_GAMES = 40;
@@ -73,24 +72,6 @@ async function loadData() {
 
 // ---------- puzzle generation ----------
 
-// Small seeded random number generator (mulberry32): same seed, same numbers.
-function rng(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function hash(text) {
-  let h = 2166136261;
-  for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return h >>> 0;
-}
-
 function valueOf(id, category, season) {
   const s = data.stats[id];
   if (category.kind === "career") return s.career[category.stat] ?? null;
@@ -131,46 +112,8 @@ function makePuzzle(random) {
 
 // ---------- dates, storage ----------
 
-function todayKey() {
-  const d = new Date();
-  return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, "0")).join("-");
-}
-
-function dayNumber(key) {
-  const utc = (k) => Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10));
-  return Math.round((utc(key) - utc(FIRST_DAY)) / 86400000) + 1;
-}
-
-function loadSave() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && typeof saved === "object") return { history: {}, progress: null, ...saved };
-  } catch {}
-  return { history: {}, progress: null };
-}
-
-function writeSave(save) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(save)); } catch {}
-}
-
-// Days in a row with a finished daily puzzle, ending today (or yesterday, if
-// today's isn't played yet). Also the longest run ever.
-function streaks(history) {
-  const days = Object.keys(history).sort();
-  const next = (k) => {
-    const d = new Date(Date.UTC(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10) + 1));
-    return d.toISOString().slice(0, 10);
-  };
-  let best = 0, run = 0, prev = null;
-  for (const day of days) {
-    run = prev && next(prev) === day ? run + 1 : 1;
-    best = Math.max(best, run);
-    prev = day;
-  }
-  const today = todayKey();
-  const alive = prev === today || (prev && next(prev) === today);
-  return { current: alive ? run : 0, best };
-}
+const loadSave = () => loadDailySave(STORAGE_KEY);
+const writeSave = (save) => writeDailySave(STORAGE_KEY, save);
 
 // ---------- game flow ----------
 
@@ -332,7 +275,7 @@ function renderList() {
           ${play.locked ? "" : `<span class="handle" aria-hidden="true">⋮⋮</span>`}
           ${avatar(id, "md")}
           <span class="rank-body">
-            <span class="rank-name">${escapeHtml(name(id))}</span>
+            <span class="rank-name">${play.locked ? playerLink(id) : escapeHtml(name(id))}</span>
             ${context ? `<span class="rank-sub">${context}</span>` : ""}
           </span>
           ${value}
