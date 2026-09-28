@@ -26,9 +26,18 @@ const PROGRESS = {
     try { level = localStorage.getItem("tc-level"); } catch {}   // saved as plain text, not JSON
     return level ? { text: `Last played on ${level[0].toUpperCase()}${level.slice(1)}` } : null;
   },
+  path() {
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("cp-v1")) || {}; } catch { return {}; } })();
+    const best = Math.max(saved.easy?.best || 0, saved.hard?.best || 0);
+    return best ? { text: `Best streak: ${best}` } : null;
+  },
   higher() {
     const best = Number(saved("hl-best")) || 0;
     return best ? { text: `Best streak: ${best}` } : null;
+  },
+  resume() {
+    const best = Number(saved("br-best")) || 0;
+    return best ? { text: `Best: ${best}/10` } : null;
   },
   draft() {
     const best = saved("dr-best") || {};

@@ -105,12 +105,30 @@ const GAMES = [
     ],
   },
   {
+    page: "path.html", title: "Career Path", tag: "Guess who", art: "path", isNew: true,
+    blurb: "Name the player from nothing but the teams he played for. Every miss unlocks a clue.",
+    howto: [
+      ["Read the path", "You see every team a player suited up for, in order, with the years."],
+      ["Guess who", "Type any player. You get six tries."],
+      ["Misses unlock clues", "Position and height, then draft, career numbers, All-Star picks, and finally his initials."],
+    ],
+  },
+  {
     page: "higher.html", title: "Higher or Lower", tag: "Endless", art: "higher",
     blurb: "More career points? Fewer rebounds? Call it right to keep your streak alive. It gets tighter as you go.",
     howto: [
       ["One number shown", "The left player's career stat is showing. The right player's is hidden."],
       ["More or fewer?", "Guess whether the right player has more or fewer. The ↑ and ↓ keys work too."],
       ["Keep it going", "Every round brings a new stat, and the two numbers get closer the longer your streak runs."],
+    ],
+  },
+  {
+    page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume", isNew: true,
+    blurb: "Two anonymous careers, side by side. Pick the one worth more, then see who they were.",
+    howto: [
+      ["Two careers, no names", "You see two players' career stats and awards. The two scored about the same."],
+      ["Pick the better one", "Tap the career you think was worth more career Win Shares. A and B keys work too."],
+      ["Ten rounds", "Each pick reveals who they were. Green marks the better number in each row."],
     ],
   },
   {
@@ -179,6 +197,15 @@ const GAME_ART = {
       <circle cx="80" cy="60" r="9" fill="var(--green)"/>
       <circle cx="104" cy="20" r="11" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="3"/>
     </svg>`,
+  path: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <path d="M22 18 V72" stroke="var(--line)" stroke-width="4"/>
+      ${[["#006BB6", 14], ["#0E2240", 34], ["#C8102E", 54], ["#006BB6", 74]].map(([c, y], i) => `
+        <rect x="10" y="${y - 7}" width="24" height="14" rx="4" fill="${c}"/>
+        <rect x="42" y="${y - 4}" width="${[58, 46, 52, 38][i]}" height="8" rx="4" fill="var(--surface-2)"/>`).join("")}
+      <circle cx="100" cy="74" r="10" fill="var(--accent)"/>
+      <text x="100" y="78" text-anchor="middle" font-size="12" font-weight="800" fill="var(--on-accent)">?</text>
+    </svg>`,
   higher: `
     <svg viewBox="0 0 120 90" aria-hidden="true">
       <rect x="6" y="14" width="46" height="62" rx="8" fill="var(--surface-2)"/>
@@ -187,6 +214,14 @@ const GAME_ART = {
       <text x="91" y="56" text-anchor="middle" font-size="26" font-weight="800" fill="var(--accent)">?</text>
       <circle cx="60" cy="45" r="10" fill="var(--accent)"/>
       <text x="60" y="49" text-anchor="middle" font-size="9" font-weight="800" fill="var(--on-accent)">VS</text>
+    </svg>`,
+  resume: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[8, 64].map((x, i) => `
+        <rect x="${x}" y="10" width="48" height="70" rx="6" fill="var(--surface-2)" ${i ? 'stroke="var(--accent)" stroke-width="3"' : ""}/>
+        <circle cx="${x + 24}" cy="26" r="8" fill="var(--line)"/>
+        <text x="${x + 24}" y="30" text-anchor="middle" font-size="10" font-weight="800" fill="var(--muted)">?</text>
+        ${[42, 52, 62].map((y, j) => `<rect x="${x + 8}" y="${y}" width="${[32, 26, 30][j]}" height="5" rx="2.5" fill="${i && j === 1 ? "var(--green)" : "var(--line)"}"/>`).join("")}`).join("")}
     </svg>`,
   draft: `
     <svg viewBox="0 0 120 90" aria-hidden="true">
@@ -431,6 +466,21 @@ async function resultCanvas({ title, kicker = "", big, grid = [], lines = [] }) 
   ctx.fillStyle = color("--muted"); ctx.font = font(700, 34);
   ctx.fillText(location.host + location.pathname.replace(/[^/]*$/, ""), 90, H - 90);
   return canvas;
+}
+
+// ---------- visitor counts ----------
+// Anonymous page-view counts through GoatCounter: no cookies, nothing
+// personal. Off until ANALYTICS_CODE is set to the site's GoatCounter code.
+// Stays off on the laptop (localhost) so testing doesn't count as visits.
+
+const ANALYTICS_CODE = "";
+
+if (ANALYTICS_CODE && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://gc.zgo.at/count.js";
+  s.dataset.goatcounter = `https://${ANALYTICS_CODE}.goatcounter.com/count`;
+  document.head.appendChild(s);
 }
 
 // ---------- page setup ----------

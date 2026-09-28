@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind Résumé</title>
+  <meta name="description" content="Two anonymous NBA careers, side by side. Pick the one worth more Win Shares, then see who they were.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NBA Minigames">
+  <meta property="og:title" content="Blind Résumé · NBA Minigames">
+  <meta property="og:description" content="Two anonymous NBA careers, side by side. Pick the one worth more Win Shares, then see who they were.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/resume.html">
+  <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Blind Résumé</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <p id="status" class="status">Loading careers…</p>
+
+    <section id="game" hidden>
+      <div class="numbers hl-numbers">
+        <div><span class="label">Round</span><b id="round">1</b></div>
+        <div class="right"><span class="label">Score</span><b id="score" class="green">0</b></div>
+      </div>
+
+      <div class="br-head">
+        <span class="side-label">Which career was worth more?</span>
+        <h1 class="giant">Pick one. No names.</h1>
+        <p class="meta">Both players scored about the same, so look deeper. The answer is whoever finished with more career Win Shares.</p>
+      </div>
+
+      <div class="br-cards">
+        <button type="button" id="card-a" class="br-card" data-side="0"></button>
+        <button type="button" id="card-b" class="br-card" data-side="1"></button>
+      </div>
+
+      <div id="round-result" class="br-verdict" hidden>
+        <p id="verdict" class="message"></p>
+        <button type="button" id="next" class="primary wide">Next round</button>
+      </div>
+
+      <ol id="dots" class="br-dots" aria-label="Rounds"></ol>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-title" class="giant"></h2>
+        <p id="result-emoji" class="emoji-row" aria-hidden="true"></p>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="again" class="primary">Play again</button>
+          <button type="button" id="share" class="ghost">Share</button>
+          <button type="button" id="save-image" class="ghost">Save image</button>
+        </div>
+        <p id="share-msg" class="message good"></p>
+      </section>
+    </section>
+
+    <footer>
+      <span class="brand">Blind Résumé</span>
+      <span>Judge the career, not the name.</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="resume.js"></script>
+</body>
+</html>

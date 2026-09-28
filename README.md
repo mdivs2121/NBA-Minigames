@@ -5,6 +5,8 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Teammate Chain**: link two players through teammates in as few guesses as you can.
 - **Rank the Five**: a daily puzzle. Rank five players by a hidden stat.
 - **Higher or Lower**: does the next player have more or fewer? Keep the streak going.
+- **Career Path**: name the player from his team history; misses unlock clues.
+- **Blind Résumé**: two anonymous careers; pick the one worth more Win Shares.
 - **Draft Redo**: re-draft a whole class (1989–2021), scored on career Win Shares.
 - **Hoop Connections**: a daily puzzle. Sort 16 players into 4 hidden groups.
 - **MVP Ballot**: put a season's top five MVP vote-getters in voting order.
