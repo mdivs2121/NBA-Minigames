@@ -70,37 +70,74 @@ function showLoadError(err) {
     "run `python3 -m http.server` in this folder, then visit http://localhost:8000";
 }
 
-// ---------- site menu ----------
-// Every page has an empty <nav class="site-nav">; this fills it in. To add a
-// game, add it here.
+// ---------- games ----------
+// Every game, in menu order. The home page cards, the Games menu, and each
+// game's how-to popup all come from here, so a new game needs one entry.
+//   daily: the localStorage key of a daily puzzle's saved results
+//   howto: three [title, text] steps for the "How to play" popup
 const GAMES = [
   {
-    page: "rank.html", title: "Rank the Five", tag: "Daily puzzle", art: "rank",
+    page: "rank.html", title: "Rank the Five", tag: "Daily puzzle", art: "rank", daily: "r5-v1",
     blurb: "Five players, one hidden stat. Put them in order from highest to lowest. Everyone gets the same puzzle each day.",
+    howto: [
+      ["Reveal the stat", "Five players show up. Tap Reveal to see today's hidden stat."],
+      ["Rank them", "Drag the rows, or tap the arrows, from highest at the top to lowest at the bottom."],
+      ["Lock in", "🟩 right spot · 🟨 one off · 🟥 two or more off. One try a day, then share your score."],
+    ],
   },
   {
-    page: "connections.html", title: "Hoop Connections", tag: "Daily puzzle", art: "connections",
+    page: "connections.html", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1",
     blurb: "Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. Find all four.",
+    howto: [
+      ["Pick four", "Tap four players you think share something: a college, a team, an award, a career fact, or their name."],
+      ["Submit", "Right, and the group locks in. “One away…” means three of your four fit. Four mistakes ends it."],
+      ["Easiest to hardest", "🟩 colleges · 🟨 teams and awards · 🟧 career facts · 🟥 names. Every player fits exactly one group."],
+    ],
   },
   {
     page: "chain.html", title: "Teammate Chain", tag: "Puzzle", art: "chain",
     blurb: "Connect two players through guys who played with them. Find the link in as few guesses as you can.",
+    howto: [
+      ["Two players", "You get a start player and a target player."],
+      ["Name a teammate", "Type someone who played with the last player in your chain: same team, same season."],
+      ["Reach the target", "You're done when someone in your chain played with the target. Stuck? Hint describes a mystery teammate."],
+    ],
   },
   {
     page: "higher.html", title: "Higher or Lower", tag: "Endless", art: "higher",
     blurb: "More career points? Fewer rebounds? Call it right to keep your streak alive. It gets tighter as you go.",
+    howto: [
+      ["One number shown", "The left player's career stat is showing. The right player's is hidden."],
+      ["More or fewer?", "Guess whether the right player has more or fewer. The ↑ and ↓ keys work too."],
+      ["Keep it going", "Every round brings a new stat, and the two numbers get closer the longer your streak runs."],
+    ],
   },
   {
     page: "draft.html", title: "Draft Redo", tag: "Hindsight", art: "draft",
     blurb: "Pick any draft class from 1989 to 2021 and build the top 10 it should have been.",
+    howto: [
+      ["Pick a class", "Choose any draft from 1989 to 2021, or hit Random. The whole class is listed."],
+      ["Build your top 10", "Add 10 players from the class, then drag them into the order they should have gone."],
+      ["Lock in", "You're scored on career Win Shares: points for each real top-10 player, more for the exact spot."],
+    ],
   },
   {
     page: "mvp.html", title: "MVP Ballot", tag: "Voting", art: "mvp",
     blurb: "A season's top five MVP vote-getters, shuffled. Put them back in the order the voters had them.",
+    howto: [
+      ["Five finalists", "You get the top five MVP vote-getters from one season, shuffled."],
+      ["Set your ballot", "Drag them into the order the voters had them, winner on top."],
+      ["Submit", "See each player's real share of the vote. 🟩 right spot · 🟨 one off · 🟥 two or more off."],
+    ],
   },
   {
     page: "snake.html", title: "Snake Draft", tag: "Versus", art: "snake",
     blurb: "Draft real player-seasons against a computer GM. Box scores are shown, Win Shares decide the winner.",
+    howto: [
+      ["Snake order", "You and a computer GM take turns (A, B, B, A, A…) until each of you has five."],
+      ["Fill a lineup", "You need 2 guards, 2 forwards, and a center, picked from 30 real seasons."],
+      ["Win Shares decide", "Cards show box scores. Hidden Win Shares decide the winner, so watch for high-scoring traps."],
+    ],
   },
 ];
 
@@ -113,18 +150,200 @@ const BALL_ICON = `
     </g>
   </svg>`;
 
+const HERE = location.pathname.split("/").pop() || "index.html";   // index.html is the home page
+const THIS_GAME = GAMES.find((g) => g.page === HERE);
+
+// Small drawings of each game, in the site's colors (home page cards and how-to popups).
+const GAME_ART = {
+  rank: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="10" y="8" width="100" height="12" rx="4" fill="var(--green)"/>
+      <rect x="10" y="24" width="100" height="12" rx="4" fill="var(--near)"/>
+      <rect x="10" y="40" width="100" height="12" rx="4" fill="var(--green)"/>
+      <rect x="10" y="56" width="100" height="12" rx="4" fill="var(--red)"/>
+      <rect x="10" y="72" width="100" height="12" rx="4" fill="var(--green)"/>
+    </svg>`,
+  connections: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((c) => {
+        const fill = r === 0 ? "var(--green)" : r === 1 && c < 4 ? "var(--near)" : "var(--surface-2)";
+        return `<rect x="${14 + c * 24}" y="${5 + r * 21}" width="20" height="17" rx="4" fill="${fill}"/>`;
+      }).join("")).join("")}
+    </svg>`,
+  chain: `
+    <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">
+      <path d="M20 70 L50 30 L80 60 L104 20" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 9"/>
+      <circle cx="20" cy="70" r="11" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="3"/>
+      <circle cx="50" cy="30" r="9" fill="var(--green)"/>
+      <circle cx="80" cy="60" r="9" fill="var(--green)"/>
+      <circle cx="104" cy="20" r="11" fill="var(--surface-2)" stroke="var(--accent)" stroke-width="3"/>
+    </svg>`,
+  higher: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="6" y="14" width="46" height="62" rx="8" fill="var(--surface-2)"/>
+      <rect x="68" y="14" width="46" height="62" rx="8" fill="none" stroke="var(--accent)" stroke-width="3"/>
+      <text x="29" y="54" text-anchor="middle" font-size="18" font-weight="800" fill="var(--text)">27.1</text>
+      <text x="91" y="56" text-anchor="middle" font-size="26" font-weight="800" fill="var(--accent)">?</text>
+      <circle cx="60" cy="45" r="10" fill="var(--accent)"/>
+      <text x="60" y="49" text-anchor="middle" font-size="9" font-weight="800" fill="var(--on-accent)">VS</text>
+    </svg>`,
+  draft: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[0, 1, 2, 3].map((i) => `
+        <text x="12" y="${22 + i * 20}" font-size="13" font-weight="800" fill="var(--muted)">${i + 1}</text>
+        <rect x="28" y="${11 + i * 20}" width="${[80, 62, 72, 50][i]}" height="13" rx="4" fill="${i === 0 ? "var(--accent)" : "var(--surface-2)"}"/>`).join("")}
+      <text x="98" y="21" text-anchor="end" font-size="9" font-weight="800" fill="var(--on-accent)">#41</text>
+    </svg>`,
+  mvp: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="30" y="8" width="60" height="74" rx="6" fill="var(--surface-2)"/>
+      <path d="M44 30 l5 5 l10 -11" stroke="var(--green)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="64" y="26" width="18" height="6" rx="3" fill="var(--muted)"/>
+      <rect x="40" y="46" width="42" height="6" rx="3" fill="var(--line)"/>
+      <rect x="40" y="58" width="42" height="6" rx="3" fill="var(--line)"/>
+      <circle cx="90" cy="16" r="12" fill="var(--accent)"/>
+      <text x="90" y="20" text-anchor="middle" font-size="10" font-weight="800" fill="var(--on-accent)">MVP</text>
+    </svg>`,
+  snake: `
+    <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">
+      <path d="M14 18 H96 Q108 18 108 30 Q108 42 96 42 H24 Q12 42 12 54 Q12 66 24 66 H106" stroke="var(--line)" stroke-width="10" stroke-linecap="round"/>
+      ${[[14, 18, "accent"], [52, 18, "muted"], [96, 18, "muted"], [70, 42, "accent"], [30, 42, "accent"], [40, 66, "muted"], [80, 66, "accent"]]
+        .map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="6" fill="var(--${c})"/>`).join("")}
+    </svg>`,
+};
+
+
+// ---------- site menu ----------
+// Every page has an empty <nav class="site-nav">: logo, a Games dropdown, and Players.
+
 function renderNav() {
   const nav = document.querySelector(".site-nav");
   if (!nav) return;
-  const here = location.pathname.split("/").pop() || "index.html";   // index.html is the hub
   nav.innerHTML = `
     <a href="index.html" class="site-brand">${BALL_ICON}<span>NBA <b>Minigames</b></span></a>
-    <div class="game-tabs">
-      ${GAMES.map((g) => `<a href="${g.page}"${g.page === here ? ' aria-current="page"' : ""}>${g.title}</a>`).join("")}
-      <a href="player.html" class="tab-players"${here === "player.html" ? ' aria-current="page"' : ""}>Players</a>
+    <div class="nav-right">
+      <div class="games-menu">
+        <button type="button" id="games-button" class="menu-button" aria-expanded="false" aria-controls="games-panel">
+          ${THIS_GAME ? escapeHtml(THIS_GAME.title) : "Games"} <span aria-hidden="true">▾</span>
+        </button>
+        <div id="games-panel" class="games-panel" hidden>
+          <a href="index.html" class="panel-home">All games</a>
+          ${GAMES.map((g) => `
+            <a href="${g.page}"${g.page === HERE ? ' aria-current="page"' : ""}>
+              <span class="panel-title">${escapeHtml(g.title)}</span>
+              <span class="panel-tag">${escapeHtml(g.tag)}</span>
+            </a>`).join("")}
+        </div>
+      </div>
+      <a href="player.html" class="nav-link"${HERE === "player.html" ? ' aria-current="page"' : ""}>Players</a>
     </div>`;
+
+  const button = $("games-button"), panel = $("games-panel");
+  const setOpen = (open) => {
+    panel.hidden = !open;
+    button.setAttribute("aria-expanded", String(open));
+    if (open) (panel.querySelector('[aria-current="page"]') || panel.querySelector("a")).focus();
+  };
+  button.addEventListener("click", () => setOpen(panel.hidden));
+  document.addEventListener("click", (e) => {
+    if (!panel.hidden && !e.target.closest(".games-menu")) setOpen(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !panel.hidden) { setOpen(false); button.focus(); }
+  });
 }
-renderNav();
+
+// ---------- how to play ----------
+// A "?" button in each game's top bar opens a three-step guide. It also opens
+// by itself the first time someone visits that game.
+
+function setupHowTo() {
+  const topbar = document.querySelector(".topbar");
+  if (!THIS_GAME?.howto || !topbar) return;
+  topbar.insertAdjacentHTML("beforeend",
+    `<button type="button" id="howto-button" class="howto-button" aria-label="How to play ${escapeHtml(THIS_GAME.title)}">?</button>`);
+  document.body.insertAdjacentHTML("beforeend", `
+    <dialog id="howto" class="howto" aria-labelledby="howto-title">
+      <div class="howto-art">${GAME_ART[THIS_GAME.art] || ""}</div>
+      <span class="label">How to play</span>
+      <h2 id="howto-title">${escapeHtml(THIS_GAME.title)}</h2>
+      <ol class="howto-steps">
+        ${THIS_GAME.howto.map(([title, text], i) => `
+          <li><span class="howto-num">${i + 1}</span><span><b>${escapeHtml(title)}</b>${escapeHtml(text)}</span></li>`).join("")}
+      </ol>
+      <button type="button" id="howto-close" class="primary wide">Let's play</button>
+    </dialog>`);
+  const dialog = $("howto");
+  const open = () => { if (!dialog.open) dialog.showModal?.(); };
+  $("howto-button").addEventListener("click", open);
+  $("howto-close").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });   // click outside the card
+
+  const key = `howto-seen:${THIS_GAME.page}`;
+  let seen = false;
+  try { seen = Boolean(localStorage.getItem(key)); localStorage.setItem(key, "1"); } catch {}
+  if (!seen) open();
+}
+
+// ---------- sharing ----------
+// On phones, open the share menu (Messages, Instagram, ...); elsewhere, copy.
+// The game's link goes at the end so friends can tap straight in.
+
+async function shareResult(text, messageEl) {
+  const link = location.href.split(/[?#]/)[0];
+  const full = `${text}\n${link}`;
+  if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+    try { await navigator.share({ text: full }); return; }
+    catch (err) { if (err.name === "AbortError") return; }   // they closed the menu
+  }
+  try {
+    await navigator.clipboard.writeText(full);
+    messageEl.textContent = "Copied! Paste it in the group chat.";
+  } catch {
+    messageEl.textContent = full;   // clipboard blocked: show it to copy by hand
+  }
+}
+
+// ---------- confetti ----------
+// A short burst for perfect scores and big wins. Skipped for people who've
+// asked their device for less motion.
+
+function celebrate() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const canvas = document.createElement("canvas");
+  canvas.className = "confetti";
+  canvas.setAttribute("aria-hidden", "true");
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const w = (canvas.width = innerWidth * dpr), h = (canvas.height = innerHeight * dpr);
+  const colors = ["#ff6b1a", "#ffb43a", "#36e2a4", "#ffc445", "#ff5a73", "#f6f3ee"];
+  const bits = Array.from({ length: 140 }, () => ({
+    x: w / 2 + (Math.random() - 0.5) * w * 0.3, y: h * 0.35,
+    vx: (Math.random() - 0.5) * 22 * dpr, vy: (-Math.random() * 18 - 6) * dpr,
+    size: (6 + Math.random() * 6) * dpr, spin: Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
+  }));
+  const start = performance.now();
+  const frame = (now) => {
+    const t = now - start;
+    ctx.clearRect(0, 0, w, h);
+    for (const b of bits) {
+      b.vy += 0.55 * dpr; b.vx *= 0.99; b.x += b.vx; b.y += b.vy; b.spin += 0.2;
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.spin);
+      ctx.globalAlpha = Math.max(0, 1 - t / 1800);
+      ctx.fillStyle = b.color;
+      ctx.fillRect(-b.size / 2, -b.size / 4, b.size, b.size / 2);
+      ctx.restore();
+    }
+    if (t < 1800) requestAnimationFrame(frame);
+    else canvas.remove();
+  };
+  requestAnimationFrame(frame);
+}
+
+// ---------- page setup ----------
 
 // Credit line under every page's footer.
 document.querySelector("footer")?.insertAdjacentHTML(
@@ -132,6 +351,21 @@ document.querySelector("footer")?.insertAdjacentHTML(
   `<p class="credit">Stats from Basketball-Reference via the Kaggle dataset “NBA Stats (1947-present)”.
    Headshots from NBA.com and Basketball-Reference. A fan project, not affiliated with the NBA.</p>`
 );
+
+// Accessibility: a skip link, and screen readers announce game messages as they change.
+{
+  const main = document.querySelector("main");
+  if (main) {
+    main.id ||= "main";
+    document.body.insertAdjacentHTML("afterbegin", `<a class="skip-link" href="#${main.id}">Skip to the game</a>`);
+  }
+}
+for (const id of ["message", "share-msg", "state", "status"]) {
+  document.getElementById(id)?.setAttribute("aria-live", "polite");
+}
+
+renderNav();
+setupHowTo();
 
 // ---------- drag to reorder ----------
 // For a list whose draggable rows carry data-index. Pointer events cover mouse

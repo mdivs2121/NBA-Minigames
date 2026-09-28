@@ -137,7 +137,10 @@ function submit() {
     play.solved.push(hit);
     play.selected.clear();
     say(`✓ ${play.groups[hit].label}`, "good");
-    if (play.solved.length === 4) finish(true);
+    if (play.solved.length === 4) {
+      finish(true);
+      if (play.mistakes === 0) celebrate();
+    }
   } else {
     play.mistakes++;
     say(counts.includes(3) ? "One away…" : "Not a group.", "bad");
@@ -196,12 +199,7 @@ function shareText() {
 
 async function share() {
   const text = shareText();
-  try {
-    await navigator.clipboard.writeText(text);
-    $("share-msg").textContent = "Copied! Paste it in the group chat.";
-  } catch {
-    $("share-msg").textContent = text;
-  }
+  await shareResult(text, $("share-msg"));
 }
 
 function say(text, kind = "") {

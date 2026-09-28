@@ -136,6 +136,7 @@ function finish() {
   game.busy = false;
   $("choices").hidden = true;
   const best = loadBest();
+  if (game.streak >= 5 && game.streak >= best) celebrate();   // a new best worth cheering
   for (const [side, id] of [["left", game.left], ["right", game.right]]) {
     $(side).querySelector(".hl-name").innerHTML = playerLink(id);
   }
@@ -158,12 +159,7 @@ function shareEmoji() {
 
 async function share() {
   const text = `Higher or Lower 🏀\n${shareEmoji()}\n${game.streak} in a row`;
-  try {
-    await navigator.clipboard.writeText(text);
-    $("share-msg").textContent = "Copied! Paste it in the group chat.";
-  } catch {
-    $("share-msg").textContent = text;
-  }
+  await shareResult(text, $("share-msg"));
 }
 
 function loadBest() {

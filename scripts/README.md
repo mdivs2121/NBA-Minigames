@@ -1,0 +1,35 @@
+# Data build scripts
+
+These Python scripts turn the Kaggle CSVs into the JSON files in `../data/`
+that the website loads. Run them after downloading new data; the site itself
+needs no Python.
+
+## Setup
+
+1. `python3 -m pip install pandas nba_api`
+2. Download the Kaggle dataset **"NBA Stats (1947-present)"** by Sumitro Datta and
+   put its folder at `scripts/Stats Folder/` (or set `NBA_STATS_DIR` to wherever it is).
+3. Optional, for `build_photos.py` only: the older Kaggle **"NBA Database"**
+   (wyattowalsh/basketball), unzipped at `scripts/archive/` (or set `NBA_ARCHIVE_DIR`).
+   It's used only to tell apart players who share a name.
+
+The CSVs aren't in the repo; they're large and not ours to redistribute.
+
+## Run
+
+From this folder, in this order (later scripts read earlier output):
+
+```bash
+python3 build_data.py              # players, seasons, rosters, teammate graph
+python3 build_chain_data.py        # compact data for Teammate Chain
+python3 build_photos.py            # NBA.com headshot IDs (checks every photo; ~2 min)
+python3 build_rank_data.py         # Rank the Five, Higher or Lower
+python3 build_draft_data.py        # Draft Redo
+python3 build_snake_data.py        # Snake Draft
+python3 build_mvp_data.py          # MVP Ballot
+python3 build_connections_data.py  # Hoop Connections
+python3 build_player_pages.py      # player pages
+```
+
+Each script writes straight into `../data/`. Commit and push, and the live site
+updates. Heads-up: new data changes which daily puzzles people get.

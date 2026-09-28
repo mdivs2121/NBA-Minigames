@@ -40,20 +40,22 @@ const game = {
 
 // ---------- data ----------
 
+// chain.json (from scripts/build_chain_data.py) numbers every player and
+// stores teammates as gaps between sorted numbers; unpack it back into
+// playerId -> teammates and playerId -> seasons.
 async function loadData() {
-  const [, graph, playerSeasons] = await Promise.all([
-    loadCommon(),
-    fetchJson("teammate_graph"),
-    fetchJson("player_seasons"),
-  ]);
-  data.graph = graph;
-
-  for (const ps of playerSeasons) {
-    (data.seasons[ps.playerId] ||= []).push(ps);
-  }
-  for (const list of Object.values(data.seasons)) {
-    list.sort((a, b) => a.season.localeCompare(b.season));
-  }
+  const [, chain] = await Promise.all([loadCommon(), fetchJson("chain")]);
+  const { ids } = chain;
+  ids.forEach((id, i) => {
+    let n = 0;
+    data.graph[id] = chain.graph[i].map((gap) => ids[(n += gap)]);
+    data.seasons[id] = chain.seasons[i].map(([season, teams, games, ppg, rpg, apg]) => ({
+      season,
+      teams: teams.split("/"),
+      stats: { games, ppg, rpg, apg },
+    }));
+  });
+  const graph = data.graph;
 
   const options = [];
   for (const id of Object.keys(graph)) {
@@ -290,6 +292,7 @@ function finish(solved) {
   const plural = (n) => `${n} guess${n === 1 ? "" : "es"}`;
 
   $("result").classList.toggle("lose", !solved);
+  if (solved && extra <= 0) celebrate();
   if (solved) {
     $("result-kicker").textContent = extra <= 0 ? "Perfect chain" : "Chain complete";
     $("result-title").textContent = plural(game.guesses);

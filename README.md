@@ -11,7 +11,8 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Snake Draft**: draft single player-seasons against a computer GM.
 - **Players**: a page for every player since 1979-80, with bio, honors, and season stats.
 
-Plain HTML, CSS, and JavaScript, no build step. The JSON in `data/` is made by Python
-scripts from the Kaggle dataset "NBA Stats (1947-present)".
+Plain HTML, CSS, and JavaScript, no build step. The JSON in `data/` is made by the
+Python scripts in [`scripts/`](scripts/) from the Kaggle dataset "NBA Stats (1947-present)";
+see that folder's README to rebuild it.
 
 To run locally: `python3 -m http.server` in this folder, then open http://localhost:8000.

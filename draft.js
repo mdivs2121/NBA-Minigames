@@ -92,6 +92,7 @@ function lockIn() {
   game.locked = true;
   game.result = scoreOf(game.board, game.truth);
   saveBest(game.result.score);
+  if (game.result.score >= 80) celebrate();   // "GM of the year"
   render();
   $("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -110,12 +111,7 @@ function saveBest(score) {
 async function share() {
   const { score, emoji } = game.result;
   const text = `Draft Redo · ${game.year} class\n${emoji}\n${score}/100`;
-  try {
-    await navigator.clipboard.writeText(text);
-    $("share-msg").textContent = "Copied! Paste it in the group chat.";
-  } catch {
-    $("share-msg").textContent = text;
-  }
+  await shareResult(text, $("share-msg"));
 }
 
 // ---------- rendering ----------

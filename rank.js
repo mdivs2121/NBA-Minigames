@@ -176,6 +176,7 @@ function lockIn() {
     save.progress = null;
     writeSave(save);
   }
+  if (play.result.score === 100) celebrate();
   render();
   $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -209,12 +210,7 @@ function shareText() {
 
 async function share() {
   const text = shareText();
-  try {
-    await navigator.clipboard.writeText(text);
-    $("share-msg").textContent = "Copied! Paste it in the group chat.";
-  } catch {
-    $("share-msg").textContent = text;   // clipboard blocked: show it to copy by hand
-  }
+  await shareResult(text, $("share-msg"));
 }
 
 // ---------- rendering ----------

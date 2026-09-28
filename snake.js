@@ -171,6 +171,7 @@ function finish() {
   else if (you < bot) r.l++;
   else r.t = (r.t || 0) + 1;
   try { localStorage.setItem(RECORD_KEY, JSON.stringify(record)); } catch {}
+  if (you > bot && game.level !== "rookie") celebrate();
 }
 
 function loadRecord() {
@@ -185,12 +186,7 @@ async function share() {
   const verdict = you > bot ? "Won" : you < bot ? "Lost" : "Tied";
   const five = teamOf("you").map((s) => `${lastName(s.name)} ${shortSeason(s.season)}`).join(", ");
   const text = `Snake Draft 🐍🏀 vs ${LEVELS[game.level].name}\n${verdict} ${a}–${b}\n${five}`;
-  try {
-    await navigator.clipboard.writeText(text);
-    $("share-msg").textContent = "Copied! Paste it in the group chat.";
-  } catch {
-    $("share-msg").textContent = text;
-  }
+  await shareResult(text, $("share-msg"));
 }
 
 // ---------- rendering ----------

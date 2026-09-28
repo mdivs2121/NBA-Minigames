@@ -75,6 +75,7 @@ function lockIn() {
     best[game.season] = game.result.score;
     try { localStorage.setItem(BEST_KEY, JSON.stringify(best)); } catch {}
   }
+  if (game.result.score === 100) celebrate();
   render();
   $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -86,12 +87,7 @@ function loadBest() {
 async function share() {
   const { score, emoji } = game.result;
   const text = `MVP Ballot · ${game.season}\n${emoji} ${score}/100`;
-  try {
-    await navigator.clipboard.writeText(text);
-    $("share-msg").textContent = "Copied! Paste it in the group chat.";
-  } catch {
-    $("share-msg").textContent = text;
-  }
+  await shareResult(text, $("share-msg"));
 }
 
 // ---------- rendering ----------

@@ -1,3 +1,6 @@
 .DS_Store
 _*.html
 _*.js
+scripts/Stats Folder
+scripts/archive
+__pycache__/
