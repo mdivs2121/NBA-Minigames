@@ -4,6 +4,9 @@
 const ROUNDS = 10;
 const PPG_WITHIN = 3;          // the two players scored within 3 PPG of each other…
 const MIN_WS_GAP = 0.15;       // …but one was worth at least 15% more Win Shares
+// Same position or one step apart (PG vs SG, PF vs C), never a center vs a guard.
+const POSITION_STEP = { PG: 1, SG: 2, SF: 3, PF: 4, C: 5 };
+const similarPosition = (a, b) => Math.abs(POSITION_STEP[a.pos] - POSITION_STEP[b.pos]) <= 1;
 const BEST_KEY = "br-best";
 
 // [label, the number to compare, how to show it]
@@ -46,13 +49,14 @@ async function loadData() {
 
 const random = (list) => list[Math.floor(Math.random() * list.length)];
 
-// Two careers with similar scoring and a clear Win Shares winner.
+// Two careers at similar positions with similar scoring and a clear Win Shares winner.
 function pickPair() {
   for (let tries = 0; tries < 2000; tries++) {
     const a = random(data.careers);
     if (game.used.has(a.id)) continue;
     const matches = data.careers.filter((b) =>
       b.id !== a.id && !game.used.has(b.id) &&
+      similarPosition(a, b) &&
       Math.abs(b.ppg - a.ppg) <= PPG_WITHIN &&
       Math.abs(b.ws - a.ws) / Math.max(a.ws, b.ws) >= MIN_WS_GAP);
     if (!matches.length) continue;
@@ -147,7 +151,7 @@ function render() {
     card.innerHTML = `
       <span class="br-who">
         ${revealed ? avatar(c.id, "md") : `<span class="br-mystery">${side ? "B" : "A"}</span>`}
-        <span class="br-name">${revealed ? escapeHtml(c.name) : `Player ${side ? "B" : "A"}`}</span>
+        <span class="br-name">${revealed ? escapeHtml(c.name) : `Player ${side ? "B" : "A"}`}<small>${c.pos}</small></span>
       </span>
       <span class="br-rows">
         ${ROWS.map(([label, get, show = (v) => v]) => {

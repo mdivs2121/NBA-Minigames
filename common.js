@@ -126,7 +126,7 @@ const GAMES = [
     page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume", isNew: true,
     blurb: "Two anonymous careers, side by side. Pick the one worth more, then see who they were.",
     howto: [
-      ["Two careers, no names", "You see two players' career stats and awards. The two scored about the same."],
+      ["Two careers, no names", "You see two players' career stats and awards. They play similar positions and scored about the same."],
       ["Pick the better one", "Tap the career you think was worth more career Win Shares. A and B keys work too."],
       ["Ten rounds", "Each pick reveals who they were. Green marks the better number in each row."],
     ],

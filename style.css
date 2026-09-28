@@ -1613,3 +1613,4 @@ main { animation: page-in 0.3s ease-out; }
   .br-row { padding: 4px 4px; font-size: 0.78rem; }
   .br-name { font-size: 1rem; }
 }
+.br-name small { display: block; margin-top: 2px; color: var(--muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; }
