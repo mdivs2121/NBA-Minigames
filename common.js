@@ -67,11 +67,26 @@ function showLoadError(err) {
 // Every page has an empty <nav class="site-nav">; this fills it in. To add a
 // game, add it here.
 const GAMES = [
-  { page: "index.html", title: "Teammate Chain" },
-  { page: "rank.html", title: "Rank the Five" },
-  { page: "higher.html", title: "Higher or Lower" },
-  { page: "draft.html", title: "Draft Redo" },
-  { page: "snake.html", title: "Snake Draft" },
+  {
+    page: "rank.html", title: "Rank the Five", tag: "Daily puzzle", art: "rank",
+    blurb: "Five players, one hidden stat. Put them in order from highest to lowest. Everyone gets the same puzzle each day.",
+  },
+  {
+    page: "chain.html", title: "Teammate Chain", tag: "Puzzle", art: "chain",
+    blurb: "Connect two players through guys who played with them. Find the link in as few guesses as you can.",
+  },
+  {
+    page: "higher.html", title: "Higher or Lower", tag: "Endless", art: "higher",
+    blurb: "More career points? Fewer rebounds? Call it right to keep your streak alive. It gets tighter as you go.",
+  },
+  {
+    page: "draft.html", title: "Draft Redo", tag: "Hindsight", art: "draft",
+    blurb: "Pick any draft class from 1989 to 2021 and build the top 10 it should have been.",
+  },
+  {
+    page: "snake.html", title: "Snake Draft", tag: "Versus", art: "snake",
+    blurb: "Draft real player-seasons against a computer GM. Box scores are shown, Win Shares decide the winner.",
+  },
 ];
 
 const BALL_ICON = `
@@ -86,7 +101,7 @@ const BALL_ICON = `
 function renderNav() {
   const nav = document.querySelector(".site-nav");
   if (!nav) return;
-  const here = location.pathname.split("/").pop() || "index.html";
+  const here = location.pathname.split("/").pop() || "index.html";   // index.html is the hub
   nav.innerHTML = `
     <a href="index.html" class="site-brand">${BALL_ICON}<span>NBA <b>Minigames</b></span></a>
     <div class="game-tabs">

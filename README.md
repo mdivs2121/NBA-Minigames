@@ -1,6 +1,6 @@
 # NBA Minigames
 
-Five browser games built on NBA stats, 2005-06 to 2025-26 (and further back for Draft Redo and Snake Draft):
+A home page and five browser games built on NBA stats, 2005-06 to 2025-26 (and further back for Draft Redo and Snake Draft):
 
 - **Teammate Chain**: link two players through teammates in as few guesses as you can.
 - **Rank the Five**: a daily puzzle. Rank five players by a hidden stat.
