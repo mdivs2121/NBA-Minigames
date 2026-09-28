@@ -76,7 +76,7 @@ def main():
     teams = per_game[~is_summary].groupby(["player_id", "season"])["team"].apply(list)
     per_game = one_row_per_season(per_game)
 
-    out = {pid: {"career": {}, "seasons": {}} for pid in ids}
+    out = {pid: {"career": {}, "seasons": {}} for pid in sorted(ids)}   # sorted: same file every run
 
     career = totals.groupby("player_id")[list(CAREER_COLUMNS)].sum(min_count=1)
     seasons_played = totals.groupby("player_id")["season"].nunique()
