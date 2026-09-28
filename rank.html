@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rank the Five</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Rank the Five</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <p id="status" class="status">Loading players…</p>
+
+    <!-- Before the category is revealed -->
+    <section id="intro" class="intro" hidden>
+      <span id="intro-kicker" class="label"></span>
+      <h1 class="giant">Five players.<br>One stat.</h1>
+      <p class="meta">Everyone gets the same five players today. The stat stays hidden until you reveal it. Then drag them from highest to lowest and lock in.</p>
+      <ol id="intro-players" class="intro-players"></ol>
+      <button type="button" id="reveal" class="primary wide">Reveal today's stat</button>
+    </section>
+
+    <!-- Ranking -->
+    <section id="board" hidden>
+      <div class="category">
+        <span id="category-kicker" class="side-label"></span>
+        <h1 id="category-title" class="giant"></h1>
+        <p id="category-detail" class="meta"></p>
+      </div>
+
+      <div class="rank-wrap">
+        <span class="rank-end">▲ Highest</span>
+        <ol id="rank-list" class="rank-list"></ol>
+        <span class="rank-end">▼ Lowest</span>
+      </div>
+      <p id="drag-tip" class="meta drag-tip">Drag the rows (or use the arrows) to put them in order.</p>
+
+      <button type="button" id="lock" class="primary wide">Lock in</button>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-score" class="giant"></h2>
+        <p id="result-emoji" class="emoji-row" aria-hidden="true"></p>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="share" class="primary">Share result</button>
+          <button type="button" id="practice" class="ghost">Practice round</button>
+        </div>
+        <p id="share-msg" class="message good"></p>
+        <p id="next" class="meta next"></p>
+      </section>
+    </section>
+
+    <section id="stats" class="stats-wrap" hidden>
+      <span class="label">Your stats</span>
+      <div class="stat-grid">
+        <div><b id="st-played">0</b><span>Played</span></div>
+        <div><b id="st-avg">–</b><span>Avg score</span></div>
+        <div><b id="st-streak">0</b><span>Streak</span></div>
+        <div><b id="st-max">0</b><span>Best streak</span></div>
+      </div>
+      <span class="label">Players in the right spot</span>
+      <ol id="st-dist" class="dist"></ol>
+    </section>
+
+    <footer>
+      <span class="brand">Rank the Five</span>
+      <span>Same five for everyone. New puzzle every day.</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="rank.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snake Draft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wide-main">
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Snake Draft</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <nav class="difficulty" aria-label="Opponent">
+      <button type="button" data-level="rookie">Rookie GM</button>
+      <button type="button" data-level="allstar">All-Star GM</button>
+      <button type="button" data-level="hof">Hall of Fame GM</button>
+    </nav>
+
+    <p id="status" class="status">Loading seasons…</p>
+
+    <section id="game" hidden>
+      <div class="sd-head">
+        <h1 class="giant">Draft a starting five.</h1>
+        <p id="intro" class="meta"></p>
+      </div>
+
+      <ol id="order" class="sd-order" aria-label="Pick order"></ol>
+
+      <div class="sd-teams">
+        <section class="sd-team">
+          <div class="sd-team-head"><span class="label">Your five</span><b id="you-total"></b></div>
+          <ol id="you" class="sd-slots"></ol>
+        </section>
+        <section class="sd-team">
+          <div class="sd-team-head"><span id="bot-name" class="label"></span><b id="bot-total"></b></div>
+          <ol id="bot" class="sd-slots"></ol>
+        </section>
+      </div>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-score" class="giant"></h2>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="again" class="primary">Draft again</button>
+          <button type="button" id="share" class="ghost">Share</button>
+        </div>
+        <p id="share-msg" class="message good"></p>
+      </section>
+
+      <section class="sd-pool-wrap">
+        <div class="sd-pool-head">
+          <span class="label">The pool · 30 seasons</span>
+          <div id="filters" class="sd-filters">
+            <button type="button" data-filter="all" aria-pressed="true">All</button>
+            <button type="button" data-filter="G">Guards</button>
+            <button type="button" data-filter="F">Forwards</button>
+            <button type="button" data-filter="C">Centers</button>
+          </div>
+        </div>
+        <ol id="pool" class="sd-pool"></ol>
+      </section>
+    </section>
+
+    <footer>
+      <span class="brand">Snake Draft</span>
+      <span>Win Shares decide it. Box scores can lie.</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="snake.js"></script>
+</body>
+</html>

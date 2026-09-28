@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teammate Chain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Teammate Chain</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <nav class="difficulty" aria-label="Difficulty">
+      <button type="button" data-level="easy">Easy</button>
+      <button type="button" data-level="medium">Medium</button>
+      <button type="button" data-level="hard">Hard</button>
+    </nav>
+
+    <p id="status" class="status">Loading players…</p>
+
+    <section id="game" hidden>
+      <div class="matchup">
+        <div class="side">
+          <div id="start-photo" class="side-photo"></div>
+          <div>
+            <span class="side-label">From</span>
+            <h1 id="start-name" class="giant"></h1>
+            <p id="start-meta" class="meta"></p>
+          </div>
+        </div>
+        <div class="side">
+          <div id="target-photo" class="side-photo"></div>
+          <div>
+            <span class="side-label">To</span>
+            <h1 id="target-name" class="giant"></h1>
+            <p id="target-meta" class="meta"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="numbers">
+        <div>
+          <span class="label">Guesses</span>
+          <b id="guesses">0</b>
+        </div>
+        <div class="right">
+          <span class="label">Best possible</span>
+          <b id="par" class="green">–</b>
+        </div>
+      </div>
+
+      <ol id="chain" class="chain"></ol>
+
+      <form id="guess-form" class="guess" autocomplete="off">
+        <label for="guess" id="guess-label" class="label">Name a teammate</label>
+        <div class="guess-row">
+          <input id="guess" list="players" placeholder="Start typing a player…">
+          <button type="submit" id="guess-btn" class="primary">Guess</button>
+        </div>
+        <datalist id="players"></datalist>
+        <p id="message" class="message"></p>
+        <div id="hint" class="hint" hidden></div>
+        <div class="actions">
+          <button type="button" id="hint-btn" class="ghost hint-btn">Hint</button>
+          <button type="button" id="undo" class="ghost">Undo last</button>
+          <button type="button" id="give-up" class="ghost">Give up</button>
+          <button type="button" id="new-game" class="ghost">New matchup</button>
+        </div>
+      </form>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-title" class="giant"></h2>
+        <p id="result-text" class="meta"></p>
+        <div id="solution-wrap">
+          <span class="label">A shortest chain</span>
+          <ol id="solution" class="chain"></ol>
+        </div>
+        <button type="button" id="play-again" class="primary wide">Next matchup</button>
+      </section>
+
+      <section class="log-wrap">
+        <span class="label">Guess log</span>
+        <ol id="log" class="log"></ol>
+      </section>
+    </section>
+
+    <footer>
+      <span class="brand">Teammate Chain</span>
+      <span>How few guesses can you do it in?</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

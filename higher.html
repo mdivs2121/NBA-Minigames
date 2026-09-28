@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Higher or Lower</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Higher or Lower</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <p id="status" class="status">Loading players…</p>
+
+    <section id="game" hidden>
+      <div class="numbers hl-numbers">
+        <div>
+          <span class="label">Streak</span>
+          <b id="streak">0</b>
+        </div>
+        <div class="right">
+          <span class="label">Best</span>
+          <b id="best" class="green">0</b>
+        </div>
+      </div>
+
+      <div class="hl-question">
+        <span class="side-label">Round <span id="round">1</span> · Career, regular season</span>
+        <h1 id="question" class="giant"></h1>
+      </div>
+
+      <div class="hl-cards">
+        <article id="left" class="hl-card"></article>
+        <div class="hl-vs" aria-hidden="true">VS</div>
+        <article id="right" class="hl-card mystery"></article>
+      </div>
+
+      <div id="choices" class="hl-choices">
+        <button type="button" id="higher" class="primary">▲ More</button>
+        <button type="button" id="lower" class="primary">▼ Fewer</button>
+      </div>
+      <p class="meta hl-keys">Keyboard: ↑ for more, ↓ for fewer.</p>
+
+      <section id="result" class="result lose" hidden>
+        <span class="label">Game over</span>
+        <h2 id="result-title" class="giant"></h2>
+        <p id="result-emoji" class="emoji-row hl-emoji" aria-hidden="true"></p>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="again" class="primary">Play again</button>
+          <button type="button" id="share" class="ghost">Share</button>
+        </div>
+        <p id="share-msg" class="message good"></p>
+      </section>
+    </section>
+
+    <footer>
+      <span class="brand">Higher or Lower</span>
+      <span>How long can you keep it going?</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="higher.js"></script>
+</body>
+</html>

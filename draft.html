@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Draft Redo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wide-main">
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Draft Redo</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <p id="status" class="status">Loading draft classes…</p>
+
+    <section id="game" hidden>
+      <div class="dr-head">
+        <div>
+          <span class="side-label">Re-draft the</span>
+          <h1 id="class-title" class="giant"></h1>
+          <p class="meta">Knowing how every career turned out, who should have gone top 10? Pick 10 players from the class below and put them in order. You're scored on career Win Shares.</p>
+        </div>
+        <div class="dr-picker">
+          <label for="year" class="label">Draft class</label>
+          <div class="dr-picker-row">
+            <select id="year"></select>
+            <button type="button" id="random-class" class="ghost">Random</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dr-layout">
+        <section id="board-wrap" class="dr-board-wrap">
+          <div class="dr-board-head">
+            <span class="label">Your top 10</span>
+            <span id="board-count" class="label"></span>
+          </div>
+          <ol id="board" class="rank-list dr-board"></ol>
+          <button type="button" id="lock" class="primary wide" disabled>Lock in</button>
+          <button type="button" id="clear" class="ghost dr-clear">Clear board</button>
+
+          <section id="result" class="result" hidden>
+            <span id="result-kicker" class="label"></span>
+            <h2 id="result-score" class="giant"></h2>
+            <p id="result-emoji" class="emoji-row" aria-hidden="true"></p>
+            <p id="result-text" class="meta"></p>
+            <div class="result-actions">
+              <button type="button" id="share" class="primary">Share result</button>
+              <button type="button" id="next-class" class="ghost">Try another class</button>
+            </div>
+            <p id="share-msg" class="message good"></p>
+            <span class="label">The real top 10, by career Win Shares</span>
+            <ol id="truth" class="dr-truth"></ol>
+          </section>
+        </section>
+
+        <section class="dr-class-wrap">
+          <div class="dr-board-head">
+            <span id="class-label" class="label"></span>
+            <span id="class-count" class="label"></span>
+          </div>
+          <input id="search" type="search" placeholder="Search the class by name, team, or college…" autocomplete="off">
+          <div id="class-list" class="dr-class"></div>
+        </section>
+      </div>
+    </section>
+
+    <footer>
+      <span class="brand">Draft Redo</span>
+      <span>Hindsight is 20/20. Is yours?</span>
+    </footer>
+  </main>
+  <script src="common.js"></script>
+  <script src="draft.js"></script>
+</body>
+</html>
