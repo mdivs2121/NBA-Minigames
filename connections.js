@@ -129,7 +129,10 @@ function submit() {
   if (play.over || play.selected.size !== 4) return;
   const picked = [...play.selected];
   const key = [...picked].sort().join(",");
-  if (play.guessed.includes(key)) return say("You already tried those four.", "bad");
+  if (play.guessed.includes(key)) {
+    toast("Already guessed");
+    return say("You already tried those four.", "bad");
+  }
   play.guessed.push(key);
   play.guesses.push(picked.map((id) => play.groups[groupOf(id)].tier));
 
@@ -145,7 +148,9 @@ function submit() {
     }
   } else {
     play.mistakes++;
-    say(counts.includes(3) ? "One away…" : "Not a group.", "bad");
+    const oneAway = counts.includes(3);
+    say(oneAway ? "One away…" : "Not a group.", "bad");
+    toast(oneAway ? "One away…" : "Not a group");
     shake();
     if (play.mistakes >= MISTAKES) finish(false);
   }
@@ -261,6 +266,19 @@ async function share() {
 function say(text, kind = "") {
   $("message").textContent = text;
   $("message").className = `message ${kind}`;
+}
+
+// A bubble over the grid for quick feedback ("One away…"), gone after a moment.
+let toastTimer = null;
+function toast(text) {
+  const el = $("toast");
+  el.textContent = text;
+  el.hidden = false;
+  el.classList.remove("show");
+  void el.offsetWidth;   // restart the pop-in
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, 1800);
 }
 
 function shake() {

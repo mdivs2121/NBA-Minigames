@@ -42,7 +42,10 @@
 
       <ol id="solved" class="cx-solved"></ol>
       <div id="hint-box" class="hint cx-hint" hidden></div>
-      <div id="grid" class="cx-grid" role="group" aria-label="Players"></div>
+      <div class="cx-grid-wrap">
+        <div id="toast" class="cx-toast" role="status" aria-live="assertive" hidden></div>
+        <div id="grid" class="cx-grid" role="group" aria-label="Players"></div>
+      </div>
 
       <div id="bar" class="cx-bar">
         <span class="cx-mistakes">Mistakes left <span id="dots" class="cx-dots"></span></span>
