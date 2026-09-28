@@ -258,36 +258,53 @@ function renderTeam(who) {
   $(`${who}-total`).textContent = game.over ? `${totalWs(who).toFixed(1)} WS` : `${team.length}/5`;
 }
 
+const SLOT_GROUPS = { G: "Guards", F: "Forwards", C: "Centers" };
+
+// With "All" picked, the pool is laid out like a depth chart: a column per
+// position. A single-position filter shows just that group.
 function renderPool() {
+  const slots = game.filter === "all" ? ["G", "F", "C"] : [game.filter];
+  // "over" keeps undrafted cards readable once the draft ends.
+  $("pool").className = `${game.over ? "over" : ""} ${slots.length > 1 ? "sd-columns" : "sd-single"}`;
+  $("pool").innerHTML = slots.map((slot) => {
+    const group = game.pool.filter((s) => s.slot === slot);
+    const left = group.filter((s) => !taken(s)).length;
+    const need = openSlots("you").filter((x) => x === slot).length;
+    const needText = game.over ? "" : need ? ` · you need ${need}` : " · you're set";
+    return `
+      <section class="sd-col">
+        <h3 class="sd-col-head">
+          <span>${SLOT_GROUPS[slot]}</span>
+          <span class="sd-col-count">${left} left${needText}</span>
+        </h3>
+        <ol class="sd-pool">${group.map(poolCard).join("")}</ol>
+      </section>`;
+  }).join("");
+}
+
+function poolCard(s) {
   const myTurn = !game.over && !game.thinking && onTheClock() === "you";
-  const open = openSlots("you");
-  const shown = game.pool.filter((s) => game.filter === "all" || s.slot === game.filter);
-  $("pool").classList.toggle("over", game.over);   // undrafted cards stay readable at the end
-  $("pool").innerHTML = shown
-    .map((s) => {
-      const t = taken(s);
-      const legal = myTurn && canDraft("you", s);
-      let note = "";
-      if (t) note = `<span class="sd-taken ${t.who}">${t.who === "you" ? "Your" : "Bot's"} pick ${t.number}</span>`;
-      else if (!game.over && !open.includes(s.slot)) note = `<span class="sd-full">${SLOT_NAMES[s.slot]} spots full</span>`;
-      const ts = s.tsPct == null ? "–" : `${(s.tsPct * 100).toFixed(1)}%`;
-      return `
-        <li>
-          <button type="button" class="sd-card ${t ? `taken ${t.who}` : ""}" data-key="${key(s)}" ${legal ? "" : "disabled"}>
-            <span class="sd-card-top">
-              ${avatar(s.id, "sm")}
-              <span class="sd-badge">${s.pos}</span>
-            </span>
-            <span class="sd-card-name">${escapeHtml(s.name)}</span>
-            <span class="sd-card-sub">${s.season} · ${s.teams.join("/")} · ${s.g} GP</span>
-            <span class="sd-card-stats">
-              <span><b>${s.ppg}</b> PPG</span><span><b>${s.rpg}</b> RPG</span><span><b>${s.apg}</b> APG</span><span><b>${ts}</b> TS</span>
-            </span>
-            ${game.over ? `<span class="sd-card-ws">${s.ws.toFixed(1)} Win Shares</span>` : note}
-          </button>
-        </li>`;
-    })
-    .join("");
+  const t = taken(s);
+  const legal = myTurn && canDraft("you", s);
+  let note = "";
+  if (t) note = `<span class="sd-taken ${t.who}">${t.who === "you" ? "Your" : "Bot's"} pick ${t.number}</span>`;
+  else if (!game.over && !openSlots("you").includes(s.slot)) note = `<span class="sd-full">${SLOT_NAMES[s.slot]} spots full</span>`;
+  const ts = s.tsPct == null ? "–" : `${(s.tsPct * 100).toFixed(1)}%`;
+  return `
+    <li>
+      <button type="button" class="sd-card ${t ? `taken ${t.who}` : ""}" data-key="${key(s)}" ${legal ? "" : "disabled"}>
+        <span class="sd-card-top">
+          ${avatar(s.id, "sm")}
+          <span class="sd-badge">${s.pos}</span>
+        </span>
+        <span class="sd-card-name">${escapeHtml(s.name)}</span>
+        <span class="sd-card-sub">${s.season} · ${s.teams.join("/")} · ${s.g} GP</span>
+        <span class="sd-card-stats">
+          <span><b>${s.ppg}</b> PPG</span><span><b>${s.rpg}</b> RPG</span><span><b>${s.apg}</b> APG</span><span><b>${ts}</b> TS</span>
+        </span>
+        ${game.over ? `<span class="sd-card-ws">${s.ws.toFixed(1)} Win Shares</span>` : note}
+      </button>
+    </li>`;
 }
 
 function renderResult() {

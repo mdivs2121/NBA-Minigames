@@ -900,7 +900,7 @@ button.primary:disabled { box-shadow: none; }
 .sd-card:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); background: var(--surface-2); }
 .sd-card:disabled { cursor: default; }
 .sd-card:disabled:not(.taken) { opacity: 0.55; }
-.sd-pool.over .sd-card:disabled:not(.taken) { opacity: 1; }
+#pool.over .sd-card:disabled:not(.taken) { opacity: 1; }
 .sd-card.taken { opacity: 0.45; }
 .sd-card.taken.you { opacity: 1; border-color: var(--accent); }
 .sd-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
@@ -1005,4 +1005,41 @@ button.primary:disabled { box-shadow: none; }
 @media (max-width: 720px) {
   .hub { grid-template-columns: 1fr; }
   .hub-card, .hub li.featured .hub-card { grid-template-columns: 84px minmax(0, 1fr); gap: 6px 16px; padding: 16px; }
+}
+
+/* Snake Draft pool by position: Guards | Forwards | Centers */
+.sd-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.sd-col { display: grid; gap: 8px; }
+.sd-col-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  box-shadow: inset 0 -2px 0 var(--accent);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.sd-col-count { color: var(--muted); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
+.sd-single .sd-col-head { position: static; }
+
+/* In columns, cards turn sideways: photo and position on the left. */
+.sd-columns .sd-pool { grid-template-columns: 1fr; gap: 6px; }
+.sd-columns .sd-card { grid-template-columns: 52px minmax(0, 1fr); column-gap: 12px; row-gap: 2px; padding: 10px; }
+.sd-columns .sd-card-top { grid-row: 1 / span 5; flex-direction: column; align-items: center; gap: 6px; margin: 0; }
+.sd-columns .sd-card .avatar.sm { width: 52px; }
+.sd-columns .sd-card-name { font-size: 1rem; }
+.sd-columns .sd-card-stats { margin-top: 2px; }
+
+@media (max-width: 860px) {
+  .sd-columns { grid-template-columns: 1fr; }
+  .sd-col-head { position: static; }
+  .sd-columns .sd-pool { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 }
