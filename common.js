@@ -105,7 +105,7 @@ const GAMES = [
     howto: [
       ["Pick four", "Tap four players you think share something: a college, a team, an award, a career fact, or their name."],
       ["Submit", "Right, and the group locks in. “One away…” means three of your four fit. Four mistakes ends it. Stuck? Hint gives a nudge, a pair, or the category."],
-      ["Easiest to hardest", "🟩 colleges · 🟨 teams and awards · 🟧 career facts · 🟥 names. Every player fits exactly one group."],
+      ["Easiest to hardest", "Colors run 🟩 🟨 🟧 🟥 from the easiest group to the hardest. Every player fits exactly one group."],
     ],
   },
   {

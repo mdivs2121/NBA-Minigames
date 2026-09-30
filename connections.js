@@ -8,7 +8,7 @@
 
 const STORAGE_KEY = "cx-v1";
 const MISTAKES = 4;
-const TIER_EMOJI = { 1: "🟩", 2: "🟨", 3: "🟧", 4: "🟥" };
+const RANK_EMOJI = { 1: "🟩", 2: "🟨", 3: "🟧", 4: "🟥" };   // easiest group to hardest
 
 Object.assign(data, {
   categories: [],   // { label, tier, members: Set }
@@ -47,10 +47,37 @@ async function loadData() {
 }
 
 // ---------- puzzle generation ----------
+// Each daily puzzle comes from the date, so everyone gets the same one. From
+// NEW_RULES_FROM on, a day also looks back at the week before it:
+//   - no category repeats within 7 days
+//   - no family of categories (colleges, teams, awards, names...) two days running
+//   - four different families per puzzle, at least one of them on the easy side
+// Earlier days keep their original puzzles (people already played them).
 
-function makePuzzle(random) {
-  const pick = (list) => list[Math.floor(random() * list.length)];
-  const shuffle = (list) => {
+const NEW_RULES_FROM = "2026-10-01";
+const NO_REPEAT_DAYS = 7;
+
+// Which kind of category a label is. Two categories of the same family feel alike.
+function familyOf(label) {
+  if (label.startsWith("Went to")) return "college";
+  if (label.startsWith("Drafted in")) return "draft class";
+  if (label.startsWith("Averaged") || label.startsWith("Had a 50-40-90")) return "big season";
+  if (label.startsWith("Led the league")) return "league leader";
+  if (label.startsWith("Teammates of")) return "teammates";
+  if (label.startsWith("Made ")) return "honors";
+  if (label === "Played for 7+ franchises" || label.startsWith("Spent 10+")) return "team count";
+  if (label.startsWith("Played for")) return "team";
+  if (label.startsWith("Won ")) return "award";
+  if (label.includes("picks")) return "draft";
+  if (label.includes("feet")) return "height";
+  if (label.startsWith("Scored")) return "scoring";
+  if (label === "Hall of Famers") return "hall of fame";
+  if (label.startsWith("Never played in college")) return "path";
+  return "names";   // first name, last name, colors, same first letter
+}
+
+function shuffler(random) {
+  return (list) => {
     const a = [...list];
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));
@@ -58,23 +85,108 @@ function makePuzzle(random) {
     }
     return a;
   };
-  const byTier = [1, 2, 3, 4].map((t) => data.categories.filter((c) => c.tier === t));
+}
 
+// Turn four categories into a puzzle, or null if they can't make one: every
+// player must fit exactly one group. Groups come out easiest first.
+function buildGroups(cats, random) {
+  const shuffle = shuffler(random);
+  const groups = [];
+  for (const cat of cats) {
+    const others = cats.filter((c) => c !== cat);
+    const usable = [...cat.members].filter((id) => !others.some((o) => o.members.has(id)));
+    if (usable.length < 4) return null;
+    // Sort by fame (ties by id, so every device agrees), then pick 4 of the top few.
+    usable.sort((a, b) => data.fame[b] - data.fame[a] || (a < b ? -1 : 1));
+    groups.push({ label: cat.label, tier: cat.tier, details: cat.details, players: shuffle(usable.slice(0, FAMOUS_SHORTLIST)).slice(0, 4) });
+  }
+  groups.sort((a, b) => a.tier - b.tier || (a.label < b.label ? -1 : 1));
+  return { groups, order: shuffle(groups.flatMap((g) => g.players)) };
+}
+
+// The original generator: one category from each tier, using only the
+// original categories (not the v2 ones). Used for days before NEW_RULES_FROM,
+// so those puzzles never change.
+function legacyPuzzle(random) {
+  const pick = (list) => list[Math.floor(random() * list.length)];
+  const byTier = [1, 2, 3, 4].map((t) => data.categories.filter((c) => c.tier === t && !c.v2));
   for (let tries = 0; tries < 1000; tries++) {
-    const cats = byTier.map(pick);
-    // Players who fit exactly one of the four groups can be used.
-    const groups = [];
-    for (const cat of cats) {
-      const others = cats.filter((c) => c !== cat);
-      const usable = [...cat.members].filter((id) => !others.some((o) => o.members.has(id)));
-      if (usable.length < 4) break;
-      // Sort by fame (ties by id, so every device agrees), then pick 4 of the top few.
-      usable.sort((a, b) => data.fame[b] - data.fame[a] || (a < b ? -1 : 1));
-      groups.push({ label: cat.label, tier: cat.tier, details: cat.details, players: shuffle(usable.slice(0, FAMOUS_SHORTLIST)).slice(0, 4) });
-    }
-    if (groups.length === 4) return { groups, order: shuffle(groups.flatMap((g) => g.players)) };
+    const puzzle = buildGroups(byTier.map(pick), random);
+    if (puzzle) return puzzle;
   }
   throw new Error("Couldn't build a puzzle.");
+}
+
+// Four categories from four different families. Hard rules: no category used
+// in the last week, one easier group, every player fits one group. Soft rules,
+// in order: at most one family shared with yesterday, then families not seen in
+// the last two days first. Families are picked before categories, which keeps
+// this quick (it runs once per day since NEW_RULES_FROM on every visit).
+function makePuzzle(random, { recentLabels = new Set(), yesterdayFamilies = new Set(), twoDaysFamilies = new Set() } = {}) {
+  const shuffle = shuffler(random);
+  const byFamily = {};
+  for (const cat of data.categories) {
+    if (recentLabels.has(cat.label)) continue;
+    (byFamily[familyOf(cat.label)] ||= []).push(cat);
+  }
+  const families = Object.keys(byFamily).sort();
+  // Freshest families first: not used yesterday, then not the day before, then the rest.
+  const staleness = (f) => (yesterdayFamilies.has(f) ? 2 : twoDaysFamilies.has(f) ? 1 : 0);
+  const hasEasy = (f) => byFamily[f].some((c) => c.tier <= 2);
+  for (const maxShared of [0, 1, 2, 4]) {
+    for (let tries = 0; tries < 60; tries++) {
+      const order = shuffle(families).sort((x, y) => staleness(x) - staleness(y) + (random() - 0.5) * 1.2);
+      // The easier group comes first (freshest family that has one), then three more by freshness.
+      const easyFamily = order.find((f) => hasEasy(f) && (!yesterdayFamilies.has(f) || maxShared > 0));
+      if (!easyFamily) continue;
+      const picked = [easyFamily];
+      let shared = yesterdayFamilies.has(easyFamily) ? 1 : 0;
+      for (const f of order) {
+        if (picked.includes(f)) continue;
+        const isShared = yesterdayFamilies.has(f);
+        if (isShared && shared >= maxShared) continue;
+        picked.push(f);
+        if (isShared) shared++;
+        if (picked.length === 4) break;
+      }
+      if (picked.length < 4) continue;
+      const easy = byFamily[easyFamily].filter((c) => c.tier <= 2);
+      const cats = [easy[Math.floor(random() * easy.length)],
+        ...picked.slice(1).map((f) => byFamily[f][Math.floor(random() * byFamily[f].length)])];
+      const puzzle = buildGroups(cats, random);
+      if (puzzle) return puzzle;
+    }
+  }
+  throw new Error("Couldn't build a puzzle.");
+}
+
+// "2026-10-01" plus n days, as the same kind of string.
+function addDays(key, n) {
+  return new Date(Date.UTC(+key.slice(0, 4), +key.slice(5, 7) - 1, +key.slice(8, 10) + n)).toISOString().slice(0, 10);
+}
+
+// The puzzle for a date. From NEW_RULES_FROM on, days are built in order so
+// each one knows the week before it (remembered, so this runs once per day).
+const dailyCache = {};
+function dailyPuzzle(day) {
+  if (dailyCache[day]) return dailyCache[day];
+  const seed = (d) => rng(hash(`hoop-connections:${d}`));
+  if (day < NEW_RULES_FROM) return (dailyCache[day] = legacyPuzzle(seed(day)));
+  const week = [];   // each recent day's category labels, oldest first
+  // Seed the window with the old-style days just before the new rules started…
+  let d = addDays(NEW_RULES_FROM, -(NO_REPEAT_DAYS - 1));
+  for (; d < NEW_RULES_FROM; d = addDays(d, 1)) week.push(dailyPuzzle(d).groups.map((g) => g.label));
+  // …then build every day up to the one asked for.
+  for (; d <= day; d = addDays(d, 1)) {
+    if (!dailyCache[d]) {
+      const recentLabels = new Set(week.slice(-(NO_REPEAT_DAYS - 1)).flat());
+      const yesterdayFamilies = new Set((week.at(-1) || []).map(familyOf));
+      const twoDaysFamilies = new Set((week.at(-2) || []).map(familyOf));
+      dailyCache[d] = makePuzzle(seed(d), { recentLabels, yesterdayFamilies, twoDaysFamilies });
+    }
+    week.push(dailyCache[d].groups.map((g) => g.label));
+  }
+  return dailyCache[day];
 }
 
 // ---------- game flow ----------
@@ -93,7 +205,7 @@ function startDaily() {
   play.mode = "daily";
   play.day = todayKey();
   play.number = dayNumber(play.day);
-  reset(makePuzzle(rng(hash(`hoop-connections:${play.day}`))));
+  reset(dailyPuzzle(play.day));
 
   const save = loadSave();
   const saved = save.history[play.day] || (save.progress?.day === play.day ? save.progress : null);
@@ -135,7 +247,7 @@ function submit() {
     return say("You already tried those four.", "bad");
   }
   play.guessed.push(key);
-  play.guesses.push(picked.map((id) => play.groups[groupOf(id)].tier));
+  play.guesses.push(picked.map((id) => groupOf(id) + 1));   // each pick's group, 1 = easiest
 
   const counts = [0, 1, 2, 3].map((g) => picked.filter((id) => groupOf(id) === g).length);
   const hit = counts.indexOf(4);
@@ -230,6 +342,13 @@ function useHint(kind) {
 // A vague clue from the category's label.
 function nudge(label) {
   if (label.startsWith("Went to")) return "Four of these guys went to the same college.";
+  if (label.startsWith("Drafted in")) return "Four of these guys came into the league on the same draft night.";
+  if (label.startsWith("Averaged")) return "Four of these guys each had one huge season in the same stat.";
+  if (label.startsWith("Had a 50-40-90")) return "Four of these guys each had a season of rare shooting.";
+  if (label.startsWith("Led the league")) return "Four of these guys each finished a season No. 1 in the same stat.";
+  if (label.startsWith("Teammates of")) return "Four of these guys all shared a locker room with the same star.";
+  if (label === "Made 10+ All-Star teams") return "Four of these guys were All-Star regulars.";
+  if (label.startsWith("Made First-team")) return "Four of these guys share the same end-of-season honor.";
   if (label.startsWith("Played for 7+")) return "Four of these guys got around the league.";
   if (label.startsWith("Spent 10+")) return "Four of these guys are about loyalty.";
   if (label.startsWith("Played for")) return "Four of these guys all suited up for the same franchise.";
@@ -270,7 +389,7 @@ function shuffleGrid() {
 
 function shareText() {
   const title = play.mode === "daily" ? `Hoop Connections #${play.number}` : "Hoop Connections (practice)";
-  const rows = play.guesses.map((tiers) => tiers.map((t) => TIER_EMOJI[t]).join("")).join("\n");
+  const rows = play.guesses.map((tiers) => tiers.map((t) => RANK_EMOJI[t]).join("")).join("\n");
   const n = play.hints.length;
   return `${title}\n${rows}${n ? `\n💡 ${n} hint${n === 1 ? "" : "s"}` : ""}`;
 }
@@ -327,7 +446,7 @@ function render() {
         })
         .join("");
       return `
-        <li class="cx-group t${group.tier} ${g === play.justSolved ? "fresh" : ""}">
+        <li class="cx-group t${g + 1} ${g === play.justSolved ? "fresh" : ""}">
           <span class="cx-group-label">${escapeHtml(group.label)}</span>
           <span class="cx-group-names">${names}</span>
         </li>`;
@@ -377,7 +496,7 @@ function renderHints() {
       return `<p class="hint-line">The category: <strong>${escapeHtml(group.label)}</strong></p>`;
     };
     $("hint-box").innerHTML = `
-      <span class="label">Hint · the ${TIER_EMOJI[group.tier]} group</span>
+      <span class="label">Hint · the ${RANK_EMOJI[g + 1]} group</span>
       ${HINT_KINDS.filter((k) => used.some((h) => h.kind === k)).map(line).join("")}`;
   }
   for (const btn of document.querySelectorAll("#hint-menu [data-hint]")) {
@@ -400,7 +519,7 @@ function saveImage() {
     title: "Hoop Connections",
     kicker: play.mode === "daily" ? `Puzzle #${play.number}` : "Practice puzzle",
     big: play.won ? "Solved" : `${play.found} of 4`,
-    grid: play.guesses.map((tiers) => tiers.map((t) => TIER_EMOJI[t]).join("")),
+    grid: play.guesses.map((tiers) => tiers.map((t) => RANK_EMOJI[t]).join("")),
     lines: [`${play.mistakes} mistake${play.mistakes === 1 ? "" : "s"}${n ? ` · ${n} hint${n === 1 ? "" : "s"}` : ""}`],
   }, $("share-msg"));
 }
@@ -417,8 +536,8 @@ function renderResult() {
   $("result-title").textContent = play.won
     ? perfect ? "No mistakes." : `${play.mistakes} mistake${play.mistakes === 1 ? "" : "s"}.${hintNote}`
     : `${play.found} of 4 groups found.`;
-  $("result-grid").textContent = play.guesses.map((tiers) => tiers.map((t) => TIER_EMOJI[t]).join("")).join("\n");
-  $("result-text").textContent = "Colors, easiest to hardest: 🟩 colleges · 🟨 teams and awards · 🟧 career facts · 🟥 names.";
+  $("result-grid").textContent = play.guesses.map((tiers) => tiers.map((t) => RANK_EMOJI[t]).join("")).join("\n");
+  $("result-text").textContent = "Colors run from the easiest group to the hardest: 🟩 🟨 🟧 🟥.";
   $("share-msg").textContent = "";
   $("practice").textContent = play.mode === "daily" ? "Practice puzzle" : "Another practice puzzle";
   $("next").hidden = play.mode !== "daily";

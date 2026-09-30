@@ -16,7 +16,9 @@ its pool members. The site relies on that to guarantee each puzzle has one
 answer: no player in the grid may fit a second chosen group.
 
 Tiers, easiest to hardest: 1 colleges, 2 teams and awards, 3 career facts,
-4 wordplay.
+4 wordplay. Beyond those basics there are draft classes, big single seasons,
+league leaders, teammates of a star, and honors, so daily puzzles can vary a
+lot from one day to the next.
 
 Run:  python3 build_connections_data.py
 """
@@ -55,6 +57,7 @@ COLLEGES = {   # label -> names as they appear in the data
 }
 AWARDS = {"nba mvp": "Won MVP", "nba dpoy": "Won Defensive Player of the Year", "nba roy": "Won Rookie of the Year",
           "nba smoy": "Won Sixth Man of the Year", "nba mip": "Won Most Improved Player"}
+NEW_IN_V2 = ("Drafted in", "Averaged", "Had a 50-40-90", "Led the league", "Teammates of", "Made ")
 COLORS = {"Green", "Brown", "White", "Black", "Gray", "Grey", "Gold", "Rose", "Blue"}
 
 
@@ -159,6 +162,87 @@ def main():
         if bool(info.at[pid, "hof"]):
             groups[("Hall of Famers", 3)].add(pid)
 
+    # Draft classes: "Drafted in 2003"
+    for pid in pool:
+        if pid in draft.index:
+            d = draft.loc[pid]
+            d = d.iloc[0] if isinstance(d, pd.DataFrame) else d
+            if int(d["season"]) < 1980:
+                continue   # older classes are too obscure
+            label = f"Drafted in {int(d['season'])}"
+            groups[(label, 3)].add(pid)
+            details[label][pid] = f"#{int(d['overall_pick'])} pick"
+
+    # Big single seasons (50+ games) and league leaders
+    qualified = recent[(recent["g"] >= 50) & recent["player_id"].isin(pool)]
+    label_of = lambda s: f"{int(s) - 1}-{str(int(s))[-2:]}"
+    big_seasons = [
+        ("Averaged 25+ points in a season", 2, "pts_per_game", 25, "PPG"),
+        ("Averaged 10+ assists in a season", 3, "ast_per_game", 10, "APG"),
+        ("Averaged 12+ rebounds in a season", 3, "trb_per_game", 12, "RPG"),
+        ("Averaged 2+ steals in a season", 3, "stl_per_game", 2, "SPG"),
+        ("Averaged 2.5+ blocks in a season", 3, "blk_per_game", 2.5, "BPG"),
+    ]
+    for label, tier, col, cutoff, unit in big_seasons:
+        rows = qualified[qualified[col] >= cutoff]
+        for pid, seasons_ in rows.groupby("player_id"):
+            best = seasons_.loc[seasons_[col].idxmax()]
+            groups[(label, tier)].add(pid)
+            details[label][pid] = f"{best[col]:.1f} {unit} in {label_of(best['season'])}"
+    fifty = qualified[(qualified["fg_percent"] >= 0.5) & (qualified["x3p_percent"] >= 0.4) & (qualified["x3pa_per_game"] >= 1)
+                      & (qualified["ft_percent"] >= 0.9) & (qualified["fta_per_game"] >= 2)]
+    for pid, seasons_ in fifty.groupby("player_id"):
+        groups[("Had a 50-40-90 season", 4)].add(pid)
+        details["Had a 50-40-90 season"][pid] = ", ".join(label_of(s) for s in sorted(seasons_["season"]))
+    # League leaders among players with enough games to count (70% of the schedule)
+    full = recent.copy()
+    season_games = full.groupby("season")["g"].transform("max")
+    full = full[full["g"] >= 0.7 * season_games]
+    for label, tier, col, unit in [("Led the league in scoring", 2, "pts_per_game", "PPG"),
+                                   ("Led the league in rebounding", 3, "trb_per_game", "RPG"),
+                                   ("Led the league in assists", 3, "ast_per_game", "APG")]:
+        leaders = full.loc[full.groupby("season")[col].idxmax()]
+        for r in leaders.itertuples():
+            if r.player_id in pool:
+                groups[(label, tier)].add(r.player_id)
+                prev = details[label].get(r.player_id)
+                details[label][r.player_id] = f"{prev}, {label_of(r.season)}" if prev else label_of(r.season)
+
+    # Honors
+    star_counts = all_stars.groupby("player_id").size()
+    for pid, n in star_counts.items():
+        if n >= 10 and pid in pool:
+            groups[("Made 10+ All-Star teams", 2)].add(pid)
+            details["Made 10+ All-Star teams"][pid] = f"{n} All-Star picks"
+    season_teams = pd.read_csv(STATS_DIR / "End of Season Teams.csv")
+    season_teams = season_teams[(season_teams["lg"] == "NBA") & (season_teams["season"] >= FIRST_SEASON)]
+    for kind, label, tier in [("All-NBA", "Made First-team All-NBA", 2), ("All-Defense", "Made First-team All-Defense", 3)]:
+        rows = season_teams[(season_teams["type"] == kind) & (season_teams["number_tm"] == "1st") & season_teams["player_id"].isin(pool)]
+        for pid, n in rows.groupby("player_id").size().items():
+            groups[(label, tier)].add(pid)
+            details[label][pid] = f"{n}×"
+
+    # Teammates of a star (same team, same season, 2005-06 on)
+    graph = json.load(open(OUT_DIR / "teammate_graph.json", encoding="utf-8"))
+    rosters = json.load(open(OUT_DIR / "rosters.json", encoding="utf-8"))   # "2009-10 CLE" -> ids
+    together = defaultdict(list)   # (star, mate) -> team-seasons they shared
+    stars = [p for p in star_counts[star_counts >= 8].index if p in graph]
+    star_set = set(stars)
+    for key in sorted(rosters):
+        ids = rosters[key]
+        for star in star_set.intersection(ids):
+            for mate in ids:
+                if mate != star:
+                    together[(star, mate)].append(key)
+    for star in sorted(stars):
+        label = f"Teammates of {players.get(star, info.at[star, 'player'])}"
+        for mate in graph[star]:
+            if mate in pool:
+                groups[(label, 3)].add(mate)
+                shared = together.get((star, mate), [])
+                if shared:
+                    details[label][mate] = shared[0] + (f" +{len(shared) - 1}" if len(shared) > 1 else "")
+
     # Tier 4: wordplay
     firsts, lasts = defaultdict(set), defaultdict(set)
     for pid, n in players.items():
@@ -179,6 +263,10 @@ def main():
         if len(members) < MIN_MEMBERS:
             continue
         category = {"label": label, "tier": tier, "members": sorted(members)}
+        # Categories added for the October 2026 puzzles. Older daily puzzles are
+        # rebuilt without these, so they stay exactly as people played them.
+        if label.startswith(NEW_IN_V2):
+            category["v2"] = True
         why = {pid: details[label][pid] for pid in sorted(members) if details[label].get(pid)}
         if why:
             category["details"] = why
