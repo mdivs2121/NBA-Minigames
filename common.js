@@ -70,6 +70,19 @@ function showLoadError(err) {
     "run `python3 -m http.server` in this folder, then visit http://localhost:8000";
 }
 
+// Team colors for badges (Career Path, Blind Résumé). Anything missing gets a neutral gray.
+const TEAM_COLORS = {
+  ATL: "#E03A3E", BOS: "#007A33", BRK: "#2B2B2B", NJN: "#002A60", CHA: "#2E5A88", CHH: "#00788C",
+  CHO: "#1D1160", CHI: "#CE1141", CLE: "#860038", DAL: "#00538C", DEN: "#0E2240", DET: "#C8102E",
+  GSW: "#1D428A", HOU: "#CE1141", IND: "#002D62", KCK: "#0077C0", LAC: "#C8102E", SDC: "#1D428A",
+  LAL: "#552583", MEM: "#5D76A9", VAN: "#00B2A9", MIA: "#98002E", MIL: "#00471B", MIN: "#0C2340",
+  NOH: "#00788C", NOP: "#0C2340", NYK: "#F58426", OKC: "#007AC1", SEA: "#00653A", ORL: "#0077C0",
+  PHI: "#006BB6", PHO: "#1D1160", POR: "#E03A3E", SAC: "#5A2D81", SAS: "#3A3A3A", TOR: "#CE1141",
+  UTA: "#002B5C", WAS: "#002B5C", WSB: "#C8102E",
+};
+
+const teamColor = (abbr) => TEAM_COLORS[abbr] || "#3a3f4d";
+
 // ---------- games ----------
 // Every game, in menu order. The home page cards, the Games menu, and each
 // game's how-to popup all come from here, so a new game needs one entry.
@@ -124,10 +137,10 @@ const GAMES = [
   },
   {
     page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume", isNew: true,
-    blurb: "Two anonymous stat lines, side by side: whole careers or single seasons. Pick the better one, then see who they were.",
+    blurb: "Two anonymous stat lines, side by side: whole careers, single seasons, or whole teams. Pick the better one, then see who they were.",
     howto: [
-      ["Pick a mode", "Careers: judged by career Win Shares. Seasons (harder): one season each, judged by that year's Box Plus/Minus."],
-      ["Pick the better one", "The two play similar positions and scored about the same, so look past points. A and B keys work too."],
+      ["Pick a mode", "Careers: judged by career Win Shares. Seasons: one year each, judged by Box Plus/Minus. Teams: two teams from the same season, judged by win %."],
+      ["Pick the better one", "Players are similar positions with similar scoring, so look past points. A and B keys work too."],
       ["Ten rounds", "Each pick reveals who they were. Green marks the better number in each row."],
     ],
   },

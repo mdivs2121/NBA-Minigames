@@ -1614,3 +1614,9 @@ main { animation: page-in 0.3s ease-out; }
   .br-name { font-size: 1rem; }
 }
 .br-name small { display: block; margin-top: 2px; color: var(--muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; }
+
+/* Blind Résumé: Teams mode */
+.br-team { background: var(--team); color: #fff; font-size: 0.95rem; letter-spacing: 0.04em; }
+.br-scorers { color: var(--muted); font-size: 0.8rem; font-weight: 700; text-align: center; }
+.br-footnote { margin: 8px 0 0; font-size: 0.8rem; text-align: center; }
+@media (max-width: 520px) { .difficulty button { font-size: 0.72rem; letter-spacing: 0.04em; } }

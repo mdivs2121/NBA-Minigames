@@ -22,6 +22,14 @@ era, strict for old seasons and loose for recent ones (see ERA_BPM):
   [ { id, name, season, teams, pos, g, mpg, ppg, rpg, apg, spg, bpg, tov,
       fgPct, threePct, tsPct, bpm }, ... ]
 
+And data/blind_teams.json for the Teams mode: every team season from 1979-80
+on, with its Four Factors (offense and defense), pace, 3-point rate, age, top
+two scorers, and record. The site hides the record and names and asks which
+team won more.
+
+  [ { id, abbr, name, season, w, l, winPct, playoffs, pace, age, threeRate,
+      efg, tov, orb, ftr, oppEfg, oppTov, drb, top: [{ id, name, ppg, rpg, apg }, x2] }, ... ]
+
 Run:  python3 build_blind_resume.py
 """
 import json
@@ -57,6 +65,29 @@ def season_label(end_year):
 
 def num(v, digits=1):
     return None if pd.isna(v) else round(float(v), digits)
+
+
+def build_teams(per_game_all):
+    """Team seasons for the Teams mode."""
+    t = pd.read_csv(STATS_DIR / "Team Summaries.csv")
+    t = t[(t["lg"] == "NBA") & (t["season"] >= FIRST_SEASON) & (t["team"] != "League Average")]
+    # Each team's players that season (per-team rows, so traded players count for each team).
+    rows = per_game_all[(per_game_all["lg"] == "NBA") & (per_game_all["season"] >= FIRST_SEASON)
+                        & ~per_game_all["team"].str.match(SUMMARY_TEAM).fillna(False) & (per_game_all["g"] >= 20)]
+    out = []
+    for r in t.sort_values(["season", "abbreviation"]).itertuples():
+        roster = rows[(rows["season"] == r.season) & (rows["team"] == r.abbreviation)].nlargest(2, "pts_per_game")
+        out.append({
+            "id": f"{r.abbreviation}-{int(r.season)}", "abbr": r.abbreviation, "name": r.team,
+            "season": season_label(int(r.season)), "w": int(r.w), "l": int(r.l),
+            "winPct": round(r.w / (r.w + r.l), 3), "playoffs": bool(r.playoffs),
+            "pace": num(r.pace), "age": num(r.age), "threeRate": num(r.x3p_ar, 3),
+            "efg": num(r.e_fg_percent, 3), "tov": num(r.tov_percent), "orb": num(r.orb_percent), "ftr": num(r.ft_fga, 3),
+            "oppEfg": num(r.opp_e_fg_percent, 3), "oppTov": num(r.opp_tov_percent), "drb": num(r.drb_percent),
+            "top": [{"id": p.player_id, "name": p.player, "ppg": num(p.pts_per_game), "rpg": num(p.trb_per_game),
+                     "apg": num(p.ast_per_game)} for p in roster.itertuples()],
+        })
+    return out
 
 
 def build_seasons(per_game_all, per_game, advanced):
@@ -145,6 +176,13 @@ def main():
     decades = pd.Series([int(s["season"][:4]) // 10 * 10 for s in seasons_out]).value_counts().sort_index().to_dict()
     print(f"wrote {path} ({path.stat().st_size / 1024:.0f} KB): {len(seasons_out)} seasons, by decade {decades}")
     print("  ", next(s for s in seasons_out if s["id"] == "curryst01" and s["season"] == "2015-16"))
+
+    teams_out = build_teams(per_game_all)
+    path = OUT_DIR / "blind_teams.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(teams_out, f, separators=(",", ":"), ensure_ascii=False)
+    print(f"wrote {path} ({path.stat().st_size / 1024:.0f} KB): {len(teams_out)} team seasons")
+    print("  ", next(t for t in teams_out if t["id"] == "GSW-2016"))
 
 
 if __name__ == "__main__":

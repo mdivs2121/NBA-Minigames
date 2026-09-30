@@ -36,9 +36,9 @@ const PROGRESS = {
     return best ? { text: `Best streak: ${best}` } : null;
   },
   resume() {
-    const careers = Number(saved("br-best")) || 0, seasons = Number(saved("br-best-seasons")) || 0;
-    if (!careers && !seasons) return null;
-    return { text: [careers && `Careers best ${careers}/10`, seasons && `Seasons best ${seasons}/10`].filter(Boolean).join(" · ") };
+    const bests = [["Careers", "br-best"], ["Seasons", "br-best-seasons"], ["Teams", "br-best-teams"]]
+      .map(([label, key]) => [label, Number(saved(key)) || 0]).filter(([, n]) => n);
+    return bests.length ? { text: bests.map(([label, n]) => `${label} ${n}/10`).join(" · ") } : null;
   },
   draft() {
     const best = saved("dr-best") || {};

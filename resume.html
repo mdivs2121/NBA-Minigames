@@ -34,6 +34,7 @@
     <nav class="difficulty" aria-label="Mode">
       <button type="button" data-mode="careers">Careers · Win Shares</button>
       <button type="button" data-mode="seasons">Seasons · BPM</button>
+      <button type="button" data-mode="teams">Teams · Wins</button>
     </nav>
 
     <p id="status" class="status">Loading careers…</p>
@@ -54,6 +55,8 @@
         <button type="button" id="card-a" class="br-card" data-side="0"></button>
         <button type="button" id="card-b" class="br-card" data-side="1"></button>
       </div>
+
+      <p id="footnote" class="meta br-footnote" hidden></p>
 
       <div id="round-result" class="br-verdict" hidden>
         <p id="verdict" class="message"></p>
@@ -78,7 +81,7 @@
 
     <footer>
       <span class="brand">Blind Résumé</span>
-      <span>Judge the career, not the name.</span>
+      <span>Judge the numbers, not the name.</span>
     </footer>
   </main>
   <script src="common.js"></script>
