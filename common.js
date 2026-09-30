@@ -145,13 +145,13 @@ const GAMES = [
     ],
   },
   {
-    page: "draft.html", pages: ["draft.html", "mvp.html"], title: "Hindsight", tag: "Draft & MVP", art: "hindsight",
-    tabs: [["draft.html", "Draft Redo"], ["mvp.html", "MVP Ballot"]],
-    blurb: "Two ways to rewrite history: re-draft any class from 1989 to 2021, or re-vote a season's MVP race.",
+    page: "draft.html", pages: ["draft.html", "mvp.html", "team.html"], title: "Hindsight", tag: "History", art: "hindsight",
+    tabs: [["draft.html", "Draft Redo"], ["mvp.html", "MVP Ballot"], ["team.html", "Name the Team"]],
+    blurb: "Rewrite history: re-draft a class, re-vote an MVP race, or name every player on an All-NBA team.",
     howto: [
-      ["Two tabs", "Draft Redo: build the top 10 a draft class should have been. MVP Ballot: put a season's top five MVP finishers in voting order."],
-      ["Drag to order", "Add players (Draft Redo) and drag them into order, or use the arrows. Pick any class or season, or hit Random."],
-      ["Lock in", "Draft Redo is scored on career Win Shares; MVP Ballot on the real vote. 🟩 right spot · 🟨 close · 🟥 off."],
+      ["Three tabs", "Draft Redo: build the top 10 a class should have been. MVP Ballot: order a season's top five MVP finishers. Name the Team: name an All-NBA, All-Defense, or All-Rookie team."],
+      ["Order or name them", "Drag players into order (arrows work too), or type names to fill a team. Pick any year, or hit Random."],
+      ["See how you did", "Draft Redo is scored on career Win Shares, MVP Ballot on the real vote, Name the Team on how many you got (the bar is lower for harder teams)."],
     ],
   },
   {

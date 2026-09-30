@@ -65,11 +65,23 @@ function record(level) {
 
 // ---------- game ----------
 
+// Nobody shows up twice in one run (a streak). The players seen this run are
+// saved, so a reload doesn't bring one back; they clear when the run ends, or
+// if someone somehow sees the whole pool.
 function newCareer() {
   const pool = data.pools[game.level];
-  let next;
-  do next = pool[Math.floor(Math.random() * pool.length)];
-  while (pool.length > 1 && next === game.answer);
+  const saved = loadSaved();
+  const r = record(game.level);
+  let seen = new Set(r.seen || []);
+  let fresh = pool.filter((c) => !seen.has(c.id) && c !== game.answer);
+  if (!fresh.length) {
+    seen = new Set();
+    fresh = pool.filter((c) => c !== game.answer);
+  }
+  const next = fresh[Math.floor(Math.random() * fresh.length)];
+  seen.add(next.id);
+  saved[game.level] = { ...r, seen: [...seen] };
+  writeSaved(saved);
   Object.assign(game, { answer: next, misses: [], over: false, won: false });
   $("guess").value = "";
   $("result").hidden = true;
@@ -110,6 +122,7 @@ function finish(won) {
   const r = record(game.level);
   r.streak = won ? r.streak + 1 : 0;
   r.best = Math.max(r.best, r.streak);
+  if (!won) r.seen = [];   // the run is over, so the next one starts fresh
   saved[game.level] = r;
   writeSaved(saved);
   if (won && game.misses.length === 0) celebrate();

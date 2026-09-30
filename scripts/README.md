@@ -27,6 +27,7 @@ python3 build_rank_data.py         # Rank the Five, Higher or Lower
 python3 build_draft_data.py        # Draft Redo
 python3 build_snake_data.py        # Snake Draft
 python3 build_mvp_data.py          # MVP Ballot
+python3 build_season_teams.py      # Name the Team (All-NBA, All-Defense, All-Rookie)
 python3 build_connections_data.py  # Hoop Connections
 python3 build_player_pages.py      # player pages
 python3 build_career_path.py       # Career Path (reads connections.json)

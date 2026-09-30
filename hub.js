@@ -36,7 +36,10 @@ const PROGRESS = {
     return best ? { text: `Best streak: ${best}` } : null;
   },
   hindsight() {
-    const parts = [PROGRESS.draft(), PROGRESS.mvp()].filter(Boolean).map((p) => p.text);
+    const nt = saved("nt-v1");
+    const teams = nt && Object.values(nt).filter((v) => v && typeof v === "object").reduce((n, v) => n + (v.passed || 0), 0);
+    const parts = [PROGRESS.draft(), PROGRESS.mvp(), teams ? { text: `${teams} team${teams === 1 ? "" : "s"} passed` } : null]
+      .filter(Boolean).map((p) => p.text);
     return parts.length ? { text: parts.join(" · ") } : null;
   },
   resume() {

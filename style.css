@@ -1637,3 +1637,32 @@ main { animation: page-in 0.3s ease-out; }
 }
 .game-tab-bar a:hover { color: var(--text); }
 .game-tab-bar a[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+
+/* Tab bar: one column per tab */
+.game-tab-bar { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+@media (max-width: 520px) { .game-tab-bar a { font-size: 0.72rem; letter-spacing: 0.04em; } }
+
+/* ---------- name the team ---------- */
+.nt-types { grid-template-columns: repeat(3, 1fr); margin-bottom: 22px; }
+.nt-slots { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.nt-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 2px dashed var(--line);
+  background: var(--surface);
+  animation: pop 0.3s ease-out both;
+}
+.nt-slot.got { border: 2px solid transparent; background: var(--green); color: var(--on-tile); background-image: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 60%); }
+.nt-slot.got .sd-pos { background: var(--tint); color: var(--on-tile); }
+.nt-slot.missed { border-style: solid; }
+.nt-blank { width: 34px; height: 34px; flex: none; border-radius: 4px; background: var(--surface-2); }
+.nt-body { flex: 1; min-width: 0; display: grid; }
+.nt-name { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+.nt-sub { color: var(--muted); font-size: 0.82rem; font-weight: 600; }
+.nt-slot.got .nt-sub { color: inherit; opacity: 0.75; }
+.nt-clue { display: inline-block; min-width: 0; padding: 1px 7px; font-size: 0.75rem; background: var(--team); }
+.nt-check { font-weight: 800; font-size: 1.2rem; }

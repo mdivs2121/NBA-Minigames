@@ -8,7 +8,7 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Career Path**: name the player from his team history; misses unlock clues.
 - **Blind Résumé**: two anonymous stat lines (careers, single seasons, or teams); pick the better one.
 - **Hoop Connections**: a daily puzzle. Sort 16 players into 4 hidden groups.
-- **Hindsight**: two tabs. Draft Redo re-drafts a class (1989–2021) by career Win Shares; MVP Ballot re-orders a season's MVP vote.
+- **Hindsight**: three tabs. Draft Redo re-drafts a class (1989–2021) by career Win Shares; MVP Ballot re-orders a season's MVP vote; Name the Team fills in an All-NBA, All-Defense, or All-Rookie team.
 - **Snake Draft**: draft single player-seasons against a computer GM.
 - **Players**: a page for every player since 1979-80, with bio, honors, and season stats.
 
