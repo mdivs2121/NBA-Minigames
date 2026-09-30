@@ -124,10 +124,10 @@ const GAMES = [
   },
   {
     page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume", isNew: true,
-    blurb: "Two anonymous careers, side by side. Pick the one worth more, then see who they were.",
+    blurb: "Two anonymous stat lines, side by side: whole careers or single seasons. Pick the better one, then see who they were.",
     howto: [
-      ["Two careers, no names", "You see two players' career stats and awards. They play similar positions and scored about the same."],
-      ["Pick the better one", "Tap the career you think was worth more career Win Shares. A and B keys work too."],
+      ["Pick a mode", "Careers: judged by career Win Shares. Seasons (harder): one season each, judged by that year's Box Plus/Minus."],
+      ["Pick the better one", "The two play similar positions and scored about the same, so look past points. A and B keys work too."],
       ["Ten rounds", "Each pick reveals who they were. Green marks the better number in each row."],
     ],
   },

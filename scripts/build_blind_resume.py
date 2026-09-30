@@ -15,6 +15,13 @@ players at the same position or one step apart. last is his final season.
 The site hides the name, shows the rest, and asks which of two careers was
 worth more career Win Shares.
 
+It also writes data/blind_seasons.json for the Seasons mode: single seasons
+(50+ games, 20+ minutes a game) with a Box Plus/Minus good enough for their
+era, strict for old seasons and loose for recent ones (see ERA_BPM):
+
+  [ { id, name, season, teams, pos, g, mpg, ppg, rpg, apg, spg, bpg, tov,
+      fgPct, threePct, tsPct, bpm }, ... ]
+
 Run:  python3 build_blind_resume.py
 """
 import json
@@ -38,6 +45,43 @@ def era_threshold(last_season):
     return next(ws for before, ws in ERA_WIN_SHARES if last_season < before)
 
 
+# Seasons mode: BPM needed, by the year a season ended. A 1990s season has to
+# be really good to show up; a 2020s role player's season is fine.
+ERA_BPM = [(1990, 5.0), (2000, 4.0), (2010, 2.5), (2020, 1.0), (9999, -1.0)]
+SEASON_MIN_GAMES, SEASON_MIN_MPG = 50, 20
+
+
+def season_label(end_year):
+    return f"{end_year - 1}-{str(end_year)[-2:]}"
+
+
+def num(v, digits=1):
+    return None if pd.isna(v) else round(float(v), digits)
+
+
+def build_seasons(per_game_all, per_game, advanced):
+    """Single seasons for the Seasons mode."""
+    team_rows = per_game_all[(per_game_all["lg"] == "NBA") & ~per_game_all["team"].str.match(SUMMARY_TEAM).fillna(False)]
+    teams = team_rows.groupby(["player_id", "season"])["team"].apply(list)
+    df = per_game.merge(advanced[["player_id", "season", "bpm", "ts_percent"]], on=["player_id", "season"])
+    df["pos1"] = df["pos"].str.split("-").str[0]
+    df = df[(df["season"] >= FIRST_SEASON) & (df["g"] >= SEASON_MIN_GAMES) & (df["mp_per_game"] >= SEASON_MIN_MPG)
+            & df["pos1"].isin(POSITIONS) & df["bpm"].notna()]
+    need = df["season"].map(lambda y: next(b for before, b in ERA_BPM if y < before))
+    df = df[df["bpm"] >= need]
+    out = []
+    for r in df.sort_values(["season", "player_id"]).itertuples():
+        out.append({
+            "id": r.player_id, "name": r.player, "season": season_label(int(r.season)),
+            "teams": teams.get((r.player_id, r.season), [r.team]), "pos": r.pos1,
+            "g": int(r.g), "mpg": num(r.mp_per_game), "ppg": num(r.pts_per_game), "rpg": num(r.trb_per_game),
+            "apg": num(r.ast_per_game), "spg": num(r.stl_per_game), "bpg": num(r.blk_per_game), "tov": num(r.tov_per_game),
+            "fgPct": num(r.fg_percent, 3), "threePct": num(r.x3p_percent, 3), "tsPct": num(r.ts_percent, 3),
+            "bpm": num(r.bpm),
+        })
+    return out
+
+
 def one_row_per_season(df):
     df = df[df["lg"] == "NBA"].copy()
     df["_summary"] = df["team"].str.match(SUMMARY_TEAM).fillna(False)
@@ -46,7 +90,8 @@ def one_row_per_season(df):
 
 def main():
     totals = one_row_per_season(pd.read_csv(STATS_DIR / "Player Totals.csv"))
-    per_game = one_row_per_season(pd.read_csv(STATS_DIR / "Player Per Game.csv"))
+    per_game_all = pd.read_csv(STATS_DIR / "Player Per Game.csv")
+    per_game = one_row_per_season(per_game_all)
     advanced = one_row_per_season(pd.read_csv(STATS_DIR / "Advanced.csv"))
     all_stars = pd.read_csv(STATS_DIR / "All-Star Selections.csv")
     all_stars = all_stars[all_stars["lg"] == "NBA"].groupby("player_id").size()
@@ -92,6 +137,14 @@ def main():
           f"by position {pd.Series([p['pos'] for p in out]).value_counts().to_dict()}")
     for pid in ("jamesle01", "millspa01"):
         print("  ", next((p for p in out if p["id"] == pid), None))
+
+    seasons_out = build_seasons(per_game_all, per_game, advanced)
+    path = OUT_DIR / "blind_seasons.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(seasons_out, f, separators=(",", ":"), ensure_ascii=False)
+    decades = pd.Series([int(s["season"][:4]) // 10 * 10 for s in seasons_out]).value_counts().sort_index().to_dict()
+    print(f"wrote {path} ({path.stat().st_size / 1024:.0f} KB): {len(seasons_out)} seasons, by decade {decades}")
+    print("  ", next(s for s in seasons_out if s["id"] == "curryst01" and s["season"] == "2015-16"))
 
 
 if __name__ == "__main__":

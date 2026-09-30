@@ -31,6 +31,11 @@
       <span id="state" class="state">Loading</span>
     </header>
 
+    <nav class="difficulty" aria-label="Mode">
+      <button type="button" data-mode="careers">Careers · Win Shares</button>
+      <button type="button" data-mode="seasons">Seasons · BPM</button>
+    </nav>
+
     <p id="status" class="status">Loading careers…</p>
 
     <section id="game" hidden>
@@ -40,9 +45,9 @@
       </div>
 
       <div class="br-head">
-        <span class="side-label">Which career was worth more?</span>
-        <h1 class="giant">Pick one. No names.</h1>
-        <p class="meta">Both play similar positions and scored about the same, so look deeper. The answer is whoever finished with more career Win Shares.</p>
+        <span id="question" class="side-label">Which career was worth more?</span>
+        <h1 id="title" class="giant">Pick one. No names.</h1>
+        <p id="intro" class="meta">Both play similar positions and scored about the same, so look deeper. The answer is whoever finished with more career Win Shares.</p>
       </div>
 
       <div class="br-cards">

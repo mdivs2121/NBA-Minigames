@@ -30,7 +30,7 @@ python3 build_mvp_data.py          # MVP Ballot
 python3 build_connections_data.py  # Hoop Connections
 python3 build_player_pages.py      # player pages
 python3 build_career_path.py       # Career Path (reads connections.json)
-python3 build_blind_resume.py      # Blind Résumé
+python3 build_blind_resume.py      # Blind Résumé (Careers and Seasons modes)
 python3 build_facts.py             # "Did you know?" facts (reads the files above)
 ```
 
