@@ -37,3 +37,9 @@ python3 build_facts.py             # "Did you know?" facts (reads the files abov
 
 Each script writes straight into `../data/`. Commit and push, and the live site
 updates. Heads-up: new data changes which daily puzzles people get.
+
+## Publishing
+
+Before committing a change to the site, run `python3 scripts/stamp_version.py`.
+It tags every script and stylesheet link with a new version so visitors get the
+new code right away instead of an old copy their browser saved.
