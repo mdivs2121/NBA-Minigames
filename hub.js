@@ -35,6 +35,10 @@ const PROGRESS = {
     const best = Number(saved("hl-best")) || 0;
     return best ? { text: `Best streak: ${best}` } : null;
   },
+  hindsight() {
+    const parts = [PROGRESS.draft(), PROGRESS.mvp()].filter(Boolean).map((p) => p.text);
+    return parts.length ? { text: parts.join(" · ") } : null;
+  },
   resume() {
     const bests = [["Careers", "br-best"], ["Seasons", "br-best-seasons"], ["Teams", "br-best-teams"]]
       .map(([label, key]) => [label, Number(saved(key)) || 0]).filter(([, n]) => n);

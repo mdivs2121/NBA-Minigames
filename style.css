@@ -1620,3 +1620,20 @@ main { animation: page-in 0.3s ease-out; }
 .br-scorers { color: var(--muted); font-size: 0.8rem; font-weight: 700; text-align: center; }
 .br-footnote { margin: 8px 0 0; font-size: 0.8rem; text-align: center; }
 @media (max-width: 520px) { .difficulty button { font-size: 0.72rem; letter-spacing: 0.04em; } }
+
+/* Tabs for games made of several pages (Hindsight: Draft Redo | MVP Ballot) */
+.game-tab-bar { grid-template-columns: repeat(2, 1fr); }
+.game-tab-bar a {
+  display: grid;
+  place-items: center;
+  padding: 10px 0;
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+.game-tab-bar a:hover { color: var(--text); }
+.game-tab-bar a[aria-current="page"] { background: var(--accent); color: var(--on-accent); }

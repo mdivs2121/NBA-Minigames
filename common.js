@@ -145,21 +145,13 @@ const GAMES = [
     ],
   },
   {
-    page: "draft.html", title: "Draft Redo", tag: "Hindsight", art: "draft",
-    blurb: "Pick any draft class from 1989 to 2021 and build the top 10 it should have been.",
+    page: "draft.html", pages: ["draft.html", "mvp.html"], title: "Hindsight", tag: "Draft & MVP", art: "hindsight",
+    tabs: [["draft.html", "Draft Redo"], ["mvp.html", "MVP Ballot"]],
+    blurb: "Two ways to rewrite history: re-draft any class from 1989 to 2021, or re-vote a season's MVP race.",
     howto: [
-      ["Pick a class", "Choose any draft from 1989 to 2021, or hit Random. The whole class is listed."],
-      ["Build your top 10", "Add 10 players from the class, then drag them into the order they should have gone."],
-      ["Lock in", "You're scored on career Win Shares: points for each real top-10 player, more for the exact spot."],
-    ],
-  },
-  {
-    page: "mvp.html", title: "MVP Ballot", tag: "Voting", art: "mvp", isNew: true,
-    blurb: "A season's top five MVP vote-getters, shuffled. Put them back in the order the voters had them.",
-    howto: [
-      ["Five finalists", "You get the top five MVP vote-getters from one season, shuffled."],
-      ["Set your ballot", "Drag them into the order the voters had them, winner on top."],
-      ["Submit", "See each player's real share of the vote. 🟩 right spot · 🟨 one off · 🟥 two or more off."],
+      ["Two tabs", "Draft Redo: build the top 10 a draft class should have been. MVP Ballot: put a season's top five MVP finishers in voting order."],
+      ["Drag to order", "Add players (Draft Redo) and drag them into order, or use the arrows. Pick any class or season, or hit Random."],
+      ["Lock in", "Draft Redo is scored on career Win Shares; MVP Ballot on the real vote. 🟩 right spot · 🟨 close · 🟥 off."],
     ],
   },
   {
@@ -183,7 +175,7 @@ const BALL_ICON = `
   </svg>`;
 
 const HERE = location.pathname.split("/").pop() || "index.html";   // index.html is the home page
-const THIS_GAME = GAMES.find((g) => g.page === HERE);
+const THIS_GAME = GAMES.find((g) => g.page === HERE || g.pages?.includes(HERE));
 
 // Small drawings of each game, in the site's colors (home page cards and how-to popups).
 const GAME_ART = {
@@ -236,6 +228,16 @@ const GAME_ART = {
         <text x="${x + 24}" y="30" text-anchor="middle" font-size="10" font-weight="800" fill="var(--muted)">?</text>
         ${[42, 52, 62].map((y, j) => `<rect x="${x + 8}" y="${y}" width="${[32, 26, 30][j]}" height="5" rx="2.5" fill="${i && j === 1 ? "var(--green)" : "var(--line)"}"/>`).join("")}`).join("")}
     </svg>`,
+  hindsight: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[0, 1, 2, 3].map((i) => `
+        <text x="6" y="${22 + i * 18}" font-size="11" font-weight="800" fill="var(--muted)">${i + 1}</text>
+        <rect x="18" y="${13 + i * 18}" width="${[48, 38, 44, 30][i]}" height="11" rx="4" fill="${i === 0 ? "var(--accent)" : "var(--surface-2)"}"/>`).join("")}
+      <rect x="76" y="12" width="40" height="64" rx="6" fill="var(--surface-2)"/>
+      <path d="M86 32 l4 4 l9 -10" stroke="var(--green)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="84" y="46" width="24" height="5" rx="2.5" fill="var(--line)"/>
+      <rect x="84" y="57" width="24" height="5" rx="2.5" fill="var(--line)"/>
+    </svg>`,
   draft: `
     <svg viewBox="0 0 120 90" aria-hidden="true">
       ${[0, 1, 2, 3].map((i) => `
@@ -278,7 +280,7 @@ function renderNav() {
         <div id="games-panel" class="games-panel" hidden>
           <a href="index.html" class="panel-home">All games</a>
           ${GAMES.map((g) => `
-            <a href="${g.page}"${g.page === HERE ? ' aria-current="page"' : ""}>
+            <a href="${g.page}"${g === THIS_GAME ? ' aria-current="page"' : ""}>
               <span class="panel-title">${escapeHtml(g.title)}${g.isNew ? ' <span class="new-badge">New</span>' : ""}</span>
               <span class="panel-tag">${escapeHtml(g.tag)}</span>
             </a>`).join("")}
@@ -300,6 +302,19 @@ function renderNav() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !panel.hidden) { setOpen(false); button.focus(); }
   });
+}
+
+// ---------- game tabs ----------
+// Games made of several pages (like Hindsight) get a tab bar to switch between them.
+
+function renderTabs() {
+  const topbar = document.querySelector(".topbar");
+  if (!THIS_GAME?.tabs || !topbar) return;
+  topbar.querySelector(".eyebrow").textContent = THIS_GAME.title;
+  topbar.insertAdjacentHTML("afterend", `
+    <nav class="difficulty game-tab-bar" aria-label="${escapeHtml(THIS_GAME.title)}">
+      ${THIS_GAME.tabs.map(([page, label]) => `<a href="${page}"${page === HERE ? ' aria-current="page"' : ""}>${escapeHtml(label)}</a>`).join("")}
+    </nav>`);
 }
 
 // ---------- how to play ----------
@@ -518,6 +533,7 @@ for (const id of ["message", "share-msg", "state", "status"]) {
 }
 
 renderNav();
+renderTabs();
 setupHowTo();
 
 // ---------- drag to reorder ----------
