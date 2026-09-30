@@ -501,7 +501,7 @@ async function resultCanvas({ title, kicker = "", big, grid = [], lines = [] }) 
 // personal. Off until ANALYTICS_CODE is set to the site's GoatCounter code.
 // Stays off on the laptop (localhost) so testing doesn't count as visits.
 
-const ANALYTICS_CODE = "";
+const ANALYTICS_CODE = "nbaminigames";   // stats at https://nbaminigames.goatcounter.com
 
 if (ANALYTICS_CODE && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
   const s = document.createElement("script");
@@ -517,7 +517,8 @@ if (ANALYTICS_CODE && location.hostname !== "localhost" && location.hostname !==
 document.querySelector("footer")?.insertAdjacentHTML(
   "afterend",
   `<p class="credit">Stats from Basketball-Reference via the Kaggle dataset “NBA Stats (1947-present)”.
-   Headshots from NBA.com and Basketball-Reference. A fan project, not affiliated with the NBA.</p>`
+   Headshots from NBA.com and Basketball-Reference. A fan project, not affiliated with the NBA.
+   Visits are counted anonymously with GoatCounter (no cookies, nothing personal).</p>`
 );
 
 // Accessibility: a skip link, and screen readers announce game messages as they change.
