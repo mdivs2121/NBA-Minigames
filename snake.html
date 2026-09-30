@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=202609301536">
+  <link rel="stylesheet" href="style.css?v=202609301544">
 </head>
 <body>
   <main class="wide-main">
@@ -35,7 +35,13 @@
       <button type="button" data-level="rookie">Rookie GM</button>
       <button type="button" data-level="allstar">All-Star GM</button>
       <button type="button" data-level="hof">Hall of Fame GM</button>
+      <button type="button" data-level="friend">vs a Friend</button>
     </nav>
+
+    <div id="friend-names" class="sd-names" hidden>
+      <label><span class="label">Player 1</span><input id="name-you" maxlength="20" autocomplete="off"></label>
+      <label><span class="label">Player 2</span><input id="name-bot" maxlength="20" autocomplete="off"></label>
+    </div>
 
     <p id="status" class="status">Loading seasons…</p>
 
@@ -49,7 +55,7 @@
 
       <div class="sd-teams">
         <section class="sd-team">
-          <div class="sd-team-head"><span class="label">Your five</span><b id="you-total"></b></div>
+          <div class="sd-team-head"><span id="you-name" class="label">Your five</span><b id="you-total"></b></div>
           <ol id="you" class="sd-slots"></ol>
         </section>
         <section class="sd-team">
@@ -89,7 +95,7 @@
       <span>Win Shares decide it. Box scores can lie.</span>
     </footer>
   </main>
-  <script src="common.js?v=202609301536"></script>
-  <script src="snake.js?v=202609301536"></script>
+  <script src="common.js?v=202609301544"></script>
+  <script src="snake.js?v=202609301544"></script>
 </body>
 </html>

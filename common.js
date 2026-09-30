@@ -158,7 +158,7 @@ const GAMES = [
     page: "snake.html", title: "Snake Draft", tag: "Versus", art: "snake",
     blurb: "Draft real player-seasons against a computer GM. Box scores are shown, Win Shares decide the winner.",
     howto: [
-      ["Snake order", "You and a computer GM take turns (A, B, B, A, A…) until each of you has five."],
+      ["Snake order", "You and a computer GM (or a friend on the same device) take turns (A, B, B, A, A…) until each has five."],
       ["Fill a lineup", "You need 2 guards, 2 forwards, and a center, picked from 30 real seasons."],
       ["Win Shares decide", "Cards show box scores. Hidden Win Shares decide the winner, so watch for high-scoring traps."],
     ],
