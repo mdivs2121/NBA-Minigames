@@ -1673,3 +1673,27 @@ main { animation: page-in 0.3s ease-out; }
 .sd-names label { display: grid; gap: 4px; }
 .sd-names input { padding: 10px 12px; font-size: 1rem; }
 @media (max-width: 620px) { .difficulty:has(> :nth-child(4)) { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- "Get the app" (home page) ---------- */
+.install {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 22px;
+  padding: 16px 18px;
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  animation: pop 0.3s ease-out;
+}
+.install img { flex: none; border-radius: 14px; }
+.install-body { flex: 1; min-width: 0; }
+.install-body .label { color: var(--accent); }
+.install-body p { margin: 4px 0 10px; font-weight: 600; line-height: 1.4; }
+.install-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.install-actions .primary { padding: 8px 18px; font-size: 0.8rem; }
+.install-actions .ghost { padding: 7px 14px; font-size: 0.72rem; }
+/* Installed app: leave room for the phone's status bar and home bar. */
+@media (display-mode: standalone) {
+  main { padding-top: calc(env(safe-area-inset-top, 0px) + 24px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
+}

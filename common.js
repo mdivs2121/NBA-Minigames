@@ -511,6 +511,24 @@ if (ANALYTICS_CODE && location.hostname !== "localhost" && location.hostname !==
   document.head.appendChild(s);
 }
 
+// ---------- installed app ----------
+// sw.js lets the site be installed as an app and open without a connection.
+// Skipped on the laptop's test server so testing always sees fresh files.
+
+if ("serviceWorker" in navigator && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+// Android/Chrome offer a one-tap install; keep that offer for the home page's button.
+let installPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  document.dispatchEvent(new Event("installable"));
+});
+
+const isInstalled = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+
 // ---------- page setup ----------
 
 // Credit line under every page's footer.

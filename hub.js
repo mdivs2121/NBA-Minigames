@@ -145,6 +145,42 @@ Promise.all([fetchJson("facts"), fetchJson("photos").catch(() => ({}))])
   .then(([list, photos]) => { facts = list; data.photos = photos; renderFact(); })
   .catch(() => {});   // no facts file: the card just stays hidden
 
+// "Install the app": a one-tap button where the browser offers one (Android,
+// Chrome), steps for iPhone and iPad, and nothing once it's installed or dismissed.
+function renderInstall() {
+  const card = $("install");
+  let dismissed = false;
+  try { dismissed = Boolean(localStorage.getItem("install-dismissed")); } catch {}
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isInstalled() || dismissed || (!installPrompt && !ios)) { card.hidden = true; return; }
+  card.innerHTML = `
+    <img src="icons/icon-192.png" alt="" width="56" height="56">
+    <div class="install-body">
+      <span class="label">Get the app</span>
+      <p>${installPrompt
+        ? "Put NBA Minigames on your home screen. It opens full-screen, like any other app."
+        : "Put NBA Minigames on your home screen: tap <b>Share</b> <span aria-hidden=\"true\">⬆️</span> at the bottom of Safari, then <b>Add to Home Screen</b>."}</p>
+      <span class="install-actions">
+        ${installPrompt ? `<button type="button" id="install-btn" class="primary">Install</button>` : ""}
+        <button type="button" id="install-no" class="ghost">Not now</button>
+      </span>
+    </div>`;
+  card.hidden = false;
+  $("install-no").addEventListener("click", () => {
+    try { localStorage.setItem("install-dismissed", "1"); } catch {}
+    card.hidden = true;
+  });
+  $("install-btn")?.addEventListener("click", async () => {
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === "accepted") card.hidden = true;
+    installPrompt = null;
+  });
+}
+document.addEventListener("installable", renderInstall);
+window.addEventListener("appinstalled", () => { $("install").hidden = true; });
+renderInstall();
+
 renderHub();
 // Coming back to this tab (say, after finishing today's puzzle) refreshes the lines.
 window.addEventListener("pageshow", renderHub);
