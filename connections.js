@@ -160,6 +160,50 @@ function makePuzzle(random, { recentLabels = new Set(), yesterdayFamilies = new 
   throw new Error("Couldn't build a puzzle.");
 }
 
+// ---------- difficulty ----------
+// From COLORS_BY_DIFFICULTY_FROM on, a puzzle's groups are ordered 🟩 to 🟥 by
+// how hard they really are: how hard the category is to spot, made harder
+// when the four players are less famous. (Earlier days keep their original
+// order, since saved results remember groups by position.)
+
+const COLORS_BY_DIFFICULTY_FROM = "2026-10-03";
+
+// How hard a category is to see, 1 (it's in the names) to 9 (deep cut).
+function categoryDifficulty(label) {
+  const exact = {
+    "Last name is a color": 3, "Same first letter, first and last name": 5,
+    "Won MVP": 2, "Won Rookie of the Year": 3, "Won Defensive Player of the Year": 4,
+    "Won Sixth Man of the Year": 6, "Won Most Improved Player": 6,
+    "#1 overall picks": 3, "Second-round picks": 7,
+    "7 feet or taller": 3, "6 feet or shorter": 4,
+    "Played for 7+ franchises": 6, "Spent 10+ seasons with only one franchise": 5,
+    "Scored 20,000+ career points": 4, "Hall of Famers": 4, "Never played in college": 5,
+    "Averaged 25+ points in a season": 3, "Averaged 10+ assists in a season": 5,
+    "Averaged 12+ rebounds in a season": 5, "Averaged 2+ steals in a season": 8,
+    "Averaged 2.5+ blocks in a season": 6, "Had a 50-40-90 season": 6,
+    "Led the league in scoring": 4, "Led the league in rebounding": 6, "Led the league in assists": 6,
+    "Made 10+ All-Star teams": 3, "Made First-team All-NBA": 3, "Made First-team All-Defense": 6,
+  };
+  if (label in exact) return exact[label];
+  if (label.startsWith("First name") || label.startsWith("Last name")) return 1;   // you can read it
+  if (label.startsWith("Played for")) return 4;
+  if (label.startsWith("Went to")) return 5;
+  if (label.startsWith("Teammates of")) return 6;
+  if (label.startsWith("Drafted in")) return 7;
+  return 5;
+}
+
+// Category difficulty plus up to 3 more for little-known players (fame ~70+ is a star).
+function groupDifficulty(group) {
+  const fame = group.players.reduce((sum, id) => sum + (data.fame[id] || 0), 0) / group.players.length;
+  return categoryDifficulty(group.label) + Math.max(-1, Math.min(3, (55 - fame) / 15));
+}
+
+function orderByDifficulty(puzzle) {
+  const groups = [...puzzle.groups].sort((a, b) => groupDifficulty(a) - groupDifficulty(b));
+  return { ...puzzle, groups };
+}
+
 // "2026-10-01" plus n days, as the same kind of string.
 function addDays(key, n) {
   return new Date(Date.UTC(+key.slice(0, 4), +key.slice(5, 7) - 1, +key.slice(8, 10) + n)).toISOString().slice(0, 10);
@@ -182,7 +226,8 @@ function dailyPuzzle(day) {
       const recentLabels = new Set(week.slice(-(NO_REPEAT_DAYS - 1)).flat());
       const yesterdayFamilies = new Set((week.at(-1) || []).map(familyOf));
       const twoDaysFamilies = new Set((week.at(-2) || []).map(familyOf));
-      dailyCache[d] = makePuzzle(seed(d), { recentLabels, yesterdayFamilies, twoDaysFamilies });
+      const puzzle = makePuzzle(seed(d), { recentLabels, yesterdayFamilies, twoDaysFamilies });
+      dailyCache[d] = d >= COLORS_BY_DIFFICULTY_FROM ? orderByDifficulty(puzzle) : puzzle;
     }
     week.push(dailyCache[d].groups.map((g) => g.label));
   }
@@ -225,7 +270,7 @@ function startPractice() {
   play.mode = "practice";
   play.day = null;
   play.number = null;
-  reset(makePuzzle(Math.random));
+  reset(orderByDifficulty(makePuzzle(Math.random)));
   $("message").textContent = "";
   render();
   window.scrollTo({ top: 0, behavior: "smooth" });
