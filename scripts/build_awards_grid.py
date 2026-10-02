@@ -53,7 +53,17 @@ COLLEGES = {   # name as it appears in Player Career Info -> label
     "Syracuse": "Syracuse", "UConn": "UConn", "Michigan": "Michigan", "Florida": "Florida", "Indiana": "Indiana",
     "Louisville": "Louisville", "Villanova": "Villanova",
 }
+# Award rows missing a player id in the dataset.
+MISSING_IDS = {(1983, "Bobby Jones"): "jonesbo01"}
 SEASON_GAMES = 40   # a season counts toward a stat milestone with 40+ games
+
+
+def award_winners():
+    awards = pd.read_csv(STATS_DIR / "Player Award Shares.csv")
+    awards = awards[awards["winner"] == True].copy()
+    missing = awards["player_id"].isna()
+    awards.loc[missing, "player_id"] = [MISSING_IDS.get((s, n)) for s, n in zip(awards.loc[missing, "season"], awards.loc[missing, "player"])]
+    return awards.dropna(subset=["player_id"])
 
 
 def main():
@@ -79,8 +89,7 @@ def main():
     adv["_summary"] = adv["team"].str.match(SUMMARY_TEAM).fillna(False)
     fame = adv.sort_values("_summary", ascending=False).drop_duplicates(["player_id", "season"]).groupby("player_id")["ws"].sum()
 
-    awards = pd.read_csv(STATS_DIR / "Player Award Shares.csv")
-    awards = awards[awards["winner"] == True]
+    awards = award_winners()
     teams_eos = pd.read_csv(STATS_DIR / "End of Season Teams.csv")
     teams_eos = teams_eos[teams_eos["lg"] == "NBA"]
     all_stars = pd.read_csv(STATS_DIR / "All-Star Selections.csv")

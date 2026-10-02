@@ -6,6 +6,7 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Rank the Five**: a daily puzzle. Rank five players by a hidden stat.
 - **Higher or Lower**: does the next player have more or fewer? Keep the streak going.
 - **Career Path**: name the player from his team history; misses unlock clues.
+- **Timeline**: put five moments from NBA history in order; three lives.
 - **Awards Grid** (daily): a 3×3 grid of teams, awards, and milestones; name a player for every square.
 - **Guess the Player** (daily): a mystery player; every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.
 - **Blind Résumé**: two anonymous stat lines (careers, single seasons, or teams); pick the better one.

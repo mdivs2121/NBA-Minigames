@@ -159,6 +159,15 @@ const GAMES = [
     ],
   },
   {
+    page: "timeline.html", title: "Timeline", tag: "Endless", art: "timeline", isNew: true,
+    blurb: "MVPs, #1 picks, titles, first All-Star nods. Put five moments in order, oldest to newest. Three lives.",
+    howto: [
+      ["Five moments", "Award wins, #1 draft picks, championships, and first All-Star selections, all from 1980 on."],
+      ["Put them in order", "Drag the rows (or tap the arrows) from oldest at the top to most recent at the bottom."],
+      ["Three lives", "A perfect order scores a point. Anything less costs a life. Easy keeps the years far apart; Hard doesn't."],
+    ],
+  },
+  {
     page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume", isNew: true,
     blurb: "Two anonymous stat lines, side by side: whole careers, single seasons, or whole teams. Pick the better one, then see who they were.",
     howto: [
@@ -233,6 +242,14 @@ const GAME_ART = {
         <rect x="${36 + i * 26}" y="6" width="22" height="18" rx="4" fill="${["#552583", "var(--accent)", "#007A33"][i]}"/>
         <rect x="8" y="${30 + i * 20}" width="22" height="16" rx="4" fill="${["#C4CED4", "#CE1141", "#98002E"][i]}"/>`).join("")}
       ${[0, 1, 2].map((r) => [0, 1, 2].map((c) => `<rect x="${36 + c * 26}" y="${30 + r * 20}" width="22" height="16" rx="4" fill="${(r * 3 + c) % 4 === 1 ? "var(--surface-2)" : "var(--green)"}"/>`).join("")).join("")}
+    </svg>`,
+  timeline: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <path d="M16 12 V80" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>
+      ${[0, 1, 2, 3].map((i) => `
+        <circle cx="16" cy="${16 + i * 20}" r="6" fill="${i === 3 ? "var(--near)" : "var(--green)"}"/>
+        <rect x="30" y="${10 + i * 20}" width="${[60, 74, 50, 66][i]}" height="12" rx="4" fill="var(--surface-2)"/>
+        <text x="${36}" y="${19 + i * 20}" font-size="8" font-weight="800" fill="var(--muted)">${[1984, 1996, 2003, 2016][i]}</text>`).join("")}
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

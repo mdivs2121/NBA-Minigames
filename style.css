@@ -1809,3 +1809,12 @@ main { animation: page-in 0.3s ease-out; }
   .ag-head.team small { display: block; }
   .ag-name { font-size: 0.66rem; }
 }
+
+/* ---------- Timeline ---------- */
+.tl-lives { font-size: 1.6rem; letter-spacing: 0.05em; }
+.tl-text { font-weight: 800; font-size: clamp(0.95rem, 3.2vw, 1.15rem); line-height: 1.2; }
+.tl-badge {
+  width: 52px; aspect-ratio: 1; flex: none; display: grid; place-items: center; border-radius: 8px;
+  background: var(--team); color: #fff; font-weight: 900; font-size: 0.85rem; letter-spacing: 0.03em;
+}
+.tl-row.hit .rank-sub, .tl-row.near .rank-sub, .tl-row.miss .rank-sub { opacity: 0.9; font-weight: 800; }
