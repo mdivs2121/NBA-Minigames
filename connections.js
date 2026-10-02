@@ -247,20 +247,23 @@ function reset(puzzle) {
 }
 
 function startDaily() {
+  const { day, past } = puzzleDay();
   play.mode = "daily";
-  play.day = todayKey();
+  play.past = past;   // a past day from the archive
+  play.day = day;
   play.number = dayNumber(play.day);
   reset(dailyPuzzle(play.day));
 
   const save = loadSave();
-  const saved = save.history[play.day] || (save.progress?.day === play.day ? save.progress : null);
+  const done = save.history[play.day] || save.archive?.[play.day];
+  const saved = done || (!past && save.progress?.day === play.day ? save.progress : null);
   if (saved) {
     Object.assign(play, {
       solved: saved.solved, guessed: saved.guessed, guesses: saved.guesses,
       mistakes: saved.mistakes, order: saved.order || play.order, found: saved.found ?? saved.solved.length,
       hints: saved.hintLog || [],
     });
-    if (save.history[play.day]) finish(saved.won, { restoring: true });
+    if (done) finish(saved.won, { restoring: true });
   }
   $("message").textContent = "";
   render();
@@ -323,7 +326,7 @@ function solveGroup(hit) {
   say(`✓ ${play.groups[hit].label}`, "good");
   if (play.solved.length === 4) {
     finish(true);
-    const milestone = play.mode === "daily" && streakMilestone(winStreak());
+    const milestone = play.mode === "daily" && !play.past && streakMilestone(winStreak());
     if (milestone) celebrate({ big: true });
     else if (play.mistakes === 0 && !play.hints.length) celebrate();
   }
@@ -341,17 +344,18 @@ function finish(won, { restoring = false } = {}) {
   for (let g = 0; g < 4; g++) if (!play.solved.includes(g)) play.solved.push(g);
   if (play.mode === "daily" && !restoring) {
     const save = loadSave();
-    save.history[play.day] = {
+    const result = {
       won, mistakes: play.mistakes, found: play.found, guesses: play.guesses, guessed: play.guessed,
       solved: play.solved, order: play.order, hints: play.hints.length, hintLog: play.hints,
     };
-    save.progress = null;
+    if (play.past) (save.archive ||= {})[play.day] = result;   // archive plays don't touch streaks
+    else { save.history[play.day] = result; save.progress = null; }
     writeSave(save);
   }
 }
 
 function saveProgress() {
-  if (play.mode !== "daily" || play.over) return;
+  if (play.mode !== "daily" || play.past || play.over) return;
   const save = loadSave();
   save.progress = {
     day: play.day, solved: play.solved, guessed: play.guessed, guesses: play.guesses,
@@ -433,7 +437,7 @@ function shuffleGrid() {
 }
 
 function shareText() {
-  const title = play.mode === "daily" ? `Hoop Connections #${play.number}` : "Hoop Connections (practice)";
+  const title = play.mode === "daily" ? `Hoop Connections #${play.number}${play.past ? " (archive)" : ""}` : "Hoop Connections (practice)";
   const rows = play.guesses.map((tiers) => tiers.map((t) => RANK_EMOJI[t]).join("")).join("\n");
   const n = play.hints.length;
   return `${title}\n${rows}${n ? `\n💡 ${n} hint${n === 1 ? "" : "s"}` : ""}`;
@@ -585,7 +589,7 @@ function renderResult() {
   $("result-text").textContent = "Colors run from the easiest group to the hardest: 🟩 🟨 🟧 🟥.";
   $("share-msg").textContent = "";
   $("practice").textContent = play.mode === "daily" ? "Practice puzzle" : "Another practice puzzle";
-  $("next").hidden = play.mode !== "daily";
+  $("next").hidden = play.mode !== "daily" || play.past;
   updateCountdown();
 }
 
@@ -594,7 +598,7 @@ function updateCountdown() {
   const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
   const mins = Math.max(0, Math.round((midnight - now) / 60000));
   $("next").textContent = `Next puzzle in ${Math.floor(mins / 60)}h ${mins % 60}m.`;
-  if (play.mode === "daily" && play.day && play.day !== todayKey()) startDaily();
+  if (play.mode === "daily" && !play.past && play.day && play.day !== todayKey()) startDaily();
 }
 
 function renderStats() {

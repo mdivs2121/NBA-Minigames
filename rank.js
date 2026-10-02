@@ -119,14 +119,16 @@ const writeSave = (save) => writeDailySave(STORAGE_KEY, save);
 
 function startDaily() {
   const save = loadSave();
+  const { day, past } = puzzleDay();
   play.mode = "daily";
-  play.day = todayKey();
+  play.past = past;   // a past day from the archive
+  play.day = day;
   play.number = dayNumber(play.day);
   play.puzzle = makePuzzle(rng(hash(`rank-the-five:${play.day}`)));
   play.result = null;
 
-  const done = save.history[play.day];
-  const progress = save.progress?.day === play.day ? save.progress : null;
+  const done = save.history[play.day] || save.archive?.[play.day];
+  const progress = !past && save.progress?.day === play.day ? save.progress : null;
   if (done) {
     play.order = done.order;
     play.revealed = true;
@@ -160,7 +162,7 @@ function reveal() {
 }
 
 function saveProgress() {
-  if (play.mode !== "daily" || play.locked) return;
+  if (play.mode !== "daily" || play.past || play.locked) return;
   const save = loadSave();
   save.progress = { day: play.day, revealed: play.revealed, order: play.order };
   writeSave(save);
@@ -172,11 +174,12 @@ function lockIn() {
   play.result = scoreOf(play.order, play.puzzle.answer);
   if (play.mode === "daily") {
     const save = loadSave();
-    save.history[play.day] = { order: play.order, score: play.result.score, exact: play.result.exact };
-    save.progress = null;
+    const result = { order: play.order, score: play.result.score, exact: play.result.exact };
+    if (play.past) (save.archive ||= {})[play.day] = result;   // archive plays don't touch streaks
+    else { save.history[play.day] = result; save.progress = null; }
     writeSave(save);
   }
-  const milestone = play.mode === "daily" && streakMilestone(streaks(loadSave().history).current);
+  const milestone = play.mode === "daily" && !play.past && streakMilestone(streaks(loadSave().history).current);
   if (milestone) celebrate({ big: true });
   else if (play.result.score === 100) celebrate();
   render();
@@ -205,8 +208,8 @@ function move(from, to) {
 
 function shareText() {
   const { score, emoji } = play.result;
-  const title = play.mode === "daily" ? `Rank the Five #${play.number}` : "Rank the Five (practice)";
-  const streak = play.mode === "daily" ? streaks(loadSave().history).current : 0;
+  const title = play.mode === "daily" ? `Rank the Five #${play.number}${play.past ? " (archive)" : ""}` : "Rank the Five (practice)";
+  const streak = play.mode === "daily" && !play.past ? streaks(loadSave().history).current : 0;
   return `${title}\n${emoji} ${score}/100${streak > 1 ? `\n🔥 ${streak}-day streak` : ""}`;
 }
 
@@ -235,7 +238,7 @@ function render() {
     .join("");
 
   const cat = puzzle.category;
-  $("category-kicker").textContent = daily ? `Puzzle #${play.number} · Today's stat` : "Practice round";
+  $("category-kicker").textContent = daily ? `Puzzle #${play.number} · ${play.past ? formatDay(play.day) : "Today's stat"}` : "Practice round";
   $("category-title").textContent = cat.title;
   $("category-detail").textContent =
     cat.kind === "career"
@@ -313,7 +316,7 @@ function renderResult() {
     `${exact} of 5 in the right spot. 🟩 right spot · 🟨 one off · 🟥 two or more off.`;
   $("share-msg").textContent = "";
   $("practice").textContent = play.mode === "daily" ? "Practice round" : "Another practice round";
-  $("next").hidden = play.mode !== "daily";
+  $("next").hidden = play.mode !== "daily" || play.past;
   updateCountdown();
 }
 
@@ -323,7 +326,7 @@ function updateCountdown() {
   const mins = Math.max(0, Math.round((midnight - now) / 60000));
   $("next").textContent = `Next puzzle in ${Math.floor(mins / 60)}h ${mins % 60}m.`;
   // Past midnight with the page still open: load the new day's puzzle.
-  if (play.mode === "daily" && play.day && play.day !== todayKey()) startDaily();
+  if (play.mode === "daily" && !play.past && play.day && play.day !== todayKey()) startDaily();
 }
 
 function renderStats() {

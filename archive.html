@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Players · NBA Minigames</title>
-  <meta name="description" content="Look up any NBA player since 1979-80: bio, awards, and every season&#x27;s stats.">
+  <title>Puzzle archive · NBA Minigames</title>
+  <meta name="description" content="Every past daily puzzle. Play the days you missed.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
-  <meta property="og:title" content="Players · NBA Minigames">
-  <meta property="og:description" content="Look up any NBA player since 1979-80: bio, awards, and every season&#x27;s stats.">
-  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/player.html">
+  <meta property="og:title" content="Puzzle archive · NBA Minigames">
+  <meta property="og:description" content="Every past daily puzzle. Play the days you missed.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/archive.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -28,26 +28,24 @@
   <link rel="stylesheet" href="style.css?v=202610021256">
 </head>
 <body>
-  <main class="wide-main">
+  <main>
     <nav class="site-nav" aria-label="Games"></nav>
     <div class="rule"></div>
 
-    <form id="search-form" class="pl-search" role="search" autocomplete="off">
-      <label for="search" class="label">Look up a player</label>
-      <input id="search" type="search" placeholder="Search 4,000+ players by name…">
-      <ol id="results" class="pl-results" hidden></ol>
-    </form>
+    <header class="hub-head">
+      <span class="side-label">Archive</span>
+      <h1 class="giant">Missed a day?</h1>
+      <p class="meta">Every past daily puzzle is here. Days you've played show your result. Archive plays don't count toward your streak.</p>
+    </header>
 
-    <p id="status" class="status">Loading players…</p>
-
-    <section id="profile" hidden></section>
+    <ol id="days" class="ar-days"></ol>
 
     <footer>
-      <span class="brand">Players</span>
-      <span>Everyone from 1979-80 on, plus every draft pick 1989–2021.</span>
+      <span class="brand">Archive</span>
+      <span>New daily puzzles every midnight.</span>
     </footer>
   </main>
   <script src="common.js?v=202610021256"></script>
-  <script src="player.js?v=202610021256"></script>
+  <script src="archive.js?v=202610021256"></script>
 </body>
 </html>

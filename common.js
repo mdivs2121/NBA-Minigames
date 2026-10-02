@@ -632,7 +632,17 @@ function dayNumber(key) {
   return Math.round((utc(key) - utc(FIRST_DAY)) / 86400000) + 1;
 }
 
-// { history: { "2026-09-28": result }, progress } saved under one key per game.
+// Daily games can also play a past day from the archive: rank.html?day=2026-09-29.
+// Only real past days count (not the future, not before puzzle #1).
+function puzzleDay() {
+  const asked = new URLSearchParams(location.search).get("day");
+  const today = todayKey();
+  if (asked && /^\d{4}-\d{2}-\d{2}$/.test(asked) && asked >= FIRST_DAY && asked < today) return { day: asked, past: true };
+  return { day: today, past: false };
+}
+
+// { history: { "2026-09-28": result }, archive: { past days played later }, progress }
+// saved under one key per game. Archive results never count toward streaks.
 function loadDailySave(key) {
   try {
     const saved = JSON.parse(localStorage.getItem(key));

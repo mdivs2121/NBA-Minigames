@@ -93,7 +93,7 @@ function renderToday() {
       <span class="today-streak ${streak ? "on" : ""}">${streak ? `🔥 ${streak}-day streak` : "Start a streak today"}</span>
     </div>
     <div class="today-chips">${chips.join("")}</div>
-    ${allDone ? `<p class="today-done">All done for today. New puzzles at midnight.</p>` : ""}`;
+    <p class="today-done">${allDone ? "All done for today. New puzzles at midnight. " : ""}<a href="archive.html">Missed a day? Play past puzzles →</a></p>`;
   $("today").hidden = false;
 }
 
