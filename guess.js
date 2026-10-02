@@ -55,6 +55,7 @@ const conference = (team) => (EAST_DIVISIONS.has(division(team)) ? "East" : "Wes
 const posParts = (pos) => new Set(pos.split("-"));
 const feet = (inches) => `${Math.floor(inches / 12)}′${inches % 12}″`;
 
+// Numbers are 🟨 when within 2 (inches, years, picks, All-Star nods).
 // Compare one guessed player to the answer: [{ text, color: "green"|"near"|"conf"|"", arrow }]
 // Team: 🟩 same team, 🟨 same division, outlined yellow for the same conference.
 function compare(guess, answer) {
@@ -72,9 +73,9 @@ function compare(guess, answer) {
     },
     { text: guess.pos, color: samePos ? "green" : [...gp].some((x) => ap.has(x)) ? "near" : "", arrow: "" },
     { text: feet(guess.ht), ...number(guess.ht, answer.ht, 2) },
-    { text: String(guess.debut - 1), ...number(guess.debut, answer.debut, 3) },
+    { text: String(guess.debut - 1), ...number(guess.debut, answer.debut, 2) },
     // Undrafted only matches undrafted; it's never "close" to a real pick.
-    { text: guess.pick ? `#${guess.pick}` : "Undrafted", ...(guess.pick && answer.pick ? number(gPick, aPick, 5) : gPick === aPick ? { color: "green", arrow: "" } : { color: "", arrow: aPick > gPick ? "⬆️" : "⬇️" }) },
+    { text: guess.pick ? `#${guess.pick}` : "Undrafted", ...(guess.pick && answer.pick ? number(gPick, aPick, 2) : gPick === aPick ? { color: "green", arrow: "" } : { color: "", arrow: aPick > gPick ? "⬆️" : "⬇️" }) },
     { text: String(guess.allStars), ...number(guess.allStars, answer.allStars, 2) },
   ];
 }
