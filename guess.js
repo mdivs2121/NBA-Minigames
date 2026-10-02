@@ -5,7 +5,13 @@
 const STORAGE_KEY = "gp-v1";   // { history: { day: result }, archive, progress: { day, guesses } }
 const MAX_GUESSES = 8;
 
-const EAST = new Set("ATL BOS BRK NJN CHA CHH CHO CHI CLE DET IND MIA MIL NYK ORL PHI TOR WAS WSB".split(" "));
+// Today's divisions. Old team names go where the franchise plays now.
+const DIVISIONS = {
+  Atlantic: "BOS BRK NJN NYK PHI TOR", Central: "CHI CLE DET IND MIL", Southeast: "ATL CHA CHH CHO MIA ORL WAS WSB",
+  Northwest: "DEN MIN OKC SEA POR UTA", Pacific: "GSW LAC SDC LAL PHO SAC KCK", Southwest: "DAL HOU MEM VAN NOP NOH NOK SAS",
+};
+const DIVISION_OF = Object.fromEntries(Object.entries(DIVISIONS).flatMap(([d, teams]) => teams.split(" ").map((t) => [t, d])));
+const EAST_DIVISIONS = new Set(["Atlantic", "Central", "Southeast"]);
 const UNDRAFTED = 61;   // counts as pick 61 for the arrows
 
 Object.assign(data, {
@@ -44,11 +50,13 @@ const answerFor = (day) => data.answers[(((dayNumber(day) - 1) % data.answers.le
 
 // ---------- clues ----------
 
-const conference = (team) => (EAST.has(team) ? "East" : "West");
+const division = (team) => DIVISION_OF[team] || "";
+const conference = (team) => (EAST_DIVISIONS.has(division(team)) ? "East" : "West");
 const posParts = (pos) => new Set(pos.split("-"));
 const feet = (inches) => `${Math.floor(inches / 12)}′${inches % 12}″`;
 
-// Compare one guessed player to the answer: [{ text, color: "green"|"near"|"", arrow }]
+// Compare one guessed player to the answer: [{ text, color: "green"|"near"|"conf"|"", arrow }]
+// Team: 🟩 same team, 🟨 same division, outlined yellow for the same conference.
 function compare(guess, answer) {
   const number = (g, a, close) => ({
     color: g === a ? "green" : Math.abs(g - a) <= close ? "near" : "",
@@ -58,7 +66,10 @@ function compare(guess, answer) {
   const samePos = gp.size === ap.size && [...gp].every((x) => ap.has(x));
   const gPick = guess.pick ?? UNDRAFTED, aPick = answer.pick ?? UNDRAFTED;
   return [
-    { text: guess.team, color: guess.team === answer.team ? "green" : conference(guess.team) === conference(answer.team) ? "near" : "", arrow: "", team: guess.team },
+    {
+      text: guess.team, sub: `${division(guess.team)} · ${conference(guess.team)}`, arrow: "", team: guess.team,
+      color: guess.team === answer.team ? "green" : division(guess.team) === division(answer.team) ? "near" : conference(guess.team) === conference(answer.team) ? "conf" : "",
+    },
     { text: guess.pos, color: samePos ? "green" : [...gp].some((x) => ap.has(x)) ? "near" : "", arrow: "" },
     { text: feet(guess.ht), ...number(guess.ht, answer.ht, 2) },
     { text: String(guess.debut - 1), ...number(guess.debut, answer.debut, 3) },
@@ -68,7 +79,7 @@ function compare(guess, answer) {
   ];
 }
 
-const SQUARE = { green: "🟩", near: "🟨", "": "⬛" };
+const SQUARE = { green: "🟩", near: "🟨", conf: "🟧", "": "⬛" };
 const emojiRow = (id) => (id === play.answer ? "🟩".repeat(6) : compare(data.byId[id], data.byId[play.answer]).map((c) => SQUARE[c.color]).join(""));
 
 // ---------- saving ----------
@@ -173,7 +184,7 @@ function render() {
       const right = id === play.answer;
       const cells = compare(g, answer).map((c) => `
         <span class="gp-cell ${right ? "green" : c.color}" ${c.team ? `style="--team: ${teamColor(c.team)}"` : ""}>
-          ${escapeHtml(c.text)}${c.arrow && !right ? `<i aria-label="${c.arrow === "⬆️" ? "higher" : "lower"}">${c.arrow === "⬆️" ? "↑" : "↓"}</i>` : ""}
+          ${c.sub ? `<span class="gp-team">${escapeHtml(c.text)}<small>${escapeHtml(c.sub)}</small></span>` : escapeHtml(c.text)}${c.arrow && !right ? `<i aria-label="${c.arrow === "⬆️" ? "higher" : "lower"}">${c.arrow === "⬆️" ? "↑" : "↓"}</i>` : ""}
         </span>`).join("");
       return `
         <li class="gp-row ${right ? "right" : ""}">

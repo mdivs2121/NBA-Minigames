@@ -117,7 +117,7 @@ const GAMES = [
     blurb: "One mystery player a day. Every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.",
     howto: [
       ["Guess anyone", "Type any player from the last 25 years. You get eight guesses."],
-      ["Read the clues", "🟩 matches the mystery player. 🟨 is close: same conference, an overlapping position, or a number that's near. Arrows point toward his number."],
+      ["Read the clues", "🟩 matches the mystery player. 🟨 is close: same division, an overlapping position, or a number that's near. 🟧 on the team means same conference, different division. Arrows point toward his number."],
       ["Same for everyone", "One mystery player a day, picked from well-known recent players. Share your grid when you're done."],
     ],
   },
