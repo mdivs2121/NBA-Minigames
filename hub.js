@@ -28,6 +28,13 @@ const PROGRESS = {
     if (today) return { text: today.won ? `Today: got him in ${today.guesses} ✓` : "Today: stumped", done: true };
     return { text: played ? `Today's player is ready · ${played} played` : "Today's player is ready", fresh: true };
   },
+  awards() {
+    const history = saved("ag-v1")?.history || {};
+    const today = history[todayKey()];
+    const played = Object.keys(history).length;
+    if (today) return { text: `Today: ${today.score}/9 · originality ${today.originality} ✓`, done: true };
+    return { text: played ? `Today's grid is ready · ${played} played` : "Today's grid is ready", fresh: true };
+  },
   chain() {
     let level = null;
     try { level = localStorage.getItem("tc-level"); } catch {}   // saved as plain text, not JSON

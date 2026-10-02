@@ -122,6 +122,16 @@ const GAMES = [
     ],
   },
   {
+    page: "awards.html", title: "Awards Grid", tag: "Daily puzzle", art: "awards", daily: "ag-v1", isNew: true,
+    summary: (r) => `${r.score}/9`,
+    blurb: "A 3×3 grid of teams, awards, and milestones. Name a player who fits both sides of every square.",
+    howto: [
+      ["Pick a square", "Each square sits where a row and a column cross, like Lakers × MVP or Spurs × Duke."],
+      ["Name a player", "Type someone who fits both. You get nine guesses for nine squares, and each player counts only once."],
+      ["Go deep", "Originality rewards deep cuts: 0 for the most famous answer, up to 100 for the least. When you're done, tap a square to see who else fit."],
+    ],
+  },
+  {
     page: "chain.html", title: "Teammate Chain", tag: "Puzzle", art: "chain",
     blurb: "Connect two players through guys who played with them. Find the link in as few guesses as you can.",
     howto: [
@@ -215,6 +225,14 @@ const GAME_ART = {
       }).join("")).join("")}
       <circle cx="60" cy="76" r="10" fill="var(--accent)"/>
       <text x="60" y="80" text-anchor="middle" font-size="12" font-weight="800" fill="var(--on-accent)">?</text>
+    </svg>`,
+  awards: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="8" y="6" width="22" height="18" rx="4" fill="none" stroke="var(--line)" stroke-width="2"/>
+      ${[0, 1, 2].map((i) => `
+        <rect x="${36 + i * 26}" y="6" width="22" height="18" rx="4" fill="${["#552583", "var(--accent)", "#007A33"][i]}"/>
+        <rect x="8" y="${30 + i * 20}" width="22" height="16" rx="4" fill="${["#C4CED4", "#CE1141", "#98002E"][i]}"/>`).join("")}
+      ${[0, 1, 2].map((r) => [0, 1, 2].map((c) => `<rect x="${36 + c * 26}" y="${30 + r * 20}" width="22" height="16" rx="4" fill="${(r * 3 + c) % 4 === 1 ? "var(--surface-2)" : "var(--green)"}"/>`).join("")).join("")}
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">
