@@ -1697,3 +1697,17 @@ main { animation: page-in 0.3s ease-out; }
 @media (display-mode: standalone) {
   main { padding-top: calc(env(safe-area-inset-top, 0px) + 24px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
 }
+
+/* ---------- about ---------- */
+.about { max-width: 44em; margin-top: 28px; }
+.about .giant { margin: 8px 0 14px; }
+.about-lead { font-size: 1.15rem; font-weight: 600; line-height: 1.5; color: var(--text); }
+.about section { margin-top: 30px; }
+.about h2 { margin: 0 0 8px; font-size: 1.3rem; letter-spacing: -0.02em; }
+.about p { color: var(--muted); line-height: 1.6; }
+.about a { color: var(--accent); }
+.about-games { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.about-games li { padding: 12px 14px; border-radius: var(--radius); background: var(--surface); color: var(--muted); line-height: 1.45; }
+.about-games b { color: var(--text); }
+.about-games span { margin-left: 6px; color: var(--accent); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+.credit a { color: inherit; }

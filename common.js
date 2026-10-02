@@ -536,7 +536,7 @@ document.querySelector("footer")?.insertAdjacentHTML(
   "afterend",
   `<p class="credit">Stats from Basketball-Reference via the Kaggle dataset “NBA Stats (1947-present)”.
    Headshots from NBA.com and Basketball-Reference. A fan project, not affiliated with the NBA.
-   Visits are counted anonymously with GoatCounter (no cookies, nothing personal).</p>`
+   Visits are counted anonymously with GoatCounter (no cookies, nothing personal). <a href="about.html">About this site</a></p>`
 );
 
 // Accessibility: a skip link, and screen readers announce game messages as they change.

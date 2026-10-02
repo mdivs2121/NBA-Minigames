@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About · NBA Minigames</title>
+  <meta name="description" content="What NBA Minigames is, how it&#x27;s built, and where the stats come from.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NBA Minigames">
+  <meta property="og:title" content="About · NBA Minigames">
+  <meta property="og:description" content="What NBA Minigames is, how it&#x27;s built, and where the stats come from.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/about.html">
+  <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0e1015">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="NBA Games">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=202610021246">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <article class="about">
+      <span class="side-label">About</span>
+      <h1 class="giant">Made for people who know ball.</h1>
+      <p class="about-lead">NBA Minigames is a free collection of daily puzzles and quick games built on real NBA stats. No account, no ads, no download. Your streaks and scores stay on your own device.</p>
+
+      <section>
+        <h2>Who made it</h2>
+        <p>Built by <a href="https://github.com/mdivs2121">mdivs2121</a>, a basketball fan who wanted games that test what you actually know about the league. Ideas and bug reports are always welcome.</p>
+      </section>
+
+      <section>
+        <h2>The games</h2>
+        <ul id="about-games" class="about-games"></ul>
+      </section>
+
+      <section>
+        <h2>Where the numbers come from</h2>
+        <p>Stats come from Basketball-Reference through the Kaggle dataset <em>“NBA Stats (1947-present)”</em> by Sumitro Datta, covering every season from 1979-80 on (and every draft back to 1989). Headshots come from NBA.com and Basketball-Reference.</p>
+        <p>Win Shares and Box Plus/Minus, the numbers behind several games, are Basketball-Reference's all-in-one estimates of how much a player helped his team win.</p>
+      </section>
+
+      <section>
+        <h2>How it's built</h2>
+        <p>The site is plain HTML, CSS, and JavaScript, with no frameworks and no server. Python scripts (pandas) turn the raw CSVs into small JSON files the games load. Daily puzzles come from the date itself, so everyone gets the same puzzle without a server, and Hoop Connections checks every grid so each player fits exactly one group.</p>
+        <p>It's hosted free on GitHub Pages, works offline once installed, and counts visits anonymously with GoatCounter (no cookies). The code is on <a href="https://github.com/mdivs2121/NBA-Minigames">GitHub</a>.</p>
+      </section>
+
+      <section>
+        <h2>The fine print</h2>
+        <p>A fan project, not affiliated with or endorsed by the NBA or its teams. Team names and player likenesses belong to their owners.</p>
+      </section>
+    </article>
+
+    <footer>
+      <span class="brand">NBA Minigames</span>
+      <span>Prove you know ball.</span>
+    </footer>
+  </main>
+  <script src="common.js?v=202610021246"></script>
+  <script src="about.js?v=202610021246"></script>
+</body>
+</html>
