@@ -34,6 +34,7 @@ python3 build_career_path.py       # Career Path (reads connections.json)
 python3 build_guess_player.py      # Guess the Player (reads connections.json)
 python3 build_awards_grid.py       # Awards Grid
 python3 build_timeline.py          # Timeline (after build_awards_grid.py)
+python3 build_rosters.py           # Full Roster tab of Name the Team
 python3 build_blind_resume.py      # Blind Résumé (Careers, Seasons, and Teams modes)
 python3 build_facts.py             # "Did you know?" facts (reads the files above)
 ```

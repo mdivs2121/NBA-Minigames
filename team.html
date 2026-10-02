@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Name the Team · Hindsight</title>
-  <meta name="description" content="Name every player on a season's All-NBA, All-Defensive, or All-Rookie team. Three misses and you're done.">
+  <meta name="description" content="Name every player on a season's All-NBA, All-Defensive, or All-Rookie team, or a whole roster against the clock.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
   <meta property="og:title" content="Hindsight: Name the Team · NBA Minigames">
-  <meta property="og:description" content="Name every player on a season's All-NBA, All-Defensive, or All-Rookie team. Three misses and you're done.">
+  <meta property="og:description" content="Name every player on a season's All-NBA, All-Defensive, or All-Rookie team, or a whole roster against the clock.">
   <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/team.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=202610021310">
+  <link rel="stylesheet" href="style.css?v=202610021313">
 </head>
 <body>
   <main>
@@ -44,11 +44,12 @@
         <button type="button" data-type="All-NBA">All-NBA</button>
         <button type="button" data-type="All-Defense">All-Defense</button>
         <button type="button" data-type="All-Rookie">All-Rookie</button>
+        <button type="button" data-type="Full Roster">Full Roster</button>
       </nav>
 
       <div class="numbers hl-numbers">
         <div><span class="label">Pass streak</span><b id="streak">0</b></div>
-        <div class="right"><span class="label">Misses left</span><b id="strikes" class="green">3</b></div>
+        <div class="right"><span class="label" id="strikes-label">Misses left</span><b id="strikes" class="green">3</b></div>
       </div>
 
       <div class="dr-head">
@@ -100,7 +101,7 @@
       <span>Hindsight is 20/20. Is yours?</span>
     </footer>
   </main>
-  <script src="common.js?v=202610021310"></script>
-  <script src="team.js?v=202610021310"></script>
+  <script src="common.js?v=202610021313"></script>
+  <script src="team.js?v=202610021313"></script>
 </body>
 </html>

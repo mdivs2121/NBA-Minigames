@@ -1818,3 +1818,8 @@ main { animation: page-in 0.3s ease-out; }
   background: var(--team); color: #fff; font-weight: 900; font-size: 0.85rem; letter-spacing: 0.03em;
 }
 .tl-row.hit .rank-sub, .tl-row.near .rank-sub, .tl-row.miss .rank-sub { opacity: 0.9; font-weight: 800; }
+
+/* Name the Team: Full Roster */
+.nt-slots.nt-roster { grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 6px; }
+.nt-slots.nt-roster .nt-slot { padding-block: 6px; }
+.nt-hurry { color: var(--red) !important; animation: pop 0.5s ease-out infinite alternate; }

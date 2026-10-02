@@ -179,11 +179,11 @@ const GAMES = [
   {
     page: "draft.html", pages: ["draft.html", "mvp.html", "team.html"], title: "Hindsight", tag: "History", art: "hindsight",
     tabs: [["draft.html", "Draft Redo"], ["mvp.html", "MVP Ballot"], ["team.html", "Name the Team"]],
-    blurb: "Rewrite history: re-draft a class, re-vote an MVP race, or name every player on an All-NBA team.",
+    blurb: "Rewrite history: re-draft a class, re-vote an MVP race, name an All-NBA team, or a whole roster against the clock.",
     howto: [
-      ["Three tabs", "Draft Redo: build the top 10 a class should have been. MVP Ballot: order a season's top five MVP finishers. Name the Team: name an All-NBA, All-Defense, or All-Rookie team."],
+      ["Three tabs", "Draft Redo: build the top 10 a class should have been. MVP Ballot: order a season's top five MVP finishers. Name the Team: name an All-NBA, All-Defense, or All-Rookie team, or a whole roster in 60 seconds."],
       ["Order or name them", "Drag players into order (arrows work too), or type names to fill a team. Pick any year, or hit Random."],
-      ["See how you did", "Draft Redo is scored on career Win Shares, MVP Ballot on the real vote, Name the Team on how many you got (the bar is lower for harder teams)."],
+      ["See how you did", "Draft Redo is scored on career Win Shares, MVP Ballot on the real vote, Name the Team on how many you got (the bar is lower for harder teams, and Full Roster needs 5)."],
     ],
   },
   {
