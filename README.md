@@ -6,6 +6,7 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Rank the Five**: a daily puzzle. Rank five players by a hidden stat.
 - **Higher or Lower**: does the next player have more or fewer? Keep the streak going.
 - **Career Path**: name the player from his team history; misses unlock clues.
+- **Guess the Player** (daily): a mystery player; every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.
 - **Blind Résumé**: two anonymous stat lines (careers, single seasons, or teams); pick the better one.
 - **Hoop Connections**: a daily puzzle. Sort 16 players into 4 hidden groups.
 - **Hindsight**: three tabs. Draft Redo re-drafts a class (1989–2021) by career Win Shares; MVP Ballot re-orders a season's MVP vote; Name the Team fills in an All-NBA, All-Defense, or All-Rookie team.

@@ -1744,3 +1744,28 @@ main { animation: page-in 0.3s ease-out; }
 .ar-empty { color: var(--muted); }
 .today-done a, .ar-link { color: var(--accent); font-weight: 800; text-decoration: none; }
 @media (max-width: 620px) { .ar-day { grid-template-columns: 1fr; gap: 8px; } }
+
+/* ---------- Guess the Player ---------- */
+.gp-head { margin-bottom: 8px; }
+.gp-head .giant { margin-top: 6px; }
+.gp-table-wrap { margin-top: 22px; overflow-x: auto; }
+.gp-labels, .gp-cells { display: grid; grid-template-columns: repeat(6, minmax(58px, 1fr)); gap: 6px; }
+.gp-labels { padding-left: 0; margin-bottom: 8px; color: var(--muted); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
+.gp-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.gp-row { display: grid; gap: 6px; animation: pop 0.25s ease-out; }
+.gp-who { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.gp-cell {
+  min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 3px;
+  padding: 4px; border-radius: 8px; background: var(--surface-2); color: var(--text);
+  font-weight: 800; font-size: 0.85rem; text-align: center; font-variant-numeric: tabular-nums;
+}
+.gp-cell:first-child { box-shadow: inset 0 -4px 0 var(--team, transparent); }
+.gp-cell.green { background: var(--green); color: var(--on-tile); }
+.gp-cell.near { background: var(--near); color: var(--on-tile); }
+.gp-cell i { font-style: normal; font-size: 1.05rem; }
+.gp-row.right .gp-who b { color: var(--green); }
+.gp-emoji { line-height: 1.25; font-size: 1.1rem; }
+@media (max-width: 480px) {
+  .gp-labels, .gp-cells { grid-template-columns: repeat(6, minmax(48px, 1fr)); gap: 4px; }
+  .gp-cell { font-size: 0.74rem; min-height: 42px; }
+}

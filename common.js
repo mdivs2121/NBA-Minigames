@@ -88,10 +88,12 @@ const teamColor = (abbr) => TEAM_COLORS[abbr] || "#3a3f4d";
 // game's how-to popup all come from here, so a new game needs one entry.
 //   isNew: shows a "New" badge on the home page and in the Games menu
 //   daily: the localStorage key of a daily puzzle's saved results
+//   summary: (result) => short text for one day's result, like "83/100"
 //   howto: three [title, text] steps for the "How to play" popup
 const GAMES = [
   {
     page: "rank.html", title: "Rank the Five", tag: "Daily puzzle", art: "rank", daily: "r5-v1",
+    summary: (r) => `${r.score}/100`,
     blurb: "Five players, one hidden stat. Put them in order from highest to lowest. Everyone gets the same puzzle each day.",
     howto: [
       ["Reveal the stat", "Five players show up. Tap Reveal to see today's hidden stat."],
@@ -101,11 +103,22 @@ const GAMES = [
   },
   {
     page: "connections.html", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1", isNew: true,
+    summary: (r) => (r.won ? (r.mistakes ? `Solved · ${r.mistakes} miss${r.mistakes === 1 ? "" : "es"}` : "Perfect") : `${r.found ?? 0} of 4`),
     blurb: "Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. Find all four.",
     howto: [
       ["Pick four", "Tap four players you think share something: a college, a team, an award, a career fact, or their name."],
       ["Submit", "Right, and the group locks in. “One away…” means three of your four fit. Four mistakes ends it. Stuck? Hint gives a nudge, a pair, or the category."],
       ["Easiest to hardest", "Colors run 🟩 🟨 🟧 🟥 from the easiest group to the hardest. Every player fits exactly one group."],
+    ],
+  },
+  {
+    page: "guess.html", title: "Guess the Player", tag: "Daily puzzle", art: "guess", daily: "gp-v1", isNew: true,
+    summary: (r) => (r.won ? `${r.guesses}/8` : "X/8"),
+    blurb: "One mystery player a day. Every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.",
+    howto: [
+      ["Guess anyone", "Type any player from the last 25 years. You get eight guesses."],
+      ["Read the clues", "🟩 matches the mystery player. 🟨 is close: same conference, an overlapping position, or a number that's near. Arrows point toward his number."],
+      ["Same for everyone", "One mystery player a day, picked from well-known recent players. Share your grid when you're done."],
     ],
   },
   {
@@ -193,6 +206,15 @@ const GAME_ART = {
         const fill = r === 0 ? "var(--green)" : r === 1 && c < 4 ? "var(--near)" : "var(--surface-2)";
         return `<rect x="${14 + c * 24}" y="${5 + r * 21}" width="20" height="17" rx="4" fill="${fill}"/>`;
       }).join("")).join("")}
+    </svg>`,
+  guess: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[0, 1, 2].map((r) => [0, 1, 2, 3, 4, 5].map((c) => {
+        const fill = r === 2 || (r === 1 && c % 2 === 0) || (r === 0 && c === 3) ? "var(--green)" : (r + c) % 3 === 0 ? "var(--near)" : "var(--surface-2)";
+        return `<rect x="${8 + c * 18}" y="${10 + r * 18}" width="14" height="14" rx="3" fill="${fill}"/>`;
+      }).join("")).join("")}
+      <circle cx="60" cy="76" r="10" fill="var(--accent)"/>
+      <text x="60" y="80" text-anchor="middle" font-size="12" font-weight="800" fill="var(--on-accent)">?</text>
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

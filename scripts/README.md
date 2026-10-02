@@ -31,6 +31,7 @@ python3 build_season_teams.py      # Name the Team (All-NBA, All-Defense, All-Ro
 python3 build_connections_data.py  # Hoop Connections
 python3 build_player_pages.py      # player pages
 python3 build_career_path.py       # Career Path (reads connections.json)
+python3 build_guess_player.py      # Guess the Player (reads connections.json)
 python3 build_blind_resume.py      # Blind Résumé (Careers, Seasons, and Teams modes)
 python3 build_facts.py             # "Did you know?" facts (reads the files above)
 ```

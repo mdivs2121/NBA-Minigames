@@ -21,6 +21,13 @@ const PROGRESS = {
     if (today) return { text: today.won ? `Today: solved with ${today.mistakes} mistake${today.mistakes === 1 ? "" : "s"} ✓` : `Today: ${today.found ?? 0} of 4 groups`, done: true };
     return { text: played ? `Today's puzzle is ready · ${played} played` : "Today's puzzle is ready", fresh: true };
   },
+  guess() {
+    const history = saved("gp-v1")?.history || {};
+    const today = history[todayKey()];
+    const played = Object.keys(history).length;
+    if (today) return { text: today.won ? `Today: got him in ${today.guesses} ✓` : "Today: stumped", done: true };
+    return { text: played ? `Today's player is ready · ${played} played` : "Today's player is ready", fresh: true };
+  },
   chain() {
     let level = null;
     try { level = localStorage.getItem("tc-level"); } catch {}   // saved as plain text, not JSON
@@ -77,7 +84,7 @@ function renderToday() {
     const history = saved(g.daily)?.history || {};
     for (const day of Object.keys(history)) days[day] = true;
     const done = history[today];
-    const detail = !done ? "Play →" : done.score != null ? `${done.score}/100` : done.won ? "Solved" : `${done.found ?? 0} of 4`;
+    const detail = !done ? "Play →" : g.summary ? g.summary(done) : "Played";
     return `
       <a class="today-chip ${done ? "done" : ""}" href="${g.page}">
         <span class="today-check" aria-hidden="true">${done ? "✓" : ""}</span>
