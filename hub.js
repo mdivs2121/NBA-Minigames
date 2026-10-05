@@ -83,6 +83,10 @@ const PROGRESS = {
     const seasons = Object.keys(best);
     return seasons.length ? { text: `${seasons.length} race${seasons.length === 1 ? "" : "s"} voted · best ${Math.max(...Object.values(best))}/100` } : null;
   },
+  blind() {
+    const b = saved("bd-v1");
+    return b?.played ? { text: `${b.played} draft${b.played === 1 ? "" : "s"} · best ${b.best}/100` } : null;
+  },
   snake() {
     const record = saved("sd-record") || {};
     let w = 0, l = 0;

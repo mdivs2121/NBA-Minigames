@@ -1840,3 +1840,32 @@ main { animation: page-in 0.3s ease-out; }
 .sl-stat span { color: var(--muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; }
 .sl-stat.big { padding: 18px 6px; background: color-mix(in srgb, var(--accent) 16%, var(--surface-2)); }
 .sl-stat.big b { font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1; }
+
+/* ---------- Blind Draft ---------- */
+.bd-lineup { list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.bd-lineup li { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 10px; border: 2px dashed var(--line); font-size: 0.75rem; font-weight: 700; text-align: center; min-height: 64px; justify-content: center; }
+.bd-lineup li b { font-size: 0.85rem; font-weight: 900; }
+.bd-lineup li.current { border-color: var(--accent); border-style: solid; }
+.bd-lineup li.filled { border-style: solid; border-color: transparent; background: var(--surface-2); }
+.bd-empty { color: var(--muted); }
+.bd-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 520px) { .bd-options { grid-template-columns: 1fr; } }
+.bd-card {
+  display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 14px; border: 2px solid var(--line);
+  background: var(--surface); color: var(--text); font: inherit; text-align: left; cursor: pointer; animation: pop 0.25s ease-out both;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.bd-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.bd-tag { color: var(--muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.bd-big, .bd-small { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.bd-big div, .bd-small div { display: flex; flex-direction: column; align-items: center; padding: 6px 2px; border-radius: 8px; background: var(--surface-2); }
+.bd-big b { font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.bd-small b { font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.bd-big span, .bd-small span { color: var(--muted); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em; }
+.bd-reveal { display: grid; gap: 14px; margin-top: 20px; }
+.bd-round ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.bd-round li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface); border: 2px solid transparent; }
+.bd-round li.mine { border-color: var(--accent); }
+.bd-round li:first-child b { color: var(--green); }
+.bd-who { flex: 1; display: flex; flex-direction: column; font-weight: 800; }
+.bd-who small { color: var(--muted); font-weight: 600; font-size: 0.75rem; }

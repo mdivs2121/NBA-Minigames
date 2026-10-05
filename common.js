@@ -196,6 +196,15 @@ const GAMES = [
     ],
   },
   {
+    page: "blind.html", title: "Blind Draft", tag: "Solo draft", art: "blind", isNew: true,
+    blurb: "Draft a starting five from anonymous stat lines. Hidden Win Shares reveal who you really picked.",
+    howto: [
+      ["One position a round", "Point guard, shooting guard, small forward, power forward, center. Each round shows four real seasons with no names."],
+      ["Pick the best one", "They all score about the same, so look at the whole line: efficiency, defense, minutes. Tap a card, or press A–D."],
+      ["See who you drafted", "Names and Win Shares are revealed at the end. Your score is your five's Win Shares out of the best five you could have picked."],
+    ],
+  },
+  {
     page: "snake.html", title: "Snake Draft", tag: "Versus", art: "snake",
     blurb: "Draft real player-seasons against a computer GM. Box scores are shown, Win Shares decide the winner.",
     howto: [
@@ -268,6 +277,15 @@ const GAME_ART = {
         <text x="${22 + i * 38}" y="46" text-anchor="middle" font-size="7" font-weight="800" fill="${i === 0 ? "var(--on-accent)" : "var(--muted)"}">${l}</text>`).join("")}
       <rect x="6" y="60" width="108" height="20" rx="6" fill="var(--surface-2)"/>
       <text x="60" y="74" text-anchor="middle" font-size="11" font-weight="800" fill="var(--muted)">? ? ?</text>
+    </svg>`,
+  blind: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[0, 1, 2, 3].map((i) => `
+        <rect x="${6 + i * 28}" y="14" width="24" height="44" rx="5" fill="var(--surface-2)" ${i === 1 ? 'stroke="var(--accent)" stroke-width="3"' : ""}/>
+        <circle cx="${18 + i * 28}" cy="27" r="6" fill="var(--line)"/>
+        <rect x="${10 + i * 28}" y="38" width="16" height="4" rx="2" fill="var(--line)"/>
+        <rect x="${10 + i * 28}" y="46" width="12" height="4" rx="2" fill="var(--line)"/>`).join("")}
+      ${["PG", "SG", "SF", "PF", "C"].map((p, i) => `<rect x="${6 + i * 22}" y="66" width="18" height="14" rx="3" fill="${i < 2 ? "var(--green)" : "var(--surface-2)"}"/>`).join("")}
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

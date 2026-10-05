@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MVP Ballot · Hindsight</title>
-  <meta name="description" content="A season&#x27;s top five MVP vote-getters, shuffled. Put them back in the order the voters had them.">
+  <title>Blind Draft · NBA Minigames</title>
+  <meta name="description" content="Draft a starting five from anonymous stat lines. Hidden Win Shares decide how good your team really is.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
-  <meta property="og:title" content="Hindsight: MVP Ballot · NBA Minigames">
-  <meta property="og:description" content="A season&#x27;s top five MVP vote-getters, shuffled. Put them back in the order the voters had them.">
-  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/mvp.html">
+  <meta property="og:title" content="Blind Draft · NBA Minigames">
+  <meta property="og:description" content="Draft a starting five from anonymous stat lines. Hidden Win Shares decide how good your team really is.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/blind.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -33,56 +33,46 @@
     <div class="rule"></div>
 
     <header class="topbar">
-      <span class="eyebrow">MVP Ballot</span>
+      <span class="eyebrow">Blind Draft</span>
       <span id="state" class="state">Loading</span>
     </header>
 
-    <p id="status" class="status">Loading MVP races…</p>
+    <p id="status" class="status">Loading seasons…</p>
 
     <section id="game" hidden>
-      <div class="dr-head">
-        <div>
-          <span class="side-label">Cast your ballot</span>
-          <h1 id="title" class="giant"></h1>
-          <p class="meta">These five got the most MVP votes that season. Put them in the order the voters did, winner on top.</p>
-        </div>
-        <div class="dr-picker">
-          <label for="season" class="label">Season</label>
-          <div class="dr-picker-row">
-            <select id="season"></select>
-            <button type="button" id="random-season" class="ghost">Random</button>
-          </div>
-        </div>
-      </div>
+      <ol id="lineup" class="bd-lineup" aria-label="Your lineup"></ol>
 
-      <div class="rank-wrap">
-        <span class="rank-end">▲ MVP</span>
-        <ol id="ballot" class="rank-list"></ol>
-        <span class="rank-end">▼ 5th in voting</span>
+      <div id="drafting">
+        <div class="cp-head">
+          <span id="round" class="side-label"></span>
+          <h1 id="title" class="giant"></h1>
+          <p class="meta">Four real seasons, no names. Scoring is close on purpose, so look at the whole line. Hidden Win Shares decide who was best.</p>
+        </div>
+        <div id="options" class="bd-options"></div>
       </div>
-      <p id="tip" class="meta drag-tip">Drag the rows (or use the arrows) to set your ballot.</p>
-      <button type="button" id="lock" class="primary wide">Submit ballot</button>
 
       <section id="result" class="result" hidden>
         <span id="result-kicker" class="label"></span>
-        <h2 id="result-score" class="giant"></h2>
+        <h2 id="result-title" class="giant"></h2>
         <p id="result-emoji" class="emoji-row" aria-hidden="true"></p>
         <p id="result-text" class="meta"></p>
         <div class="result-actions">
-          <button type="button" id="next" class="primary">Another season</button>
+          <button type="button" id="again" class="primary">New draft</button>
           <button type="button" id="share" class="ghost">Share</button>
           <button type="button" id="save-image" class="ghost">Save image</button>
         </div>
         <p id="share-msg" class="message good"></p>
       </section>
+
+      <section id="reveal" class="bd-reveal" hidden></section>
     </section>
 
     <footer>
-      <span class="brand">Hindsight</span>
-      <span>Think like a voter, not a stat sheet.</span>
+      <span class="brand">Blind Draft</span>
+      <span>Scout the numbers, not the names.</span>
     </footer>
   </main>
   <script src="common.js?v=202610050845"></script>
-  <script src="mvp.js?v=202610050845"></script>
+  <script src="blind.js?v=202610050845"></script>
 </body>
 </html>
