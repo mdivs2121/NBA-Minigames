@@ -1271,34 +1271,21 @@ a.plink:hover { text-decoration-color: currentColor; }
 .today-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .today-streak { color: var(--muted); font-size: 0.85rem; font-weight: 800; }
 .today-streak.on { color: var(--accent-2); }
-.today-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
-.today-chip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  background: var(--surface-2);
-  color: var(--text);
-  text-decoration: none;
-  font-weight: 800;
-  transition: transform 0.15s, box-shadow 0.15s;
+.today-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.today-tile {
+  display: grid; grid-template-rows: auto auto auto; gap: 6px; padding: 14px; border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text); text-decoration: none; border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
 }
-.today-chip:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px var(--accent); }
-.today-check {
-  width: 24px;
-  height: 24px;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 2px dashed var(--line);
-  font-size: 0.8rem;
-}
-.today-chip.done .today-check { border: 0; background: var(--green); color: var(--on-tile); }
-.today-name { flex: 1; }
-.today-detail { color: var(--accent); font-size: 0.85rem; }
-.today-chip.done .today-detail { color: var(--green); }
+.today-tile:hover { transform: translateY(-2px); border-color: var(--accent); }
+.today-art { display: block; width: 64px; }
+.today-art svg { width: 100%; height: auto; display: block; }
+.today-name { font-weight: 800; font-size: 1rem; line-height: 1.15; }
+.today-detail { display: flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 800; font-size: 0.85rem; }
+.today-check { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: var(--on-tile); font-size: 0.75rem; }
+.today-tile.done { background: color-mix(in srgb, var(--green) 12%, var(--surface-2)); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+.today-tile.done .today-detail { color: var(--green); font-size: 1rem; }
+@media (max-width: 760px) { .today-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .today-done { margin: 10px 0 0; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
 
 /* ---------- confetti ---------- */
@@ -1899,4 +1886,41 @@ a.primary:hover { filter: brightness(1.06); }
 @media (min-width: 901px) {
   .hub.four .hub-card { grid-template-columns: 44px minmax(0, 1fr); gap: 10px; padding: 12px; }
   .hub.four .hub-title { font-size: 1.05rem; }
+}
+
+/* ---------- polish: hover art, result moment, skeletons, shake, page fades ---------- */
+/* Card art comes alive on hover: its pieces lift in a little wave. */
+.hub-art svg > *, .today-art svg > * { transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1); transform-box: fill-box; transform-origin: center; }
+.hub-card:hover .hub-art svg > :nth-child(odd), .today-tile:hover .today-art svg > :nth-child(odd) { transform: translateY(-3px); }
+.hub-card:hover .hub-art svg > :nth-child(even), .today-tile:hover .today-art svg > :nth-child(even) { transform: scale(1.08); }
+.hub-card:hover .hub-art svg > :nth-child(3n), .today-tile:hover .today-art svg > :nth-child(3n) { transition-delay: 0.05s; }
+
+/* The result card slides up with a little bounce when it appears. */
+.result:not([hidden]) { animation: result-in 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+@keyframes result-in { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+/* Loading: a shimmering placeholder card instead of plain text. */
+.status:not(.error):not([hidden]) {
+  display: grid; align-content: end; min-height: 180px; padding: 18px; margin: 10px 0 0; border-radius: 16px;
+  font-size: 0.85rem; color: var(--muted);
+  background:
+    linear-gradient(var(--surface-2), var(--surface-2)) 18px 18px / 45% 18px no-repeat,
+    linear-gradient(var(--surface-2), var(--surface-2)) 18px 50px / 70% 12px no-repeat,
+    linear-gradient(var(--surface-2), var(--surface-2)) 18px 72px / 60% 12px no-repeat,
+    linear-gradient(100deg, var(--surface) 40%, color-mix(in srgb, var(--surface-2) 70%, var(--text) 4%) 50%, var(--surface) 60%) 0 0 / 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+@keyframes shimmer { to { background-position: 18px 18px, 18px 50px, 18px 72px, -200% 0; } }
+
+/* A wrong guess shakes the input and flashes it red. */
+.shake { animation: shake 0.4s ease-in-out; border-color: var(--red) !important; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* Pages fade into each other (browsers that support it). */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.18s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .result:not([hidden]), .status:not(.error):not([hidden]), .shake { animation: none; }
+  @view-transition { navigation: none; }
 }

@@ -842,6 +842,55 @@ function updateNextDaily() {
   bar.querySelector('[data-day="image"]')?.addEventListener("click", () => shareDayImage(msg));
 }
 
+// ---------- little moments ----------
+// The result's big number counts up when it appears, and a wrong guess shakes
+// the input. Both watch the page, so every game gets them for free.
+
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function countUp(el) {
+  const m = /^(\d+)(\D.*)?$/.exec(el.textContent.trim());
+  if (!m || el.children.length || reducedMotion()) return;
+  const target = Number(m[1]), rest = m[2] || "";
+  if (target < 2) return;
+  const start = performance.now(), duration = 650;
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / duration);
+    el.textContent = `${Math.round(target * (1 - (1 - t) ** 3))}${rest}`;
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function shakeGuess() {
+  const input = document.getElementById("guess");
+  if (!input || reducedMotion()) return;
+  input.classList.remove("shake");
+  void input.offsetWidth;   // restart the animation
+  input.classList.add("shake");
+  setTimeout(() => input.classList.remove("shake"), 450);
+}
+
+window.addEventListener("load", () => {
+  const result = document.getElementById("result");
+  if (result) {
+    let wasHidden = result.hidden;
+    new MutationObserver(() => {
+      if (wasHidden && !result.hidden) {
+        const big = result.querySelector(".giant");
+        if (big) setTimeout(() => countUp(big), 0);   // after the game writes it
+      }
+      wasHidden = result.hidden;
+    }).observe(result, { attributes: true, attributeFilter: ["hidden"] });
+  }
+  const message = document.getElementById("message");
+  if (message) {
+    new MutationObserver(() => {
+      if (message.classList.contains("bad") && message.textContent.trim()) shakeGuess();
+    }).observe(message, { attributes: true, attributeFilter: ["class"], childList: true, characterData: true, subtree: true });
+  }
+});
+
 // Follow the result panel: it appears when a daily is finished (or reloaded
 // finished) and can hide again, like when Guess the Player switches modes.
 if (THIS_GAME?.daily) {

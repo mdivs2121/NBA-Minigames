@@ -117,10 +117,10 @@ function renderToday() {
     const done = history[today];
     const detail = !done ? "Play →" : g.summary ? g.summary(done) : "Played";
     return `
-      <a class="today-chip ${done ? "done" : ""}" href="${g.page}">
-        <span class="today-check" aria-hidden="true">${done ? "✓" : ""}</span>
+      <a class="today-tile ${done ? "done" : ""}" href="${g.page}">
+        <span class="today-art" aria-hidden="true">${GAME_ART[g.art] || ""}</span>
         <span class="today-name">${escapeHtml(g.title)}</span>
-        <span class="today-detail">${detail}</span>
+        <span class="today-detail">${done ? `<span class="today-check" aria-hidden="true">✓</span>` : ""}${detail}</span>
       </a>`;
   });
   const streak = streaks(days).current;
@@ -130,13 +130,13 @@ function renderToday() {
       <span class="label">Today · ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
       <span class="today-streak ${streak ? "on" : ""}">${streak ? `🔥 ${streak}-day streak` : "Start a streak today"}</span>
     </div>
-    <div class="today-chips">${chips.join("")}</div>
+    <div class="today-tiles">${chips.join("")}</div>
     <div class="today-actions">
       ${nextDaily() ? `<a class="primary" href="${nextDaily().page}">${dailies.some((g) => saved(g.daily)?.history?.[today]) ? "Keep going" : "Play all dailies"} →</a>` : ""}
       ${dailies.some((g) => saved(g.daily)?.history?.[today]) ? `<button type="button" class="ghost" id="share-day">Share your day</button>` : ""}
     </div>
     <p id="share-day-msg" class="message good"></p>
-    <p class="today-done">${allDone ? "All done for today. New puzzles at midnight. " : ""}<a href="archive.html">Missed a day? Play past puzzles →</a></p>`;
+    <p class="today-done">${allDone ? `All done for today. New puzzles in <b id="today-countdown">${untilMidnight()}</b>. ` : ""}<a href="archive.html">Missed a day? Play past puzzles →</a></p>`;
   $("today").hidden = false;
   document.getElementById("share-day")?.addEventListener("click", () => shareDay($("share-day-msg")));
 }
@@ -167,6 +167,20 @@ function gameCard(g) {
       </a>
     </li>`;
 }
+
+function untilMidnight() {
+  const now = new Date();
+  const mins = Math.max(0, Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) - now) / 60000));
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
+// Keep the countdown ticking, and roll the Today box over at midnight.
+let todayShown = todayKey();
+setInterval(() => {
+  if (todayKey() !== todayShown) { todayShown = todayKey(); renderHub(); return; }
+  const el = document.getElementById("today-countdown");
+  if (el) el.textContent = untilMidnight();
+}, 30000);
 
 function renderHub() {
   renderToday();
