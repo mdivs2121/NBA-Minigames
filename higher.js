@@ -4,7 +4,8 @@
 
 const RECOGNIZABLE_PPG = 15;    // a player needs one 15+ PPG season (20+ games) to appear
 const MIN_CAREER_GAMES = 100;   // enough games that per-game career stats mean something
-const BEST_KEY = "hl-best";
+const BEST_KEY = "hl-best";     // mixed stats; one stat mode saves "hl-best:pts" and so on
+const MODE_KEY = "hl-mode";     // "mixed" or a stat like "pts"
 
 const count = (v) => Math.round(v).toLocaleString("en-US");
 const perGame = (v) => v.toFixed(1);
@@ -31,6 +32,7 @@ Object.assign(data, {
 });
 
 const game = {
+  mode: (() => { try { return localStorage.getItem(MODE_KEY) || "mixed"; } catch { return "mixed"; } })(),
   left: null,       // playerId, value shown
   right: null,      // playerId, value hidden until you guess
   category: null,
@@ -68,7 +70,7 @@ function minGap(streak) {
 function nextRound() {
   const gap = minGap(game.streak);
   for (let tries = 0; tries < 400; tries++) {
-    const category = random(CATEGORIES.filter((c) => c !== game.category));
+    const category = game.mode === "mixed" ? random(CATEGORIES.filter((c) => c !== game.category)) : CATEGORIES.find((c) => c.stat === game.mode);
     const right = random(data.pool);
     if (right === game.left) continue;
     const a = valueOf(game.left, category), b = valueOf(right, category);
@@ -79,6 +81,12 @@ function nextRound() {
     game.right = right;
     return;
   }
+}
+
+function setMode(mode) {
+  game.mode = CATEGORIES.some((c) => c.stat === mode) ? mode : "mixed";
+  try { localStorage.setItem(MODE_KEY, game.mode); } catch {}
+  newGame();
 }
 
 function newGame() {
@@ -166,7 +174,7 @@ function saveImage() {
   for (let i = 0; i < game.history.length; i += 10) rows.push(game.history.slice(i, i + 10).map((ok) => (ok ? "🟩" : "🟥")).join(""));
   shareImage({
     title: "Higher or Lower",
-    kicker: "Career stats",
+    kicker: modeName(),
     big: `${game.streak} in a row`,
     grid: rows,
     lines: [`Best ever: ${Math.max(loadBest(), game.streak)}`],
@@ -178,17 +186,20 @@ function shareEmoji() {
 }
 
 async function share() {
-  const text = `Higher or Lower 🏀\n${shareEmoji()}\n${game.streak} in a row`;
+  const text = `Higher or Lower 🏀 ${modeName()}\n${shareEmoji()}\n${game.streak} in a row`;
   await shareResult(text, $("share-msg"));
 }
 
+const bestKey = () => (game.mode === "mixed" ? BEST_KEY : `${BEST_KEY}:${game.mode}`);
+const modeName = () => (game.mode === "mixed" ? "Mixed stats" : CATEGORIES.find((c) => c.stat === game.mode).title);
+
 function loadBest() {
-  try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch { return 0; }
+  try { return Number(localStorage.getItem(bestKey())) || 0; } catch { return 0; }
 }
 
 function saveBest() {
   if (game.streak <= loadBest()) return;
-  try { localStorage.setItem(BEST_KEY, String(game.streak)); } catch {}
+  try { localStorage.setItem(bestKey(), String(game.streak)); } catch {}
 }
 
 // ---------- rendering ----------
@@ -234,6 +245,9 @@ function card(id, value, link = false) {
 $("higher").addEventListener("click", () => guess(true));
 $("lower").addEventListener("click", () => guess(false));
 $("again").addEventListener("click", newGame);
+$("mode").innerHTML = [`<option value="mixed">Mixed: a new stat every round</option>`, ...CATEGORIES.map((c) => `<option value="${c.stat}">${c.title}</option>`)].join("");
+$("mode").value = game.mode;
+$("mode").addEventListener("change", (e) => { setMode(e.target.value); e.target.blur(); });
 $("share").addEventListener("click", share);
 $("save-image").addEventListener("click", saveImage);
 document.addEventListener("keydown", (e) => {

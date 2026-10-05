@@ -1869,3 +1869,5 @@ main { animation: page-in 0.3s ease-out; }
 .bd-round li:first-child b { color: var(--green); }
 .bd-who { flex: 1; display: flex; flex-direction: column; font-weight: 800; }
 .bd-who small { color: var(--muted); font-weight: 600; font-size: 0.75rem; }
+.hl-mode { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.hl-mode select { flex: 1; max-width: 340px; }

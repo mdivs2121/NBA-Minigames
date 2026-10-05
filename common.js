@@ -164,7 +164,7 @@ const GAMES = [
     howto: [
       ["One number shown", "The left player's career stat is showing. The right player's is hidden."],
       ["More or fewer?", "Guess whether the right player has more or fewer. The ↑ and ↓ keys work too."],
-      ["Keep it going", "Every round brings a new stat, and the two numbers get closer the longer your streak runs."],
+      ["Keep it going", "Mixed mode brings a new stat every round; or pick one stat to stick with. The two numbers get closer the longer your streak runs."],
     ],
   },
   {
