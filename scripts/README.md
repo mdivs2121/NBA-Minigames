@@ -40,6 +40,7 @@ python3 build_blind_draft.py       # Blind Draft (after build_player_pages.py)
 python3 build_draft_day.py         # Draft Day (after build_player_pages.py)
 python3 build_college_connect.py   # College Connect (after build_awards_grid.py)
 python3 build_modern.py            # who counts as "modern" for every game's Modern tab
+python3 build_fame.py              # sorts the player search dropdown (best-known first)
 python3 build_blind_resume.py      # Blind Résumé (Careers, Seasons, and Teams modes)
 python3 build_facts.py             # "Did you know?" facts (reads the files above)
 ```

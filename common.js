@@ -871,6 +871,7 @@ renderTabs();
 setupHowTo();
 decorateHeader();
 renderEraTabs();
+enhancePlayerInputs();
 decorateButtons();
 
 // ---------- drag to reorder ----------
@@ -1029,6 +1030,133 @@ function updateNextDaily() {
   const msg = bar.querySelector('[data-day="msg"]');
   bar.querySelector('[data-day="share"]')?.addEventListener("click", () => shareDay(msg));
   bar.querySelector('[data-day="image"]')?.addEventListener("click", () => shareDayImage(msg));
+}
+
+// ---------- player picker ----------
+// Every "Start typing a player…" box: a dropdown with headshots, the matching
+// letters highlighted, accents ignored (doncic finds Dončić), and arrow keys.
+// It reads the page's <datalist>, so games keep filling that as before, and
+// picking a name submits the guess.
+
+const fold = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const PICKER_LIMIT = 8;
+// Career Win Shares by player, loaded the first time someone types, so the
+// best-known players come first among equally good matches.
+let pickerFame = null;
+const loadPickerFame = () => (pickerFame ||= fetchJson("fame").catch(() => ({})));
+
+function setupPicker(input) {
+  const list = document.getElementById(input.getAttribute("list"));
+  if (!list || input.closest(".picker")) return;
+  input.removeAttribute("list");   // no native dropdown
+  const wrap = document.createElement("div");
+  wrap.className = "picker";
+  input.before(wrap);
+  wrap.append(input);
+  const menuId = `${input.id}-menu`;
+  wrap.insertAdjacentHTML("afterbegin", `<span class="picker-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>`);
+  wrap.insertAdjacentHTML("beforeend", `<ul class="picker-menu" id="${menuId}" role="listbox" hidden></ul>`);
+  const menu = wrap.querySelector(".picker-menu");
+  Object.assign(input, { autocomplete: "off", spellcheck: false });
+  input.setAttribute("role", "combobox");
+  input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-expanded", "false");
+  input.setAttribute("aria-controls", menuId);
+
+  let options = null, matches = [], active = 0, fame = {};
+  const famous = (o) => fame[o.id] || 0;
+  new MutationObserver(() => (options = null)).observe(list, { childList: true });
+  const load = () => (options ||= [...list.options].map((o) => {
+    const label = o.value;
+    const m = /^(.*?)\s*\(([^)]*)\)$/.exec(label);
+    const nameText = m ? m[1] : label;
+    return { label, id: data.labelToId?.[label], name: nameText, sub: m ? m[2] : "", folded: fold(nameText), words: fold(nameText).split(/[\s.'’-]+/) };
+  }));
+
+  // 0: the name starts with it, 1: every typed word starts a word of the name, 2: it's in there somewhere.
+  const rank = (o, q, qWords) => {
+    if (o.folded.startsWith(q)) return 0;
+    if (qWords.every((w) => o.words.some((x) => x.startsWith(w)))) return 1;
+    if (o.folded.includes(q)) return 2;
+    return -1;
+  };
+
+  const highlight = (o, q) => {
+    const at = o.folded.indexOf(q);
+    if (at < 0) return escapeHtml(o.name);
+    return `${escapeHtml(o.name.slice(0, at))}<mark>${escapeHtml(o.name.slice(at, at + q.length))}</mark>${escapeHtml(o.name.slice(at + q.length))}`;
+  };
+
+  const close = () => { menu.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); };
+
+  function render() {
+    const q = fold(input.value.trim());
+    if (!q || input.disabled) { matches = []; return close(); }
+    const qWords = q.split(/\s+/);
+    matches = load()
+      .map((o) => [rank(o, q, qWords), o])
+      .filter(([r]) => r >= 0)
+      .sort((a, b) => a[0] - b[0] || famous(b[1]) - famous(a[1]) || a[1].name.localeCompare(b[1].name))
+      .slice(0, PICKER_LIMIT)
+      .map(([, o]) => o);
+    active = 0;
+    if (!matches.length) {
+      menu.innerHTML = `<li class="picker-empty">No player by that name</li>`;
+    } else {
+      menu.innerHTML = matches.map((o, i) => {
+        const id = o.id;
+        const pic = id && data.players[id] ? avatar(id, "xs") : `<span class="avatar xs">${escapeHtml(o.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2))}</span>`;
+        return `<li role="option" id="${menuId}-${i}" class="${i === active ? "active" : ""}" data-i="${i}" aria-selected="${i === active}">
+          ${pic}<span class="picker-text"><b>${highlight(o, q)}</b>${o.sub ? `<small>${escapeHtml(o.sub)}</small>` : ""}</span></li>`;
+      }).join("");
+    }
+    menu.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    if (matches.length) input.setAttribute("aria-activedescendant", `${menuId}-0`);
+  }
+
+  function move(step) {
+    if (!matches.length) return;
+    active = (active + step + matches.length) % matches.length;
+    for (const li of menu.querySelectorAll("[data-i]")) {
+      const on = Number(li.dataset.i) === active;
+      li.classList.toggle("active", on);
+      li.setAttribute("aria-selected", String(on));
+      if (on) li.scrollIntoView({ block: "nearest" });
+    }
+    input.setAttribute("aria-activedescendant", `${menuId}-${active}`);
+  }
+
+  function choose(i) {
+    const o = matches[i];
+    if (!o) return;
+    input.value = o.label;
+    close();
+    input.form?.requestSubmit();
+  }
+
+  input.addEventListener("input", render);
+  // Fame arrives a moment after the first keystroke; re-sort when it does.
+  input.addEventListener("input", () => loadPickerFame().then((f) => { if (fame !== f) { fame = f; render(); } }), { once: true });
+  input.addEventListener("focus", () => input.value.trim() && render());
+  input.addEventListener("blur", () => setTimeout(close, 120));
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); if (menu.hidden) render(); else move(1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
+    else if (e.key === "Enter" && !menu.hidden && matches.length) { e.preventDefault(); choose(active); }
+    else if (e.key === "Escape" && !menu.hidden) { e.preventDefault(); close(); }
+  });
+  menu.addEventListener("mousedown", (e) => e.preventDefault());   // keep focus in the box
+  menu.addEventListener("click", (e) => {
+    const li = e.target.closest("[data-i]");
+    if (li) choose(Number(li.dataset.i));
+  });
+  // The game clears the box after a guess: close the menu with it.
+  input.form?.addEventListener("submit", () => setTimeout(() => { if (!input.value) close(); }, 0));
+}
+
+function enhancePlayerInputs() {
+  for (const input of document.querySelectorAll?.("input[list]") || []) setupPicker(input);
 }
 
 // ---------- little moments ----------
