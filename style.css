@@ -2030,3 +2030,15 @@ button .icon, a .icon { margin-right: 0.15em; }
 .picker-text small { color: var(--muted); font-size: 0.75rem; font-weight: 700; }
 .picker-empty { color: var(--muted); font-weight: 700; cursor: default !important; }
 :root[data-theme="light"] .picker-menu { box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12); }
+
+/* College Connect: Name the College */
+.cc-modes { margin-bottom: 8px; }
+.cc-player { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 18px; border-radius: 16px; background: var(--surface-2); animation: pop 0.25s ease-out; }
+.cc-player .avatar.md { width: 72px; }
+.cc-player-body { display: grid; gap: 8px; min-width: 0; }
+.cc-player-body > b { font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 900; line-height: 1.05; }
+.cc-player-teams { display: flex; flex-wrap: wrap; gap: 6px; }
+.cc-clues { grid-column: 1 / -1; list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.cc-clues li { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius); border: 1px dashed var(--line); color: var(--muted); font-weight: 600; }
+.cc-clues li.open { border: 1px solid transparent; background: var(--surface-2); color: var(--text); font-weight: 700; animation: pop 0.25s ease-out; }
+.cc-clues li.open .cp-clue-n { background: var(--accent-2); color: var(--on-accent); }

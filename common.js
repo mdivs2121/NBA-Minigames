@@ -171,11 +171,11 @@ const GAMES = [
   },
   {
     page: "college.html", title: "College Connect", tag: "Endless", art: "college", isNew: true,
-    blurb: "A college and an NBA team. Name anyone who played for both. How long can you keep it going?",
+    blurb: "A college and an NBA team: name anyone who played for both. Or get a player and name his college.",
     howto: [
       ["A school and a team", "Like Duke × Bulls or Kentucky × Kings. Teams include their old names (the Sonics count as the Thunder)."],
-      ["Name anyone who fits", "Any player from 1980 on who went to that college and played for that franchise. Three guesses per pair."],
-      ["Keep the streak", "Run out of guesses and the streak resets. After each pair you see everyone who fit. Easy sticks to big programs; Hard can be any school."],
+      ["Name anyone who fits", "Any player from 1980 on who went to that college and played for that franchise. Three guesses; run out and the streak resets."],
+      ["Or name the college", "Switch to Name the College: you get a player and name his school. Misses unlock its first letter, then how many NBA players it has produced."],
     ],
   },
   {
@@ -1063,6 +1063,7 @@ function setupPicker(input) {
   input.setAttribute("aria-expanded", "false");
   input.setAttribute("aria-controls", menuId);
 
+  const plain = list.hasAttribute("data-plain");   // not players: no headshots
   let options = null, matches = [], active = 0, fame = {};
   const famous = (o) => fame[o.id] || 0;
   new MutationObserver(() => (options = null)).observe(list, { childList: true });
@@ -1105,7 +1106,7 @@ function setupPicker(input) {
     } else {
       menu.innerHTML = matches.map((o, i) => {
         const id = o.id;
-        const pic = id && data.players[id] ? avatar(id, "xs") : `<span class="avatar xs">${escapeHtml(o.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2))}</span>`;
+        const pic = plain ? "" : id && data.players[id] ? avatar(id, "xs") : `<span class="avatar xs">${escapeHtml(o.name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2))}</span>`;
         return `<li role="option" id="${menuId}-${i}" class="${i === active ? "active" : ""}" data-i="${i}" aria-selected="${i === active}">
           ${pic}<span class="picker-text"><b>${highlight(o, q)}</b>${o.sub ? `<small>${escapeHtml(o.sub)}</small>` : ""}</span></li>`;
       }).join("");
@@ -1179,8 +1180,7 @@ function countUp(el) {
   requestAnimationFrame(step);
 }
 
-function shakeGuess() {
-  const input = document.getElementById("guess");
+function shakeGuess(input = document.getElementById("guess")) {
   if (!input || reducedMotion()) return;
   input.classList.remove("shake");
   void input.offsetWidth;   // restart the animation
@@ -1203,14 +1203,15 @@ window.addEventListener("load", () => {
       wasHidden = result.hidden;
     }).observe(result, { attributes: true, attributeFilter: ["hidden"] });
   }
-  const message = document.getElementById("message");
-  let lastMessage = "";
-  if (message) {
+  // Every guess form's message: shake that form's box on a miss, with sound.
+  for (const message of document.querySelectorAll("#message, form .message")) {
+    let lastMessage = "";
+    const input = message.closest("form")?.querySelector("input") || document.getElementById("guess");
     new MutationObserver(() => {
       const text = message.textContent.trim();
-      if (!text || text === lastMessage) return;
+      if (!text || text === lastMessage) { if (!text) lastMessage = ""; return; }
       lastMessage = text;
-      if (message.classList.contains("bad")) { shakeGuess(); playSound("bad"); }
+      if (message.classList.contains("bad")) { shakeGuess(input); playSound("bad"); }
       else if (message.classList.contains("good")) playSound("good");
     }).observe(message, { attributes: true, attributeFilter: ["class"], childList: true, characterData: true, subtree: true });
   }

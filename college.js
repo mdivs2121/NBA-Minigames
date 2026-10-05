@@ -1,14 +1,19 @@
-// College Connect - a college and an NBA franchise. Name anyone who played
-// for both (from 1979-80 on). Three guesses a pair; run out and the streak is
-// over. Afterward you see everyone who fit, best-known first.
+// College Connect - two modes:
+//   College × Team: a college and an NBA franchise. Name anyone who played
+//     for both (from 1979-80 on). Afterward you see everyone who fit.
+//   Name the College: a player. Name his college. Misses unlock clues (its
+//     first letter, then how many NBA players it has sent since 1980).
+// Three guesses a round either way; run out and the streak is over.
 
-const SAVE_KEY = eraKey("cc-v1");   // { level, easy: { streak, best }, hard: { streak, best } }
+const SAVE_KEY = eraKey("cc-v1");   // { mode, level, easy|hard: { streak, best }, "school-easy"|"school-hard": { ... } }
 const GUESSES = 3;
 const KNOWN_WS = 15;   // a "known" answer has 15+ career Win Shares
 const LEVELS = {
   easy: { minCollege: MODERN ? 12 : 30, minKnown: MODERN ? 2 : 3 },   // big programs, several well-known answers
   hard: { minCollege: 0, minKnown: 1 },    // any school, at least one well-known answer
 };
+// Name the College: how well-known the player has to be (career Win Shares).
+const SCHOOL_MIN_WS = { easy: MODERN ? 30 : 50, hard: 3 };
 
 Object.assign(data, {
   colleges: [], teams: [],
@@ -18,9 +23,11 @@ Object.assign(data, {
 });
 
 const game = {
+  mode: loadSaved().mode === "school" ? "school" : "pair",
   level: loadSaved().level === "hard" ? "hard" : "easy",
   college: null, team: null, answers: [], misses: [], got: null, over: false,
-  seen: new Set(),   // "college:team" pairs used this run
+  seen: new Set(),   // "college:team" pairs (or player ids) used this run
+  player: null,      // Name the College: the mystery player's id
 };
 
 // ---------- data ----------
@@ -40,6 +47,8 @@ async function loadData() {
     data.labelToId[counts[n] > 1 ? `${n} (${data.colleges[colleges[0]]})` : n] = id;
   }
   $("cc-players").innerHTML = Object.keys(data.labelToId).sort().map((l) => `<option value="${escapeHtml(l)}">`).join("");
+  $("cc-colleges").innerHTML = data.colleges.map((c, i) => [c, i]).filter(([, i]) => data.collegeSize[i])
+    .sort((a, b) => a[0].localeCompare(b[0])).map(([c]) => `<option value="${escapeHtml(c)}">`).join("");
 }
 
 function loadSaved() {
@@ -50,7 +59,8 @@ function writeSaved(saved) {
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(saved)); } catch {}
 }
 
-const record = () => loadSaved()[game.level] || { streak: 0, best: 0 };
+const recordKey = () => (game.mode === "school" ? `school-${game.level}` : game.level);
+const record = () => loadSaved()[recordKey()] || { streak: 0, best: 0 };
 
 // ---------- game ----------
 
@@ -79,13 +89,69 @@ function newPair() {
   newPair();
 }
 
+function newRound() {
+  if (game.mode === "school") newPlayer();
+  else newPair();
+}
+
 function setLevel(level) {
   game.level = level;
   game.seen.clear();
   const saved = loadSaved();
   saved.level = level;
   writeSaved(saved);
-  newPair();
+  newRound();
+}
+
+function setMode(mode) {
+  game.mode = mode;
+  game.seen.clear();
+  const saved = loadSaved();
+  saved.mode = mode;
+  writeSaved(saved);
+  newRound();
+}
+
+// ---------- Name the College ----------
+
+function newPlayer() {
+  const minWs = SCHOOL_MIN_WS[game.level];
+  let pool = Object.keys(data.byId).filter((id) => data.byId[id].fame >= minWs && !game.seen.has(id));
+  if (!pool.length) { game.seen.clear(); pool = Object.keys(data.byId).filter((id) => data.byId[id].fame >= minWs); }
+  const player = pick(pool);
+  game.seen.add(player);
+  Object.assign(game, { player, misses: [], got: null, over: false });
+  $("school").value = "";
+  sayIn("school-message", "");
+  render();
+  $("school").focus({ preventScroll: true });
+}
+
+// A player's schools, the biggest program first (that's the one the clues describe).
+const schoolsOf = (id) => [...data.byId[id].colleges].sort((a, b) => data.collegeSize[b] - data.collegeSize[a]);
+
+function submitSchool() {
+  if (game.over) return;
+  const text = $("school").value.trim();
+  if (!text) return;
+  const college = data.colleges.findIndex((c) => c.toLowerCase() === text.toLowerCase());
+  if (college < 0) return sayIn("school-message", "Pick a college from the list.", "bad");
+  if (game.misses.includes(college)) return sayIn("school-message", "You already guessed that one.", "bad");
+  $("school").value = "";
+  if (data.byId[game.player].colleges.has(college)) return finish(college);
+  game.misses.push(college);
+  if (game.misses.length >= GUESSES) return finish(null);
+  sayIn("school-message", `✕ Not ${data.colleges[college]}. A clue just unlocked.`, "bad");
+  render();
+}
+
+function schoolClues() {
+  const main = schoolsOf(game.player)[0];
+  const n = data.collegeSize[main];
+  return [
+    `Starts with <b>${escapeHtml(data.colleges[main][0])}</b>`,
+    `Has sent <b>${n}</b> player${n === 1 ? "" : "s"} to the NBA since 1980${MODERN ? " (from the 2003 class on)" : ""}`,
+  ];
 }
 
 const collegeName = () => data.colleges[game.college];
@@ -114,20 +180,25 @@ function finish(id) {
   game.over = true;
   game.got = id;
   const saved = loadSaved();
-  const r = (saved[game.level] ||= { streak: 0, best: 0 });
-  r.streak = id ? r.streak + 1 : 0;
+  const r = (saved[recordKey()] ||= { streak: 0, best: 0 });
+  r.streak = id != null ? r.streak + 1 : 0;
   r.best = Math.max(r.best, r.streak);
   writeSaved(saved);
-  if (!id) game.seen.clear();
-  if (id) celebrate();
+  if (id == null) game.seen.clear();
+  if (id != null) celebrate();
   say("");
+  sayIn("school-message", "");
   render();
   $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function say(text, kind = "") {
-  $("message").textContent = text;
-  $("message").className = `message ${kind}`;
+  sayIn("message", text, kind);
+}
+
+function sayIn(el, text, kind = "") {
+  $(el).textContent = text;
+  $(el).className = `message ${kind}`;
 }
 
 // ---------- sharing ----------
@@ -136,6 +207,11 @@ const levelName = () => (game.level === "hard" ? "Hard" : "Easy");
 
 async function share() {
   const r = record();
+  if (game.mode === "school") {
+    const p = data.byId[game.player];
+    const tries = game.got != null ? "🟥".repeat(game.misses.length) + "🟩" : "🟥".repeat(GUESSES);
+    return shareResult(`College Connect: Name the College (${levelName()}) 🎓 ${p.name}\n${tries} · streak ${r.streak}`, $("share-msg"));
+  }
   const text = game.got
     ? `College Connect (${levelName()}) 🎓 ${collegeName()} × ${teamNick()}: ${data.byId[game.got].name}\nStreak ${r.streak} · best ${r.best}`
     : `College Connect (${levelName()}) 🎓 Run over at ${r.best ? `best ${r.best}` : "0"}. Stumped by ${collegeName()} × ${teamNick()}`;
@@ -146,9 +222,11 @@ function saveImage() {
   const r = record();
   shareImage({
     title: "College Connect",
-    kicker: `${levelName()} · ${collegeName()} × ${teamNick()}`,
+    kicker: game.mode === "school" ? `Name the College · ${levelName()}` : `${levelName()} · ${collegeName()} × ${teamNick()}`,
     big: String(r.streak),
-    lines: [game.got ? `Got it with ${data.byId[game.got].name}` : "Stumped", `Best streak ${r.best}`],
+    lines: game.mode === "school"
+      ? [`${data.byId[game.player].name}: ${schoolsOf(game.player).map((c) => data.colleges[c]).join(" / ")}`, `Best streak ${r.best}`]
+      : [game.got ? `Got it with ${data.byId[game.got].name}` : "Stumped", `Best streak ${r.best}`],
   }, $("share-msg"));
 }
 
@@ -169,9 +247,19 @@ const OLD_NAMES = {
 };
 
 function render() {
-  for (const btn of document.querySelectorAll(".difficulty button")) {
+  for (const btn of document.querySelectorAll(".cc-levels button")) {
     btn.setAttribute("aria-pressed", String(btn.dataset.level === game.level));
   }
+  for (const btn of document.querySelectorAll(".cc-modes button")) {
+    btn.setAttribute("aria-pressed", String(btn.dataset.mode === game.mode));
+  }
+  const school = game.mode === "school";
+  $("easy-label").textContent = school ? "stars" : "big programs";
+  $("hard-label").textContent = school ? "anyone" : "any school";
+  $("prompt").textContent = school ? "Where did he play college ball?" : "Name a player who played for both";
+  $("guess-form").hidden = school || game.over;
+  $("school-form").hidden = !school || game.over;
+  if (school) return renderSchool();
   const r = record();
   $("streak").textContent = r.streak;
   $("best").textContent = r.best;
@@ -209,22 +297,76 @@ function render() {
   }
 }
 
+function renderSchool() {
+  const r = record();
+  const p = data.byId[game.player];
+  $("streak").textContent = r.streak;
+  $("best").textContent = r.best;
+  $("school-left").textContent = GUESSES - game.misses.length;
+  const state = $("state");
+  state.className = "state";
+  state.textContent = game.over ? (game.got != null ? "Got it" : "Stumped") : `${GUESSES - game.misses.length} left`;
+  if (game.over) state.classList.add(game.got != null ? "win" : "lose");
+
+  const teams = [...p.teams].map((t) => data.teams[t]);
+  const clues = schoolClues();
+  $("pair").innerHTML = `
+    <div class="cc-player">
+      ${avatar(game.player, "md")}
+      <div class="cc-player-body">
+        <b>${game.over ? playerLink(game.player, p.name) : escapeHtml(p.name)}</b>
+        <span class="cc-player-teams">${teams.map((t) => `<span class="cp-badge" style="--team: ${teamColor(t)}">${t}</span>`).join("")}</span>
+      </div>
+    </div>
+    <ol class="cc-clues">${clues.map((c, i) => {
+      const open = game.over || i < game.misses.length;
+      return `<li class="${open ? "open" : ""}"><span class="cp-clue-n">${i + 1}</span>${open ? c : "Locked: unlocks with a miss"}</li>`;
+    }).join("")}</ol>`;
+  $("school-misses").innerHTML = game.misses.map((c) => `<li>✕ ${escapeHtml(data.colleges[c])}</li>`).join("");
+
+  $("result").hidden = !game.over;
+  $("answers").hidden = !game.over;
+  if (game.over) {
+    const schools = schoolsOf(game.player);
+    $("result").classList.toggle("lose", game.got == null);
+    tintResult(teams[0]);
+    $("result-kicker").textContent = game.got != null ? (game.misses.length ? `Got it in ${game.misses.length + 1}` : "First try") : "He went to";
+    $("result-title").textContent = schools.map((c) => data.colleges[c]).join(" / ");
+    $("result-text").textContent = (schools.length > 1 ? "He played at more than one school; any of them counted. " : "") +
+      (game.got != null ? `Streak: ${r.streak}. Best: ${r.best}.` : `Run over. Best streak: ${r.best}.`);
+    $("next").textContent = game.got != null ? "Next player" : "New run";
+    $("share-msg").textContent = "";
+    const main = schools[0];
+    const alumni = Object.keys(data.byId).filter((id) => id !== game.player && data.byId[id].colleges.has(main))
+      .sort((a, b) => data.byId[b].fame - data.byId[a].fame);
+    $("answers").innerHTML = `
+      <span class="label">Other ${escapeHtml(data.colleges[main])} players in the NBA · ${alumni.length}</span>
+      <ol class="ag-answer-list">${alumni.slice(0, 12).map((id) => `<li>${avatar(id, "xs")}${playerLink(id, data.byId[id].name)}</li>`).join("")}</ol>
+      ${alumni.length > 12 ? `<p class="meta">…and ${alumni.length - 12} more.</p>` : ""}`;
+  }
+}
+
 // ---------- wiring ----------
 
 $("guess-form").addEventListener("submit", (e) => { e.preventDefault(); submitGuess(); });
 $("give-up").addEventListener("click", () => !game.over && finish(null));
-$("next").addEventListener("click", () => { newPair(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+$("school-form").addEventListener("submit", (e) => { e.preventDefault(); submitSchool(); });
+$("school-give-up").addEventListener("click", () => !game.over && finish(null));
+$("next").addEventListener("click", () => { newRound(); window.scrollTo({ top: 0, behavior: "smooth" }); });
 $("share").addEventListener("click", share);
 $("save-image").addEventListener("click", saveImage);
-for (const btn of document.querySelectorAll(".difficulty button")) {
+for (const btn of document.querySelectorAll(".cc-levels button")) {
   btn.addEventListener("click", () => setLevel(btn.dataset.level));
+}
+for (const btn of document.querySelectorAll(".cc-modes button")) {
+  btn.addEventListener("click", () => btn.dataset.mode !== game.mode && setMode(btn.dataset.mode));
 }
 
 loadData()
   .then(() => {
     $("status").hidden = true;
     $("game").hidden = false;
-    newPair();
+    newRound();
   })
   .catch((err) => {
     $("state").textContent = "Error";

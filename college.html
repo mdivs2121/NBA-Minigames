@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=202610051033">
+  <link rel="stylesheet" href="style.css?v=202610051429">
 </head>
 <body>
   <main>
@@ -38,9 +38,14 @@
       <span id="state" class="state">Loading</span>
     </header>
 
-    <nav class="difficulty" aria-label="Difficulty">
-      <button type="button" data-level="easy">Easy · big programs</button>
-      <button type="button" data-level="hard">Hard · any school</button>
+    <nav class="difficulty cc-modes" aria-label="Mode">
+      <button type="button" data-mode="pair">College × Team</button>
+      <button type="button" data-mode="school">Name the College</button>
+    </nav>
+
+    <nav class="difficulty cc-levels" aria-label="Difficulty">
+      <button type="button" data-level="easy">Easy · <span id="easy-label">big programs</span></button>
+      <button type="button" data-level="hard">Hard · <span id="hard-label">any school</span></button>
     </nav>
 
     <p id="status" class="status">Loading colleges…</p>
@@ -52,7 +57,7 @@
       </div>
 
       <div class="cp-head">
-        <span class="side-label">Name a player who played for both</span>
+        <span id="prompt" class="side-label">Name a player who played for both</span>
       </div>
 
       <div id="pair" class="cc-pair"></div>
@@ -69,6 +74,20 @@
           <button type="button" id="give-up" class="ghost">Give up</button>
         </div>
         <ol id="misses" class="cp-misses"></ol>
+      </form>
+
+      <form id="school-form" class="guess" autocomplete="off" hidden>
+        <label for="school" class="label">Your guess · <span id="school-left">3</span> left</label>
+        <div class="guess-row">
+          <input id="school" list="cc-colleges" placeholder="Start typing a college…">
+          <button type="submit" class="primary">Guess</button>
+        </div>
+        <datalist id="cc-colleges" data-plain></datalist>
+        <p id="school-message" class="message"></p>
+        <div class="actions">
+          <button type="button" id="school-give-up" class="ghost">Give up</button>
+        </div>
+        <ol id="school-misses" class="cp-misses"></ol>
       </form>
 
       <section id="result" class="result" hidden>
@@ -91,7 +110,7 @@
       <span>From campus to the league.</span>
     </footer>
   </main>
-  <script src="common.js?v=202610051033"></script>
-  <script src="college.js?v=202610051033"></script>
+  <script src="common.js?v=202610051429"></script>
+  <script src="college.js?v=202610051429"></script>
 </body>
 </html>
