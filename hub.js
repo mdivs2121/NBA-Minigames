@@ -50,6 +50,11 @@ const PROGRESS = {
     const best = Math.max(t.easy?.best || 0, t.hard?.best || 0);
     return best ? { text: `Best: ${best} perfect round${best === 1 ? "" : "s"}` } : null;
   },
+  stat() {
+    const t = saved("sl-v1") || {};
+    const best = Math.max(t.easy?.best || 0, t.hard?.best || 0);
+    return best ? { text: `Best streak: ${best}` } : null;
+  },
   higher() {
     const best = Number(saved("hl-best")) || 0;
     return best ? { text: `Best streak: ${best}` } : null;

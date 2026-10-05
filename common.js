@@ -150,6 +150,15 @@ const GAMES = [
     ],
   },
   {
+    page: "stat.html", title: "Stat Line", tag: "Guess who", art: "stat", isNew: true,
+    blurb: "One real season's stat line, no name. Who put it up? Every miss unlocks a clue.",
+    howto: [
+      ["Read the line", "You see one real season: points, rebounds, assists, shooting, games, and minutes."],
+      ["Name him", "Type any player. You get four tries."],
+      ["Misses unlock clues", "First his team, then his age and position, then his initials. Keep a streak going: Easy is star seasons since 1996, Hard is any starter since 1986."],
+    ],
+  },
+  {
     page: "higher.html", title: "Higher or Lower", tag: "Endless", art: "higher",
     blurb: "More career points? Fewer rebounds? Call it right to keep your streak alive. It gets tighter as you go.",
     howto: [
@@ -250,6 +259,15 @@ const GAME_ART = {
         <circle cx="16" cy="${16 + i * 20}" r="6" fill="${i === 3 ? "var(--near)" : "var(--green)"}"/>
         <rect x="30" y="${10 + i * 20}" width="${[60, 74, 50, 66][i]}" height="12" rx="4" fill="var(--surface-2)"/>
         <text x="${36}" y="${19 + i * 20}" font-size="8" font-weight="800" fill="var(--muted)">${[1984, 1996, 2003, 2016][i]}</text>`).join("")}
+    </svg>`,
+  stat: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      ${[["27.4", "PPG"], ["8.1", "RPG"], ["6.3", "APG"]].map(([v, l], i) => `
+        <rect x="${6 + i * 38}" y="12" width="32" height="40" rx="6" fill="${i === 0 ? "var(--accent)" : "var(--surface-2)"}"/>
+        <text x="${22 + i * 38}" y="34" text-anchor="middle" font-size="11" font-weight="800" fill="${i === 0 ? "var(--on-accent)" : "var(--text)"}">${v}</text>
+        <text x="${22 + i * 38}" y="46" text-anchor="middle" font-size="7" font-weight="800" fill="${i === 0 ? "var(--on-accent)" : "var(--muted)"}">${l}</text>`).join("")}
+      <rect x="6" y="60" width="108" height="20" rx="6" fill="var(--surface-2)"/>
+      <text x="60" y="74" text-anchor="middle" font-size="11" font-weight="800" fill="var(--muted)">? ? ?</text>
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

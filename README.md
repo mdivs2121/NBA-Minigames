@@ -7,6 +7,7 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Higher or Lower**: does the next player have more or fewer? Keep the streak going.
 - **Career Path**: name the player from his team history; misses unlock clues.
 - **Hindsight → Name the Team → Full Roster**: name as many players from a team-season as you can in 60 seconds.
+- **Stat Line**: name the player from one real season's stat line; misses unlock clues.
 - **Timeline**: put five moments from NBA history in order; three lives.
 - **Awards Grid** (daily): a 3×3 grid of teams, awards, and milestones; name a player for every square.
 - **Guess the Player** (daily): a mystery player; every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.

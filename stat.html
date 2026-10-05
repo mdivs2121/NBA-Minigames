@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Career Path</title>
-  <meta name="description" content="Name the NBA player from nothing but the teams he played for. Every miss unlocks a clue.">
+  <title>Stat Line · NBA Minigames</title>
+  <meta name="description" content="One real season&#x27;s stat line. Name the player who put it up. Every miss reveals a clue.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
-  <meta property="og:title" content="Career Path · NBA Minigames">
-  <meta property="og:description" content="Name the NBA player from nothing but the teams he played for. Every miss unlocks a clue.">
-  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/path.html">
+  <meta property="og:title" content="Stat Line · NBA Minigames">
+  <meta property="og:description" content="One real season&#x27;s stat line. Name the player who put it up. Every miss reveals a clue.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/stat.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -33,16 +33,16 @@
     <div class="rule"></div>
 
     <header class="topbar">
-      <span class="eyebrow">Career Path</span>
+      <span class="eyebrow">Stat Line</span>
       <span id="state" class="state">Loading</span>
     </header>
 
     <nav class="difficulty" aria-label="Difficulty">
-      <button type="button" data-level="easy">Easy · stars</button>
-      <button type="button" data-level="hard">Hard · anyone</button>
+      <button type="button" data-level="easy">Easy · star seasons</button>
+      <button type="button" data-level="hard">Hard · any starter</button>
     </nav>
 
-    <p id="status" class="status">Loading careers…</p>
+    <p id="status" class="status">Loading seasons…</p>
 
     <section id="game" hidden>
       <div class="numbers hl-numbers">
@@ -51,11 +51,11 @@
       </div>
 
       <div class="cp-head">
-        <span class="side-label">Whose career is this?</span>
-        <h1 id="answer" class="giant">? ? ?</h1>
+        <span id="season" class="side-label"></span>
+        <h1 id="answer" class="giant">Whose season?</h1>
       </div>
 
-      <ol id="path" class="cp-path"></ol>
+      <div id="line" class="sl-line"></div>
 
       <section class="cp-clues">
         <span class="label">Clues · one unlocks with every miss</span>
@@ -63,7 +63,7 @@
       </section>
 
       <form id="guess-form" class="guess" autocomplete="off">
-        <label for="guess" class="label">Your guess · <span id="left">6</span> left</label>
+        <label for="guess" class="label">Your guess · <span id="left">4</span> left</label>
         <div class="guess-row">
           <input id="guess" list="all-players" placeholder="Start typing a player…">
           <button type="submit" id="guess-btn" class="primary">Guess</button>
@@ -84,7 +84,7 @@
         </div>
         <p id="result-text" class="meta"></p>
         <div class="result-actions">
-          <button type="button" id="next" class="primary">Next career</button>
+          <button type="button" id="next" class="primary">Next season</button>
           <button type="button" id="share" class="ghost">Share</button>
           <button type="button" id="save-image" class="ghost">Save image</button>
         </div>
@@ -93,11 +93,11 @@
     </section>
 
     <footer>
-      <span class="brand">Career Path</span>
-      <span>Every jersey tells a story.</span>
+      <span class="brand">Stat Line</span>
+      <span>The numbers never lie. Names, though…</span>
     </footer>
   </main>
   <script src="common.js?v=202610050843"></script>
-  <script src="path.js?v=202610050843"></script>
+  <script src="stat.js?v=202610050843"></script>
 </body>
 </html>
