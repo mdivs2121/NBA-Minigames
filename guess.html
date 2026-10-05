@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=202610050832">
+  <link rel="stylesheet" href="style.css?v=202610050841">
 </head>
 <body>
   <main>
@@ -37,13 +37,18 @@
       <span id="state" class="state">Loading</span>
     </header>
 
+    <nav class="difficulty gp-modes" aria-label="Mode">
+      <button type="button" data-mode="normal">Normal</button>
+      <button type="button" data-mode="hard">Hard · no colors</button>
+    </nav>
+
     <p id="status" class="status">Loading players…</p>
 
     <section id="game" hidden>
       <div class="gp-head">
         <span id="kicker" class="side-label"></span>
         <h1 class="giant">Who's the mystery player?</h1>
-        <p class="meta">Eight guesses. Each one shows how close you are: 🟩 match, 🟨 close (for the team, same division), 🟧 same conference, and arrows pointing toward the mystery player's number.</p>
+        <p id="intro" class="meta"></p>
       </div>
 
       <form id="guess-form" class="guess" autocomplete="off">
@@ -87,12 +92,14 @@
       </section>
     </section>
 
+    <section id="stats" class="stats-wrap" hidden></section>
+
     <footer>
       <span class="brand">Guess the Player</span>
       <span>Same mystery player for everyone. New one every day.</span>
     </footer>
   </main>
-  <script src="common.js?v=202610050832"></script>
-  <script src="guess.js?v=202610050832"></script>
+  <script src="common.js?v=202610050841"></script>
+  <script src="guess.js?v=202610050841"></script>
 </body>
 </html>

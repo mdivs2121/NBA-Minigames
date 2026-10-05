@@ -118,7 +118,7 @@ const GAMES = [
     howto: [
       ["Guess anyone", "Type any player from the last 25 years. You get eight guesses."],
       ["Read the clues", "🟩 matches the mystery player. 🟨 is close: same division, an overlapping position, or a number within 2. 🟧 on the team means same conference, different division. Arrows point toward his number."],
-      ["Stuck?", "Hint reveals his career averages, then his college, then his initials. Retired players' team is the one they played the most games for."],
+      ["Stuck?", "Hint reveals his career averages, then his college, then his initials. Retired players' team is the one they played the most games for. Hard mode is a second daily with deeper cuts and only 🟩 colors."],
     ],
   },
   {
@@ -710,6 +710,22 @@ function loadDailySave(key) {
 
 function writeDailySave(key, save) {
   try { localStorage.setItem(key, JSON.stringify(save)); } catch {}
+}
+
+// A "Your stats" panel for a daily game: a row of numbers, then a bar chart.
+//   cells: [[label, value], ...]   rows: [[label, count, isToday], ...]
+function statsPanel(el, { title = "Your stats", cells, distTitle, rows }) {
+  const played = rows.reduce((sum, [, n]) => sum + n, 0);
+  el.hidden = played === 0;
+  if (!played) return;
+  const most = Math.max(1, ...rows.map(([, n]) => n));
+  el.innerHTML = `
+    <span class="label">${escapeHtml(title)}</span>
+    <div class="stat-grid">${cells.map(([label, value]) => `<div><b>${escapeHtml(String(value))}</b><span>${escapeHtml(label)}</span></div>`).join("")}</div>
+    <span class="label">${escapeHtml(distTitle)}</span>
+    <ol class="dist">${rows.map(([label, n, today]) => `
+      <li><span class="dist-n">${escapeHtml(String(label))}</span><span class="dist-bar ${today ? "today" : ""}" style="width: ${Math.max(8, (n / most) * 100)}%">${n}</span></li>`).join("")}
+    </ol>`;
 }
 
 // Days in a row with a finished daily puzzle, ending today (or yesterday, if

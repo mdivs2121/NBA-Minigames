@@ -272,6 +272,8 @@ function render() {
     updateCountdown();
   }
 
+  renderStats();
+
   // After the game: who else fit the tapped square.
   $("answers").hidden = play.peek == null;
   if (play.peek != null) {
@@ -281,6 +283,20 @@ function render() {
       <ol class="ag-answer-list">${list.slice(0, 12).map((id) => `<li class="${id === play.cells[play.peek] ? "mine" : ""}">${avatar(id, "xs")}${playerLink(id, data.byId[id].name)}</li>`).join("")}</ol>
       ${list.length > 12 ? `<p class="meta">…and ${list.length - 12} more.</p>` : ""}`;
   }
+}
+
+function renderStats() {
+  const save = loadSave();
+  const history = Object.values(save.history);
+  const { current, best } = streaks(save.history);
+  const avg = history.length ? (history.reduce((sum, h) => sum + h.score, 0) / history.length).toFixed(1) : "–";
+  const bucket = (score) => (score <= 4 ? "≤4" : score);
+  const todays = play.over && !play.past ? bucket(filled()) : null;
+  statsPanel($("stats"), {
+    cells: [["Played", history.length], ["Avg squares", avg], ["Streak", current], ["Best streak", best]],
+    distTitle: "Squares filled",
+    rows: [9, 8, 7, 6, 5, "≤4"].map((n) => [n, history.filter((h) => bucket(h.score) === n).length, n === todays]),
+  });
 }
 
 function updateCountdown() {

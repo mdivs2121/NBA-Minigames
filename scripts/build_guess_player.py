@@ -7,7 +7,9 @@ data/guess_player.json:
   { "players": [ { id, name, team, pos, ht, debut, pick, allStars, answer }, ... ] }
 
 Everyone who played from 2000-01 on with 150+ games can be guessed. About 250
-of the best-known (still playing in 2008 or later) can be the answer.
+of the best-known (still playing in 2008 or later) can be the answer. Hard mode
+draws from everyone else with 500+ games or an All-Star pick, older players
+included (the "hard" flag).
   team      active players: his current team. Retired: the team he played
             the most games for (relocated franchises count as one team)
   pos       G, F, C, or a combo like G-F
@@ -29,6 +31,7 @@ from paths import OUT_DIR, STATS_DIR
 SUMMARY_TEAM = re.compile(r"^(TOT|\dTM)$")
 GUESSABLE_SINCE, MIN_GAMES = 2001, 150
 ANSWERS, ANSWERS_SINCE = 250, 2008
+HARD_GAMES = 500
 SAME_TEAM = {"NOK": "NOH"}   # the Katrina-era Hornets
 # Relocated and renamed teams, for counting games with one franchise.
 FRANCHISE = {"NJN": "BRK", "SEA": "OKC", "VAN": "MEM", "NOH": "NOP", "NOK": "NOP", "CHA": "CHO", "CHH": "CHO", "WSB": "WAS"}
@@ -78,7 +81,7 @@ def main():
             "team": last_team[pid] if last == latest else main_team.get(pid, last_team[pid]),
             "ht": int(i["ht_in_in"]), "debut": int(first), "last": int(last),
             "pick": int(draft[pid]) if pid in draft.index else None,
-            "allStars": int(star_count.get(pid, 0)),
+            "allStars": int(star_count.get(pid, 0)), "games": int(games.get(pid, 0)),
             "hints": [f"{c['pts'] / c['g']:.1f} PPG / {c['trb'] / c['g']:.1f} RPG / {c['ast'] / c['g']:.1f} APG", colleges, initials],
         })
 
@@ -88,13 +91,14 @@ def main():
     answer_ids = {p["id"] for p in candidates}
     for p in out:
         p["answer"] = p["id"] in answer_ids
-        del p["last"]
+        p["hard"] = not p["answer"] and (p["games"] >= HARD_GAMES or p["allStars"] > 0)
+        del p["last"], p["games"]
     out.sort(key=lambda p: p["id"])
 
     path = OUT_DIR / "guess_player.json"
     with open(path, "w", encoding="utf-8") as f:
         json.dump({"players": out}, f, separators=(",", ":"), ensure_ascii=False)
-    print(f"wrote {path} ({path.stat().st_size / 1024:.0f} KB): {len(out)} guessable, {len(answer_ids)} possible answers")
+    print(f"wrote {path} ({path.stat().st_size / 1024:.0f} KB): {len(out)} guessable, {len(answer_ids)} possible answers, {sum(p['hard'] for p in out)} more in hard mode")
     print("  least famous answers:", ", ".join(p["name"] for p in candidates[-6:]))
     for pid in ["jamesle01", "gasolma01", "malonka01", "paytoga01", "piercpa01"]:
         print(" ", next(p for p in out if p["id"] == pid))

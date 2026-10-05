@@ -1,8 +1,15 @@
 // Guess the Player - a daily mystery player. Every guess shows six clues
 // compared to the mystery player: 🟩 match, 🟨 close, and arrows for numbers
 // (⬆️ means the mystery player's number is higher). Eight guesses.
+// Hard mode is a second daily from a deeper pool (older players too), and
+// only exact matches get a color.
 
-const STORAGE_KEY = "gp-v1";   // { history: { day: result }, archive, progress: { day, guesses, hints } }
+// Each mode saves { history: { day: result }, archive, progress: { day, guesses, hints } }.
+const MODES = {
+  normal: { key: "gp-v1", seed: "guess-the-player:order", pool: "answer", title: "Guess the Player" },
+  hard: { key: "gp-hard-v1", seed: "guess-the-player-hard:order", pool: "hard", title: "Guess the Player (Hard)" },
+};
+const MODE_KEY = "gp-mode";
 const MAX_GUESSES = 8;
 
 // Today's divisions. Old team names go where the franchise plays now.
@@ -20,11 +27,15 @@ const franchise = (team) => FRANCHISE[team] || team;
 
 Object.assign(data, {
   byId: {},          // id -> player from guess_player.json
-  answers: [],       // ids that can be a daily answer, in a fixed shuffled order
+  answers: {},       // mode -> ids that can be a daily answer, in a fixed shuffled order
   labelToId: {},
 });
 
-const play = { day: null, past: false, number: 0, answer: null, guesses: [], hints: 0, over: false, won: false };
+const play = { mode: savedMode(), day: null, past: false, number: 0, answer: null, guesses: [], hints: 0, over: false, won: false };
+
+function savedMode() {
+  try { return localStorage.getItem(MODE_KEY) === "hard" ? "hard" : "normal"; } catch { return "normal"; }
+}
 
 // ---------- data ----------
 
@@ -35,13 +46,15 @@ async function loadData() {
     data.players[p.id] ||= { name: p.name };
   }
   // The answer order is a fixed shuffle, so no player repeats until all have been used.
-  const ids = file.players.filter((p) => p.answer).map((p) => p.id).sort();
-  const random = rng(hash("guess-the-player:order"));
-  for (let i = ids.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [ids[i], ids[j]] = [ids[j], ids[i]];
+  for (const [mode, { seed, pool }] of Object.entries(MODES)) {
+    const ids = file.players.filter((p) => p[pool]).map((p) => p.id).sort();
+    const random = rng(hash(seed));
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    data.answers[mode] = ids;
   }
-  data.answers = ids;
 
   // Names shared by two players get their debut year.
   const counts = {};
@@ -50,7 +63,10 @@ async function loadData() {
   $("gp-players").innerHTML = Object.keys(data.labelToId).sort().map((l) => `<option value="${escapeHtml(l)}">`).join("");
 }
 
-const answerFor = (day) => data.answers[(((dayNumber(day) - 1) % data.answers.length) + data.answers.length) % data.answers.length];
+function answerFor(day, mode = play.mode) {
+  const ids = data.answers[mode];
+  return ids[(((dayNumber(day) - 1) % ids.length) + ids.length) % ids.length];
+}
 
 // ---------- clues ----------
 
@@ -61,8 +77,14 @@ const feet = (inches) => `${Math.floor(inches / 12)}′${inches % 12}″`;
 
 // Numbers are 🟨 when within 2 (inches, years, picks, All-Star nods).
 // Compare one guessed player to the answer: [{ text, color: "green"|"near"|"conf"|"", arrow }]
-// Team: 🟩 same team, 🟨 same division, outlined yellow for the same conference.
-function compare(guess, answer) {
+// Team: 🟩 same team, 🟨 same division, 🟧 same conference.
+// Hard mode keeps only exact matches (and the arrows).
+function compare(guess, answer, hard = play.mode === "hard") {
+  const cells = compareAll(guess, answer);
+  return hard ? cells.map((c) => (c.color === "green" ? c : { ...c, color: "" })) : cells;
+}
+
+function compareAll(guess, answer) {
   const number = (g, a, close) => ({
     color: g === a ? "green" : Math.abs(g - a) <= close ? "near" : "",
     arrow: g === a ? "" : a > g ? "⬆️" : "⬇️",
@@ -89,8 +111,15 @@ const emojiRow = (id) => (id === play.answer ? "🟩".repeat(6) : compare(data.b
 
 // ---------- saving ----------
 
-const loadSave = () => loadDailySave(STORAGE_KEY);
-const writeSave = (save) => writeDailySave(STORAGE_KEY, save);
+const loadSave = () => loadDailySave(MODES[play.mode].key);
+const writeSave = (save) => writeDailySave(MODES[play.mode].key, save);
+
+function setMode(mode) {
+  play.mode = mode;
+  try { localStorage.setItem(MODE_KEY, mode); } catch {}
+  $("guess").value = "";
+  start();
+}
 
 function start() {
   const { day, past } = puzzleDay();
@@ -173,7 +202,7 @@ function say(text, kind = "") {
 // ---------- sharing ----------
 
 const score = () => (play.won ? `${play.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`);
-const titleLine = () => `Guess the Player #${play.number}${play.past ? " (archive)" : ""}`;
+const titleLine = () => `${MODES[play.mode].title} #${play.number}${play.past ? " (archive)" : ""}`;
 
 async function share() {
   const streak = play.past ? 0 : streaks(loadSave().history).current;
@@ -184,7 +213,7 @@ async function share() {
 
 function saveImage() {
   shareImage({
-    title: "Guess the Player",
+    title: MODES[play.mode].title,
     kicker: `#${play.number}${play.past ? " · archive" : ""}`,
     big: score(),
     grid: play.guesses.map(emojiRow),
@@ -196,7 +225,13 @@ function saveImage() {
 
 function render() {
   const answer = data.byId[play.answer];
-  $("kicker").textContent = `Daily #${play.number}${play.past ? ` · from ${play.day}` : ""}`;
+  for (const btn of document.querySelectorAll(".gp-modes button")) {
+    btn.setAttribute("aria-pressed", String(btn.dataset.mode === play.mode));
+  }
+  $("kicker").textContent = `${play.mode === "hard" ? "Hard · " : ""}Daily #${play.number}${play.past ? ` · from ${play.day}` : ""}`;
+  $("intro").textContent = play.mode === "hard"
+    ? "Eight guesses, a deeper pool of players, and no hints from color: only 🟩 exact matches light up. The arrows still point toward his numbers."
+    : "Eight guesses. Each one shows how close you are: 🟩 match, 🟨 close (for the team, same division), 🟧 same conference, and arrows pointing toward the mystery player's number.";
   $("guess-num").textContent = Math.min(play.guesses.length + 1, MAX_GUESSES);
 
   const state = $("state");
@@ -242,6 +277,20 @@ function render() {
     $("share-msg").textContent = "";
     updateCountdown();
   }
+  renderStats();
+}
+
+function renderStats() {
+  const history = Object.values(loadSave().history);
+  const { current, best } = streaks(loadSave().history);
+  const wins = history.filter((h) => h.won);
+  const todays = play.over && !play.past ? (play.won ? play.guesses.length : "X") : null;
+  statsPanel($("stats"), {
+    title: play.mode === "hard" ? "Your stats · Hard" : "Your stats",
+    cells: [["Played", history.length], ["Win %", history.length ? Math.round((100 * wins.length) / history.length) : 0], ["Streak", current], ["Best streak", best]],
+    distTitle: "Guesses to get him",
+    rows: [1, 2, 3, 4, 5, 6, 7, 8, "X"].map((n) => [n, history.filter((h) => (h.won ? h.guesses : "X") === n).length, n === todays]),
+  });
 }
 
 function updateCountdown() {
@@ -257,6 +306,9 @@ function updateCountdown() {
 
 $("guess-form").addEventListener("submit", (e) => { e.preventDefault(); submitGuess(); });
 $("hint").addEventListener("click", useHint);
+for (const btn of document.querySelectorAll(".gp-modes button")) {
+  btn.addEventListener("click", () => btn.dataset.mode !== play.mode && setMode(btn.dataset.mode));
+}
 $("share").addEventListener("click", share);
 $("save-image").addEventListener("click", saveImage);
 
