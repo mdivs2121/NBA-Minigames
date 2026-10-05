@@ -160,6 +160,15 @@ const GAMES = [
     ],
   },
   {
+    page: "draftday.html", title: "Draft Day", tag: "Guess who", art: "draftday", isNew: true,
+    blurb: "A draft year and a pick number. Who went there? Every miss unlocks a clue.",
+    howto: [
+      ["Year and pick", "You see a draft year and a first-round pick number, like 2003, #5."],
+      ["Name the pick", "Type any player. You get four tries, and a wrong guess tells you where that player actually went."],
+      ["Misses unlock clues", "The team that picked, then his college and position, then his initials. Easy is lottery picks since 1995; Hard is the whole first round since 1985."],
+    ],
+  },
+  {
     page: "higher.html", title: "Higher or Lower", tag: "Endless", art: "higher",
     blurb: "More career points? Fewer rebounds? Call it right to keep your streak alive. It gets tighter as you go.",
     howto: [
@@ -287,6 +296,14 @@ const GAME_ART = {
         <rect x="${10 + i * 28}" y="38" width="16" height="4" rx="2" fill="var(--line)"/>
         <rect x="${10 + i * 28}" y="46" width="12" height="4" rx="2" fill="var(--line)"/>`).join("")}
       ${["PG", "SG", "SF", "PF", "C"].map((p, i) => `<rect x="${6 + i * 22}" y="66" width="18" height="14" rx="3" fill="${i < 2 ? "var(--green)" : "var(--surface-2)"}"/>`).join("")}
+    </svg>`,
+  draftday: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="14" y="10" width="92" height="56" rx="8" fill="var(--surface-2)"/>
+      <text x="60" y="30" text-anchor="middle" font-size="11" font-weight="800" fill="var(--muted)">2003 DRAFT</text>
+      <text x="60" y="56" text-anchor="middle" font-size="24" font-weight="900" fill="var(--accent)">#5</text>
+      <rect x="30" y="72" width="60" height="12" rx="6" fill="var(--line)"/>
+      <text x="60" y="81" text-anchor="middle" font-size="8" font-weight="800" fill="var(--text)">? ? ?</text>
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

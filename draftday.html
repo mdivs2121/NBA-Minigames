@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Guess the Player · NBA Minigames</title>
-  <meta name="description" content="A daily mystery NBA player. Every guess tells you if you&#x27;re warmer: team, position, height, debut, draft, All-Stars.">
+  <title>Draft Day · NBA Minigames</title>
+  <meta name="description" content="A draft year and a pick number. Name who was taken. Every miss reveals a clue.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
-  <meta property="og:title" content="Guess the Player · NBA Minigames">
-  <meta property="og:description" content="A daily mystery NBA player. Every guess tells you if you&#x27;re warmer: team, position, height, debut, draft, All-Stars.">
-  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/guess.html">
+  <meta property="og:title" content="Draft Day · NBA Minigames">
+  <meta property="og:description" content="A draft year and a pick number. Name who was taken. Every miss reveals a clue.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/draftday.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -33,45 +33,48 @@
     <div class="rule"></div>
 
     <header class="topbar">
-      <span class="eyebrow">Guess the Player</span>
+      <span class="eyebrow">Draft Day</span>
       <span id="state" class="state">Loading</span>
     </header>
 
-    <nav class="difficulty gp-modes" aria-label="Mode">
-      <button type="button" data-mode="normal">Normal</button>
-      <button type="button" data-mode="hard">Hard · no colors</button>
+    <nav class="difficulty" aria-label="Difficulty">
+      <button type="button" data-level="easy">Easy · lottery picks</button>
+      <button type="button" data-level="hard">Hard · whole first round</button>
     </nav>
 
-    <p id="status" class="status">Loading players…</p>
+    <p id="status" class="status">Loading drafts…</p>
 
     <section id="game" hidden>
-      <div class="gp-head">
-        <span id="kicker" class="side-label"></span>
-        <h1 class="giant">Who's the mystery player?</h1>
-        <p id="intro" class="meta"></p>
+      <div class="numbers hl-numbers">
+        <div><span class="label">Streak</span><b id="streak">0</b></div>
+        <div class="right"><span class="label">Best</span><b id="best" class="green">0</b></div>
       </div>
+
+      <div class="cp-head">
+        <span id="season" class="side-label"></span>
+        <h1 id="answer" class="giant">Who went here?</h1>
+      </div>
+
+      <div id="line" class="dd-card"></div>
+
+      <section class="cp-clues">
+        <span class="label">Clues · one unlocks with every miss</span>
+        <ol id="clues"></ol>
+      </section>
 
       <form id="guess-form" class="guess" autocomplete="off">
-        <label for="guess" class="label">Guess <span id="guess-num">1</span> of 8</label>
+        <label for="guess" class="label">Your guess · <span id="left">4</span> left</label>
         <div class="guess-row">
-          <input id="guess" list="gp-players" placeholder="Start typing a player…">
+          <input id="guess" list="all-players" placeholder="Start typing a player…">
           <button type="submit" id="guess-btn" class="primary">Guess</button>
         </div>
-        <datalist id="gp-players"></datalist>
+        <datalist id="all-players"></datalist>
         <p id="message" class="message"></p>
         <div class="actions">
-          <button type="button" id="hint" class="ghost">💡 Hint</button>
+          <button type="button" id="give-up" class="ghost">Give up</button>
         </div>
+        <ol id="misses" class="cp-misses"></ol>
       </form>
-
-      <ol id="hints" class="gp-hints" hidden></ol>
-
-      <div class="gp-table-wrap">
-        <div class="gp-labels" aria-hidden="true">
-          <span>Team</span><span>Pos</span><span>Height</span><span>Debut</span><span>Pick</span><span>All-Star</span>
-        </div>
-        <ol id="rows" class="gp-rows"></ol>
-      </div>
 
       <section id="result" class="result" hidden>
         <span id="result-kicker" class="label"></span>
@@ -80,26 +83,21 @@
           <h2 id="result-title" class="giant"></h2>
         </div>
         <p id="result-text" class="meta"></p>
-        <pre id="result-grid" class="cx-emoji gp-emoji" aria-hidden="true"></pre>
         <div class="result-actions">
-          <button type="button" id="share" class="primary">Share result</button>
+          <button type="button" id="next" class="primary">Next pick</button>
+          <button type="button" id="share" class="ghost">Share</button>
           <button type="button" id="save-image" class="ghost">Save image</button>
         </div>
-        <p id="milestone" class="milestone" hidden></p>
         <p id="share-msg" class="message good"></p>
-        <p id="next" class="meta next"></p>
-        <p class="meta next"><a href="archive.html" class="ar-link">Play past puzzles →</a></p>
       </section>
     </section>
 
-    <section id="stats" class="stats-wrap" hidden></section>
-
     <footer>
-      <span class="brand">Guess the Player</span>
-      <span>Same mystery player for everyone. New one every day.</span>
+      <span class="brand">Draft Day</span>
+      <span>With the next pick in the NBA Draft…</span>
     </footer>
   </main>
   <script src="common.js?v=202610050935"></script>
-  <script src="guess.js?v=202610050935"></script>
+  <script src="draftday.js?v=202610050935"></script>
 </body>
 </html>

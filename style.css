@@ -1883,3 +1883,13 @@ a.primary {
   font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; box-shadow: 0 6px 18px rgba(255, 107, 26, 0.22);
 }
 a.primary:hover { filter: brightness(1.06); }
+
+/* ---------- Draft Day ---------- */
+.dd-card {
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 22px;
+  margin-bottom: 22px; padding: 20px 24px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 14%, var(--surface-2)); animation: pop 0.25s ease-out;
+}
+.dd-year { grid-row: 1 / 3; font-size: clamp(2.6rem, 10vw, 4.4rem); font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+.dd-pick { font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 900; color: var(--accent); line-height: 1; display: flex; align-items: baseline; gap: 8px; }
+.dd-pick small { color: var(--muted); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.dd-round { color: var(--muted); font-weight: 700; font-size: 0.85rem; }

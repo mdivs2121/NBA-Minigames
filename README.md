@@ -8,6 +8,7 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Career Path**: name the player from his team history; misses unlock clues.
 - **Hindsight → Name the Team → Full Roster**: name as many players from a team-season as you can in 60 seconds.
 - **Blind Draft**: draft a starting five from anonymous stat lines; hidden Win Shares score it.
+- **Draft Day**: given a draft year and pick number, name who was taken.
 - **Stat Line**: name the player from one real season's stat line; misses unlock clues.
 - **Timeline**: put five moments from NBA history in order; three lives.
 - **Awards Grid** (daily): a 3×3 grid of teams, awards, and milestones; name a player for every square.
