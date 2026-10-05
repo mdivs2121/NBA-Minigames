@@ -394,6 +394,48 @@ const GAME_ART = {
 };
 
 
+// ---------- icons ----------
+// One line-icon set for the site's controls, drawn in the current text color.
+const ICON_PATHS = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  volume: '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
+  mute: '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/>',
+  share: '<path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v7h14v-7"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 8"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.6 1.3c0 1.7-2.1 2-2.1 3.7"/><path d="M12 17.5v.01"/>',
+  bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  check: '<path d="M5 12l5 5 9-10"/>',
+  flame: '<path d="M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-3.5 2-6 1.5 1.5 2 2.5 2 4 1-1 1.5-3 1-8z"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
+};
+const icon = (name) =>
+  `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[name] || ""}</svg>`;
+
+// ---------- light / dark ----------
+// Dark is the default. The choice is saved, and every page's <head> applies
+// it before anything draws, so there's no flash.
+const THEME_KEY = "theme";
+const currentTheme = () => (document.documentElement?.dataset?.theme === "light" ? "light" : "dark");
+
+function setTheme(theme) {
+  if (!document.documentElement?.dataset) return;
+  if (theme === "light") document.documentElement.dataset.theme = "light";
+  else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem(THEME_KEY, theme); } catch {}
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f6f3ee" : "#0e1015");
+  const btn = document.getElementById("theme-button");
+  if (btn) {
+    btn.innerHTML = icon(theme === "light" ? "moon" : "sun");
+    btn.setAttribute("aria-label", theme === "light" ? "Switch to dark mode" : "Switch to light mode");
+  }
+}
+
 // ---------- site menu ----------
 // Every page has an empty <nav class="site-nav">: logo, a Games dropdown, and Players.
 
@@ -405,7 +447,7 @@ function renderNav() {
     <div class="nav-right">
       <div class="games-menu">
         <button type="button" id="games-button" class="menu-button" aria-expanded="false" aria-controls="games-panel">
-          ${THIS_GAME ? escapeHtml(THIS_GAME.title) : "Games"} <span aria-hidden="true">▾</span>
+          ${THIS_GAME ? escapeHtml(THIS_GAME.title) : "Games"} ${icon("chevron")}
         </button>
         <div id="games-panel" class="games-panel" hidden>
           <a href="index.html" class="panel-home">All games</a>
@@ -416,8 +458,12 @@ function renderNav() {
             </a>`).join("")}
         </div>
       </div>
-      <a href="player.html" class="nav-link"${HERE === "player.html" ? ' aria-current="page"' : ""}>Players</a>
+      <a href="player.html" class="nav-link nav-players"${HERE === "player.html" ? ' aria-current="page"' : ""}>${icon("user")}<span>Players</span></a>
+      <button type="button" id="theme-button" class="icon-button"></button>
     </div>`;
+  setTheme(currentTheme());
+  $("theme-button").addEventListener("click", () => setTheme(currentTheme() === "light" ? "dark" : "light"));
+  renderTabBar();
 
   const button = $("games-button"), panel = $("games-panel");
   const setOpen = (open) => {
@@ -451,11 +497,42 @@ function renderTabs() {
 // A "?" button in each game's top bar opens a three-step guide. It also opens
 // by itself the first time someone visits that game.
 
+// On phones: a tab bar along the bottom (Home, Today, Games, Players).
+function renderTabBar() {
+  const daily = THIS_GAME?.daily;
+  const active = HERE === "index.html" ? "home" : HERE === "player.html" ? "players" : daily ? "today" : THIS_GAME ? "games" : "";
+  const tab = (key, href, iconName, label) =>
+    `<a href="${href}" class="tab ${active === key ? "on" : ""}"${active === key ? ' aria-current="page"' : ""}>${icon(iconName)}<span>${label}</span></a>`;
+  document.body?.insertAdjacentHTML("beforeend", `
+    <nav class="tabbar" aria-label="Sections">
+      ${tab("home", "index.html", "home", "Home")}
+      ${tab("today", "index.html#today", "calendar", "Today")}
+      ${tab("games", "index.html#hub", "grid", "Games")}
+      ${tab("players", "player.html", "user", "Players")}
+    </nav>`);
+}
+
+// Every game page's header gets the game's art and its tag, so they all match.
+function decorateHeader() {
+  const topbar = document.querySelector(".topbar");
+  const eyebrow = topbar?.querySelector(".eyebrow");
+  if (!THIS_GAME || !eyebrow || topbar.querySelector(".topbar-art")) return;
+  eyebrow.insertAdjacentHTML("beforebegin", `<span class="topbar-art" aria-hidden="true">${GAME_ART[THIS_GAME.art] || ""}</span>`);
+  eyebrow.insertAdjacentHTML("afterend", `<span class="topbar-tag">${escapeHtml(THIS_GAME.tag)}</span>`);
+}
+
+// Share and save buttons get icons, wherever they are.
+function decorateButtons(root = document) {
+  for (const [selector, name] of [["#share, [data-day='share']", "share"], ["#save-image, [data-day='image']", "image"]]) {
+    for (const btn of root.querySelectorAll(selector)) if (!btn.querySelector(".icon")) btn.insertAdjacentHTML("afterbegin", icon(name));
+  }
+}
+
 function setupHowTo() {
   const topbar = document.querySelector(".topbar");
   if (!THIS_GAME?.howto || !topbar) return;
   topbar.insertAdjacentHTML("beforeend",
-    `<button type="button" id="howto-button" class="howto-button" aria-label="How to play ${escapeHtml(THIS_GAME.title)}">?</button>`);
+    `<button type="button" id="howto-button" class="howto-button" aria-label="How to play ${escapeHtml(THIS_GAME.title)}">${icon("help")}</button>`);
   document.body.insertAdjacentHTML("beforeend", `
     <dialog id="howto" class="howto" aria-labelledby="howto-title">
       <div class="howto-art">${GAME_ART[THIS_GAME.art] || ""}</div>
@@ -684,6 +761,8 @@ for (const id of ["message", "share-msg", "state", "status"]) {
 renderNav();
 renderTabs();
 setupHowTo();
+decorateHeader();
+decorateButtons();
 
 // ---------- drag to reorder ----------
 // For a list whose draggable rows carry data-index. Pointer events cover mouse
@@ -837,6 +916,7 @@ function updateNextDaily() {
          <button type="button" class="ghost" data-day="image">Save image</button>
        </div>
        <p class="message good" data-day="msg"></p>`;
+  decorateButtons(bar);
   const msg = bar.querySelector('[data-day="msg"]');
   bar.querySelector('[data-day="share"]')?.addEventListener("click", () => shareDay(msg));
   bar.querySelector('[data-day="image"]')?.addEventListener("click", () => shareDayImage(msg));

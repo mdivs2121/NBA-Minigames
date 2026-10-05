@@ -1924,3 +1924,71 @@ a.primary:hover { filter: brightness(1.06); }
   .result:not([hidden]), .status:not(.error):not([hidden]), .shake { animation: none; }
   @view-transition { navigation: none; }
 }
+
+/* ---------- icons ---------- */
+.icon { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
+button .icon, a .icon { margin-right: 0.15em; }
+.menu-button .icon { width: 1em; height: 1em; margin: 0; }
+.icon-button {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--surface); color: var(--text); cursor: pointer;
+}
+.icon-button:hover { border-color: var(--muted); }
+.icon-button .icon { margin: 0; }
+.howto-button .icon { width: 1.2em; height: 1.2em; margin: 0; }
+.today-check .icon { width: 0.85em; height: 0.85em; margin: 0; stroke-width: 3; }
+.today-streak .icon { color: var(--accent); }
+
+/* ---------- one header for every game ---------- */
+.topbar { gap: 10px; }
+.topbar-art { width: 38px; flex: none; display: grid; }
+.topbar-art svg { width: 100%; height: auto; }
+.topbar-tag { margin-right: auto; }
+.topbar-tag {
+  order: 0; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); color: var(--accent);
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+}
+@media (max-width: 520px) { .topbar-tag { display: none; } .topbar-art { width: 30px; } }
+
+/* ---------- phone tab bar ---------- */
+.tabbar { display: none; }
+@media (max-width: 640px) {
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+  }
+  .tab { display: grid; justify-items: center; gap: 2px; padding: 6px 0; border-radius: 10px; color: var(--muted); text-decoration: none; font-size: 0.68rem; font-weight: 800; }
+  .tab .icon { width: 22px; height: 22px; margin: 0; }
+  .tab.on { color: var(--accent); }
+  body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+  .nav-players { display: none; }
+}
+
+/* ---------- light mode ---------- */
+:root[data-theme="light"] {
+  --bg: #f6f3ee;
+  --surface: #ffffff;
+  --surface-2: #efeae2;
+  --line: #ddd5c9;
+  --text: #17181d;
+  --muted: #6b6a74;
+  --accent: #e85a0c;
+  --accent-2: #f59e0b;
+  --on-accent: #ffffff;
+  --green: #22c58b;
+  --near: #f5b730;
+  --red: #ef4a64;
+  --on-tile: #0b1411;
+  --tint: rgba(11, 20, 17, 0.1);
+  color-scheme: light;
+}
+:root[data-theme="light"] body {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='900' viewBox='0 0 1200 900' fill='none' stroke='%23000000' stroke-opacity='0.05' stroke-width='3'%3E%3Ccircle cx='600' cy='0' r='190'/%3E%3Ccircle cx='600' cy='0' r='70'/%3E%3Cpath d='M130 900V700a470 470 0 0 1 940 0v200'/%3E%3Crect x='440' y='560' width='320' height='340'/%3E%3Ccircle cx='600' cy='560' r='160'/%3E%3C/svg%3E") top center / 1200px auto no-repeat fixed,
+    radial-gradient(1000px 520px at 50% -140px, rgba(255, 107, 26, 0.12), transparent 70%) top center / 100% 700px no-repeat,
+    var(--bg);
+}
+:root[data-theme="light"] .hl-bar { background: rgba(0, 0, 0, 0.08); }
+:root[data-theme="light"] .hub-card, :root[data-theme="light"] .today, :root[data-theme="light"] .result { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.04); }

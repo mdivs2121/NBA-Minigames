@@ -120,7 +120,7 @@ function renderToday() {
       <a class="today-tile ${done ? "done" : ""}" href="${g.page}">
         <span class="today-art" aria-hidden="true">${GAME_ART[g.art] || ""}</span>
         <span class="today-name">${escapeHtml(g.title)}</span>
-        <span class="today-detail">${done ? `<span class="today-check" aria-hidden="true">✓</span>` : ""}${detail}</span>
+        <span class="today-detail">${done ? `<span class="today-check">${icon("check")}</span>` : ""}${detail}</span>
       </a>`;
   });
   const streak = streaks(days).current;
@@ -128,7 +128,7 @@ function renderToday() {
   $("today").innerHTML = `
     <div class="today-head">
       <span class="label">Today · ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
-      <span class="today-streak ${streak ? "on" : ""}">${streak ? `🔥 ${streak}-day streak` : "Start a streak today"}</span>
+      <span class="today-streak ${streak ? "on" : ""}">${streak ? `${icon("flame")} ${streak}-day streak` : "Start a streak today"}</span>
     </div>
     <div class="today-tiles">${chips.join("")}</div>
     <div class="today-actions">

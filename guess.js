@@ -244,7 +244,7 @@ function render() {
     .map((label, i) => `<li><span class="label">${label}</span> <b>${escapeHtml(hintText(i))}</b></li>`).join("");
   const left = HINT_LABELS.length - play.hints;
   $("hint").disabled = left === 0;
-  $("hint").textContent = left ? `💡 Hint (${left} left)` : "💡 No hints left";
+  $("hint").innerHTML = `${icon("bulb")} ${left ? `Hint (${left} left)` : "No hints left"}`;
 
   $("rows").innerHTML = play.guesses
     .map((id) => {
