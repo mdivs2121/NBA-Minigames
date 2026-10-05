@@ -199,6 +199,8 @@ function renderResult() {
   $("result").classList.toggle("lose", !game.won);
   $("result-kicker").textContent = game.won ? (tries === 1 ? "First try" : `Got it in ${tries}`) : "The answer";
   $("result-photo").innerHTML = avatar(c.id, "md");
+  // Tint with the team he spent the longest with.
+  tintResult([...c.path].sort((a, b) => (b[2] - b[1]) - (a[2] - a[1]))[0][0]);
   $("result-title").innerHTML = playerLink(c.id, c.name);
   const r = record(game.level);
   $("result-text").textContent = game.won

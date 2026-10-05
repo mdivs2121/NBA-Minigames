@@ -268,6 +268,7 @@ function render() {
     $("result").classList.toggle("lose", !play.won);
     $("result-kicker").textContent = play.won ? `Got him in ${play.guesses.length}` : "The mystery player was";
     $("result-photo").innerHTML = avatar(play.answer, "md");
+    tintResult(answer.team);
     $("result-title").innerHTML = playerLink(play.answer, answer.name);
     $("result-text").textContent = `${answer.team} · ${answer.pos} · ${feet(answer.ht)} · debut ${answer.debut - 1} · ${answer.pick ? `pick #${answer.pick}` : "undrafted"} · ${answer.allStars} All-Star pick${answer.allStars === 1 ? "" : "s"}.`;
     $("result-grid").textContent = play.guesses.map(emojiRow).join("\n");

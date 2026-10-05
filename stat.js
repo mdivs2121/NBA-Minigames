@@ -173,6 +173,7 @@ function render() {
     $("result").classList.toggle("lose", !game.won);
     $("result-kicker").textContent = game.won ? (game.misses.length ? `Got him in ${game.misses.length + 1}` : "First try") : "It was";
     $("result-photo").innerHTML = avatar(id, "md");
+    tintResult(team);
     $("result-title").innerHTML = playerLink(id, data.index[id][0]);
     $("result-text").textContent = game.won
       ? `Streak: ${r.streak}. Best: ${r.best}.`

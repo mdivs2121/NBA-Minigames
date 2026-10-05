@@ -193,6 +193,7 @@ function render() {
     const n = game.answers.length;
     const rank = game.got ? game.answers.indexOf(game.got) : -1;
     $("result").classList.toggle("lose", !game.got);
+    tintResult(teamAbbr());
     $("result-kicker").textContent = game.got ? (rank === 0 ? "The obvious one" : rank >= n / 2 && n > 3 ? "Deep cut" : "Got it") : "Stumped";
     $("result-title").innerHTML = game.got ? playerLink(game.got, data.byId[game.got].name) : `${n} fit`;
     $("result-text").textContent = game.got

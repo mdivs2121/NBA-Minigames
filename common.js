@@ -436,6 +436,59 @@ function setTheme(theme) {
   }
 }
 
+// ---------- team-colored results ----------
+// Games with one answer player tint their result card in his team's color.
+function tintResult(team) {
+  const result = document.getElementById("result");
+  if (!result) return;
+  result.classList.toggle("tinted", Boolean(team));
+  if (team) result.style.setProperty?.("--result-tint", teamColor(team));
+}
+
+// ---------- sound ----------
+// Off by default. Tiny tones made on the fly (no audio files): a ding for a
+// right answer, a low buzz for a miss, a little run of notes for a win.
+const SOUND_KEY = "sound";
+let audio = null;
+const soundOn = () => { try { return localStorage.getItem(SOUND_KEY) === "on"; } catch { return false; } };
+
+function tone(freq, start, length, { type = "sine", volume = 0.12, slide = 0 } = {}) {
+  const t = audio.currentTime + start;
+  const osc = audio.createOscillator(), gain = audio.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  if (slide) osc.frequency.exponentialRampToValueAtTime(freq * slide, t + length);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(volume, t + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + length);
+  osc.connect(gain).connect(audio.destination);
+  osc.start(t);
+  osc.stop(t + length + 0.02);
+}
+
+function playSound(name) {
+  if (!soundOn()) return;
+  try {
+    audio ||= new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+    if (name === "good") { tone(660, 0, 0.12); tone(990, 0.08, 0.16); }
+    else if (name === "bad") tone(220, 0, 0.22, { type: "triangle", volume: 0.14, slide: 0.7 });
+    else if (name === "win") [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.22, { volume: 0.1 }));
+    else if (name === "tick") tone(1400, 0, 0.03, { type: "square", volume: 0.03 });
+  } catch {}
+}
+
+function setSound(on, preview = false) {
+  try { localStorage.setItem(SOUND_KEY, on ? "on" : "off"); } catch {}
+  const btn = document.getElementById("sound-button");
+  if (btn) {
+    btn.innerHTML = icon(on ? "volume" : "mute");
+    btn.setAttribute("aria-label", on ? "Turn sound off" : "Turn sound on");
+    btn.setAttribute("aria-pressed", String(on));
+  }
+  if (on && preview) playSound("good");
+}
+
 // ---------- site menu ----------
 // Every page has an empty <nav class="site-nav">: logo, a Games dropdown, and Players.
 
@@ -459,9 +512,12 @@ function renderNav() {
         </div>
       </div>
       <a href="player.html" class="nav-link nav-players"${HERE === "player.html" ? ' aria-current="page"' : ""}>${icon("user")}<span>Players</span></a>
+      <button type="button" id="sound-button" class="icon-button"></button>
       <button type="button" id="theme-button" class="icon-button"></button>
     </div>`;
   setTheme(currentTheme());
+  setSound(soundOn());
+  $("sound-button").addEventListener("click", () => setSound(!soundOn(), true));
   $("theme-button").addEventListener("click", () => setTheme(currentTheme() === "light" ? "dark" : "light"));
   renderTabBar();
 
@@ -580,6 +636,7 @@ async function shareResult(text, messageEl) {
 // asked their device for less motion.
 
 function celebrate({ big = false } = {}) {
+  playSound("win");
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const canvas = document.createElement("canvas");
   canvas.className = "confetti";
@@ -951,6 +1008,9 @@ function shakeGuess() {
   setTimeout(() => input.classList.remove("shake"), 450);
 }
 
+// A soft tick on main buttons, when sound is on.
+document.addEventListener?.("click", (e) => { if (e.target.closest?.("button.primary, .bd-card, .br-card")) playSound("tick"); });
+
 window.addEventListener("load", () => {
   const result = document.getElementById("result");
   if (result) {
@@ -964,9 +1024,14 @@ window.addEventListener("load", () => {
     }).observe(result, { attributes: true, attributeFilter: ["hidden"] });
   }
   const message = document.getElementById("message");
+  let lastMessage = "";
   if (message) {
     new MutationObserver(() => {
-      if (message.classList.contains("bad") && message.textContent.trim()) shakeGuess();
+      const text = message.textContent.trim();
+      if (!text || text === lastMessage) return;
+      lastMessage = text;
+      if (message.classList.contains("bad")) { shakeGuess(); playSound("bad"); }
+      else if (message.classList.contains("good")) playSound("good");
     }).observe(message, { attributes: true, attributeFilter: ["class"], childList: true, characterData: true, subtree: true });
   }
 });
