@@ -1871,3 +1871,15 @@ main { animation: page-in 0.3s ease-out; }
 .bd-who small { color: var(--muted); font-weight: 600; font-size: 0.75rem; }
 .hl-mode { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .hl-mode select { flex: 1; max-width: 340px; }
+
+/* Today: play all, share your day, and the next-daily bar on game pages */
+.today-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.today-actions .primary, .next-daily-go { display: inline-flex; align-items: center; text-decoration: none; }
+.next-daily { margin-top: 14px; padding: 16px; border-radius: calc(var(--radius) + 4px); background: var(--surface); border: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; animation: pop 0.3s ease-out; }
+.next-daily .result-actions { margin-top: 0; }
+.next-daily .message { flex-basis: 100%; margin: 0; }
+a.primary {
+  display: inline-flex; align-items: center; padding: 13px 22px; border-radius: var(--radius); background: var(--accent); color: var(--on-accent);
+  font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; box-shadow: 0 6px 18px rgba(255, 107, 26, 0.22);
+}
+a.primary:hover { filter: brightness(1.06); }

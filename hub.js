@@ -121,8 +121,14 @@ function renderToday() {
       <span class="today-streak ${streak ? "on" : ""}">${streak ? `🔥 ${streak}-day streak` : "Start a streak today"}</span>
     </div>
     <div class="today-chips">${chips.join("")}</div>
+    <div class="today-actions">
+      ${nextDaily() ? `<a class="primary" href="${nextDaily().page}">${dailies.some((g) => saved(g.daily)?.history?.[today]) ? "Keep going" : "Play all dailies"} →</a>` : ""}
+      ${dailies.some((g) => saved(g.daily)?.history?.[today]) ? `<button type="button" class="ghost" id="share-day">Share your day</button>` : ""}
+    </div>
+    <p id="share-day-msg" class="message good"></p>
     <p class="today-done">${allDone ? "All done for today. New puzzles at midnight. " : ""}<a href="archive.html">Missed a day? Play past puzzles →</a></p>`;
   $("today").hidden = false;
+  document.getElementById("share-day")?.addEventListener("click", () => shareDay($("share-day-msg")));
 }
 
 function renderHub() {

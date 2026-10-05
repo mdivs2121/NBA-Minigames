@@ -89,10 +89,11 @@ const teamColor = (abbr) => TEAM_COLORS[abbr] || "#3a3f4d";
 //   isNew: shows a "New" badge on the home page and in the Games menu
 //   daily: the localStorage key of a daily puzzle's saved results
 //   summary: (result) => short text for one day's result, like "83/100"
+//   emoji: one emoji for the "share your day" card
 //   howto: three [title, text] steps for the "How to play" popup
 const GAMES = [
   {
-    page: "rank.html", title: "Rank the Five", tag: "Daily puzzle", art: "rank", daily: "r5-v1",
+    page: "rank.html", emoji: "📊", title: "Rank the Five", tag: "Daily puzzle", art: "rank", daily: "r5-v1",
     summary: (r) => `${r.score}/100`,
     blurb: "Five players, one hidden stat. Put them in order from highest to lowest. Everyone gets the same puzzle each day.",
     howto: [
@@ -102,7 +103,7 @@ const GAMES = [
     ],
   },
   {
-    page: "connections.html", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1", isNew: true,
+    page: "connections.html", emoji: "🧩", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1", isNew: true,
     summary: (r) => (r.won ? (r.mistakes ? `Solved · ${r.mistakes} miss${r.mistakes === 1 ? "" : "es"}` : "Perfect") : `${r.found ?? 0} of 4`),
     blurb: "Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. Find all four.",
     howto: [
@@ -112,7 +113,7 @@ const GAMES = [
     ],
   },
   {
-    page: "guess.html", title: "Guess the Player", tag: "Daily puzzle", art: "guess", daily: "gp-v1", isNew: true,
+    page: "guess.html", emoji: "🕵️", title: "Guess the Player", tag: "Daily puzzle", art: "guess", daily: "gp-v1", isNew: true,
     summary: (r) => (r.won ? `${r.guesses}/8` : "X/8"),
     blurb: "One mystery player a day. Every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.",
     howto: [
@@ -122,7 +123,7 @@ const GAMES = [
     ],
   },
   {
-    page: "awards.html", title: "Awards Grid", tag: "Daily puzzle", art: "awards", daily: "ag-v1", isNew: true,
+    page: "awards.html", emoji: "🏆", title: "Awards Grid", tag: "Daily puzzle", art: "awards", daily: "ag-v1", isNew: true,
     summary: (r) => `${r.score}/9`,
     blurb: "A 3×3 grid of teams, awards, and milestones. Name a player who fits both sides of every square.",
     howto: [
@@ -746,6 +747,74 @@ function loadDailySave(key) {
 
 function writeDailySave(key, save) {
   try { localStorage.setItem(key, JSON.stringify(save)); } catch {}
+  setTimeout(updateNextDaily, 0);   // after the game shows its result
+}
+
+// ---------- all of today's dailies ----------
+// After you finish one daily, a bar under the result points to the next one
+// you haven't played. Once they're all done, it offers one card for the day.
+
+const DAILIES = GAMES.filter((g) => g.daily);
+const todaysResult = (g) => loadDailySave(g.daily).history[todayKey()];
+const nextDaily = () => DAILIES.find((g) => !todaysResult(g));
+
+function dayShareText() {
+  const date = new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const done = DAILIES.filter(todaysResult);
+  const lines = DAILIES.map((g) => {
+    const r = todaysResult(g);
+    return `${g.emoji} ${g.title}: ${r ? g.summary(r) : "—"}`;
+  });
+  return { date, done: done.length, lines, text: `NBA Minigames · ${date} · ${done.length}/${DAILIES.length} dailies\n${lines.join("\n")}` };
+}
+
+async function shareDay(messageEl) {
+  await shareResult(dayShareText().text, messageEl);
+}
+
+function shareDayImage(messageEl) {
+  const day = dayShareText();
+  shareImage({ title: "My day", kicker: day.date, big: `${day.done}/${DAILIES.length}`, lines: day.lines }, messageEl);
+}
+
+// The bar on a daily game's page, shown once today's puzzle is done there.
+function updateNextDaily() {
+  if (!THIS_GAME?.daily || !document.getElementById("result")) return;
+  let bar = document.getElementById("next-daily");
+  const show = !$("result").hidden && !puzzleDay().past && todaysResult(THIS_GAME);
+  if (!show) { if (bar) bar.hidden = true; return; }
+  if (!bar) {
+    bar = document.createElement("section");
+    bar.id = "next-daily";
+    bar.className = "next-daily";
+    $("result").after(bar);
+  }
+  const next = nextDaily();
+  const done = DAILIES.filter(todaysResult).length;
+  bar.hidden = false;
+  bar.innerHTML = next
+    ? `<span class="label">${done} of ${DAILIES.length} dailies done</span>
+       <a class="primary next-daily-go" href="${next.page}">Next: ${escapeHtml(next.title)} →</a>`
+    : `<span class="label">All ${DAILIES.length} dailies done today 🎉</span>
+       <div class="result-actions">
+         <button type="button" class="primary" data-day="share">Share your day</button>
+         <button type="button" class="ghost" data-day="image">Save image</button>
+       </div>
+       <p class="message good" data-day="msg"></p>`;
+  const msg = bar.querySelector('[data-day="msg"]');
+  bar.querySelector('[data-day="share"]')?.addEventListener("click", () => shareDay(msg));
+  bar.querySelector('[data-day="image"]')?.addEventListener("click", () => shareDayImage(msg));
+}
+
+// Follow the result panel: it appears when a daily is finished (or reloaded
+// finished) and can hide again, like when Guess the Player switches modes.
+if (THIS_GAME?.daily) {
+  window.addEventListener("load", () => {
+    const result = document.getElementById("result");
+    if (!result) return;
+    new MutationObserver(updateNextDaily).observe(result, { attributes: true, attributeFilter: ["hidden"] });
+    updateNextDaily();
+  });
 }
 
 // A "Your stats" panel for a daily game: a row of numbers, then a bar chart.
