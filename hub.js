@@ -141,27 +141,48 @@ function renderToday() {
   document.getElementById("share-day")?.addEventListener("click", () => shareDay($("share-day-msg")));
 }
 
+// The games, grouped. Keyed by each game's art name; a game that isn't listed
+// lands in "More games", so a new game always shows up somewhere.
+const SECTIONS = [
+  ["Daily puzzles", "Same puzzle for everyone, new every day", ["rank", "connections", "guess", "awards"]],
+  ["Guess who", "Name the player from the clues", ["path", "stat", "draftday"]],
+  ["Streaks", "One more round, as long as you last", ["higher", "timeline", "college", "chain"]],
+  ["Rounds & drafts", "Pick, draft, and rewrite history", ["resume", "blind", "snake", "hindsight"]],
+];
+
+function gameCard(g) {
+  const progress = PROGRESS[g.art]?.();
+  const status = progress
+    ? `<span class="hub-progress ${progress.done ? "done" : ""} ${progress.fresh ? "fresh" : ""}">${escapeHtml(progress.text)}</span>`
+    : "";
+  return `
+    <li>
+      <a class="hub-card" href="${g.page}">
+        <span class="hub-art">${GAME_ART[g.art] || ""}</span>
+        <span class="hub-body">
+          <span class="hub-title">${escapeHtml(g.title)}${g.isNew ? ' <span class="new-badge">New</span>' : ""}</span>
+          <span class="hub-blurb">${escapeHtml(g.blurb)}</span>
+          ${status}
+        </span>
+      </a>
+    </li>`;
+}
+
 function renderHub() {
   renderToday();
-  $("hub").innerHTML = GAMES.map((g, i) => {
-    const progress = PROGRESS[g.art]?.();
-    const status = progress
-      ? `<span class="hub-progress ${progress.done ? "done" : ""} ${progress.fresh ? "fresh" : ""}">${escapeHtml(progress.text)}</span>`
-      : "";
-    return `
-      <li class="${i === 0 ? "featured" : ""}">
-        <a class="hub-card" href="${g.page}">
-          <span class="hub-art">${GAME_ART[g.art] || ""}</span>
-          <span class="hub-body">
-            <span class="hub-tag">${escapeHtml(g.tag)}${g.isNew ? ' <span class="new-badge">New</span>' : ""}</span>
-            <span class="hub-title">${escapeHtml(g.title)}</span>
-            <span class="hub-blurb">${escapeHtml(g.blurb)}</span>
-            ${status}
-          </span>
-          <span class="hub-go" aria-hidden="true">Play →</span>
-        </a>
-      </li>`;
-  }).join("");
+  const listed = new Set(SECTIONS.flatMap(([, , arts]) => arts));
+  const sections = [...SECTIONS, ["More games", "", GAMES.filter((g) => !listed.has(g.art)).map((g) => g.art)]];
+  $("hub").innerHTML = sections
+    .map(([title, sub, arts]) => {
+      const games = arts.map((a) => GAMES.find((g) => g.art === a)).filter(Boolean);
+      if (!games.length) return "";
+      return `
+        <section class="hub-section">
+          <div class="hub-section-head"><h2>${escapeHtml(title)}</h2>${sub ? `<span>${escapeHtml(sub)}</span>` : ""}</div>
+          <ol class="hub ${games.length >= 4 ? "four" : ""}" style="--cols: ${Math.min(4, Math.max(3, games.length))}">${games.map(gameCard).join("")}</ol>
+        </section>`;
+    })
+    .join("");
 }
 
 // "Did you know?": a random stat fact each visit, with the player's photo.
@@ -196,7 +217,8 @@ function renderInstall() {
   let dismissed = false;
   try { dismissed = Boolean(localStorage.getItem("install-dismissed")); } catch {}
   const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if (isInstalled() || dismissed || (!installPrompt && !ios)) { card.hidden = true; return; }
+  const phone = matchMedia("(pointer: coarse)").matches;
+  if (!phone || isInstalled() || dismissed || (!installPrompt && !ios)) { card.hidden = true; return; }
   card.innerHTML = `
     <img src="icons/icon-192.png" alt="" width="56" height="56">
     <div class="install-body">
