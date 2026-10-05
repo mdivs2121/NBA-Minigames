@@ -2,7 +2,7 @@
 // compared to the mystery player: 🟩 match, 🟨 close, and arrows for numbers
 // (⬆️ means the mystery player's number is higher). Eight guesses.
 
-const STORAGE_KEY = "gp-v1";   // { history: { day: result }, archive, progress: { day, guesses } }
+const STORAGE_KEY = "gp-v1";   // { history: { day: result }, archive, progress: { day, guesses, hints } }
 const MAX_GUESSES = 8;
 
 // Today's divisions. Old team names go where the franchise plays now.
@@ -13,6 +13,10 @@ const DIVISIONS = {
 const DIVISION_OF = Object.fromEntries(Object.entries(DIVISIONS).flatMap(([d, teams]) => teams.split(" ").map((t) => [t, d])));
 const EAST_DIVISIONS = new Set(["Atlantic", "Central", "Southeast"]);
 const UNDRAFTED = 61;   // counts as pick 61 for the arrows
+const HINT_LABELS = ["Career", "College", "Initials"];   // revealed one at a time
+// Relocated teams count as the same team (a Sonics guess is right for a Thunder answer).
+const FRANCHISE = { NJN: "BRK", SEA: "OKC", VAN: "MEM", NOH: "NOP", NOK: "NOP", CHA: "CHO", CHH: "CHO", WSB: "WAS" };
+const franchise = (team) => FRANCHISE[team] || team;
 
 Object.assign(data, {
   byId: {},          // id -> player from guess_player.json
@@ -20,7 +24,7 @@ Object.assign(data, {
   labelToId: {},
 });
 
-const play = { day: null, past: false, number: 0, answer: null, guesses: [], over: false, won: false };
+const play = { day: null, past: false, number: 0, answer: null, guesses: [], hints: 0, over: false, won: false };
 
 // ---------- data ----------
 
@@ -69,7 +73,7 @@ function compare(guess, answer) {
   return [
     {
       text: guess.team, sub: `${division(guess.team)} · ${conference(guess.team)}`, arrow: "", team: guess.team,
-      color: guess.team === answer.team ? "green" : division(guess.team) === division(answer.team) ? "near" : conference(guess.team) === conference(answer.team) ? "conf" : "",
+      color: franchise(guess.team) === franchise(answer.team) ? "green" : division(guess.team) === division(answer.team) ? "near" : conference(guess.team) === conference(answer.team) ? "conf" : "",
     },
     { text: guess.pos, color: samePos ? "green" : [...gp].some((x) => ap.has(x)) ? "near" : "", arrow: "" },
     { text: feet(guess.ht), ...number(guess.ht, answer.ht, 2) },
@@ -95,10 +99,13 @@ function start() {
   const done = save.history[day] || save.archive?.[day];
   if (done) {
     play.guesses = done.ids;
+    play.hints = done.hints || 0;
     play.over = true;
     play.won = done.won;
   } else {
-    play.guesses = !past && save.progress?.day === day ? save.progress.guesses.filter((id) => data.byId[id]) : [];
+    const progress = !past && save.progress?.day === day ? save.progress : null;
+    play.guesses = progress ? progress.guesses.filter((id) => data.byId[id]) : [];
+    play.hints = progress?.hints || 0;
   }
   say("");
   render();
@@ -119,18 +126,35 @@ function submitGuess() {
   else {
     if (!play.past) {
       const save = loadSave();
-      save.progress = { day: play.day, guesses: play.guesses };
+      save.progress = { day: play.day, guesses: play.guesses, hints: play.hints };
       writeSave(save);
     }
     render();
   }
 }
 
+function useHint() {
+  if (play.over || play.hints >= HINT_LABELS.length) return;
+  play.hints++;
+  if (!play.past) {
+    const save = loadSave();
+    save.progress = { day: play.day, guesses: play.guesses, hints: play.hints };
+    writeSave(save);
+  }
+  render();
+}
+
+function hintText(i) {
+  const value = data.byId[play.answer].hints[i];
+  if (i === 1 && !value) return "Didn't play in college";
+  return value;
+}
+
 function finish(won) {
   play.over = true;
   play.won = won;
   const save = loadSave();
-  const result = { won, guesses: play.guesses.length, ids: play.guesses };
+  const result = { won, guesses: play.guesses.length, ids: play.guesses, hints: play.hints };
   if (play.past) (save.archive ||= {})[play.day] = result;   // archive plays don't touch streaks
   else { save.history[play.day] = result; save.progress = null; }
   writeSave(save);
@@ -153,7 +177,8 @@ const titleLine = () => `Guess the Player #${play.number}${play.past ? " (archiv
 
 async function share() {
   const streak = play.past ? 0 : streaks(loadSave().history).current;
-  const text = `${titleLine()} 🕵️ ${score()}${streak > 1 ? ` · 🔥${streak}` : ""}\n${play.guesses.map(emojiRow).join("\n")}`;
+  const hints = play.hints ? ` · 💡${play.hints}` : "";
+  const text = `${titleLine()} 🕵️ ${score()}${hints}${streak > 1 ? ` · 🔥${streak}` : ""}\n${play.guesses.map(emojiRow).join("\n")}`;
   await shareResult(text, $("share-msg"));
 }
 
@@ -163,7 +188,7 @@ function saveImage() {
     kicker: `#${play.number}${play.past ? " · archive" : ""}`,
     big: score(),
     grid: play.guesses.map(emojiRow),
-    lines: [play.won ? `Got ${name(play.answer)}` : "Stumped"],
+    lines: [(play.won ? `Got ${name(play.answer)}` : "Stumped") + (play.hints ? ` · ${play.hints} hint${play.hints === 1 ? "" : "s"}` : "")],
   }, $("share-msg"));
 }
 
@@ -178,6 +203,13 @@ function render() {
   state.className = "state";
   state.textContent = play.over ? (play.won ? "Got him" : "Stumped") : `${MAX_GUESSES - play.guesses.length} left`;
   if (play.over) state.classList.add(play.won ? "win" : "lose");
+
+  $("hints").hidden = play.hints === 0;
+  $("hints").innerHTML = HINT_LABELS.slice(0, play.hints)
+    .map((label, i) => `<li><span class="label">${label}</span> <b>${escapeHtml(hintText(i))}</b></li>`).join("");
+  const left = HINT_LABELS.length - play.hints;
+  $("hint").disabled = left === 0;
+  $("hint").textContent = left ? `💡 Hint (${left} left)` : "💡 No hints left";
 
   $("rows").innerHTML = play.guesses
     .map((id) => {
@@ -224,6 +256,7 @@ function updateCountdown() {
 // ---------- wiring ----------
 
 $("guess-form").addEventListener("submit", (e) => { e.preventDefault(); submitGuess(); });
+$("hint").addEventListener("click", useHint);
 $("share").addEventListener("click", share);
 $("save-image").addEventListener("click", saveImage);
 

@@ -118,7 +118,7 @@ const GAMES = [
     howto: [
       ["Guess anyone", "Type any player from the last 25 years. You get eight guesses."],
       ["Read the clues", "🟩 matches the mystery player. 🟨 is close: same division, an overlapping position, or a number within 2. 🟧 on the team means same conference, different division. Arrows point toward his number."],
-      ["Same for everyone", "One mystery player a day, picked from well-known recent players. Share your grid when you're done."],
+      ["Stuck?", "Hint reveals his career averages, then his college, then his initials. Retired players' team is the one they played the most games for."],
     ],
   },
   {
