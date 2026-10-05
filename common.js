@@ -169,6 +169,15 @@ const GAMES = [
     ],
   },
   {
+    page: "college.html", title: "College Connect", tag: "Endless", art: "college", isNew: true,
+    blurb: "A college and an NBA team. Name anyone who played for both. How long can you keep it going?",
+    howto: [
+      ["A school and a team", "Like Duke × Bulls or Kentucky × Kings. Teams include their old names (the Sonics count as the Thunder)."],
+      ["Name anyone who fits", "Any player from 1980 on who went to that college and played for that franchise. Three guesses per pair."],
+      ["Keep the streak", "Run out of guesses and the streak resets. After each pair you see everyone who fit. Easy sticks to big programs; Hard can be any school."],
+    ],
+  },
+  {
     page: "higher.html", title: "Higher or Lower", tag: "Endless", art: "higher",
     blurb: "More career points? Fewer rebounds? Call it right to keep your streak alive. It gets tighter as you go.",
     howto: [
@@ -304,6 +313,16 @@ const GAME_ART = {
       <text x="60" y="56" text-anchor="middle" font-size="24" font-weight="900" fill="var(--accent)">#5</text>
       <rect x="30" y="72" width="60" height="12" rx="6" fill="var(--line)"/>
       <text x="60" y="81" text-anchor="middle" font-size="8" font-weight="800" fill="var(--text)">? ? ?</text>
+    </svg>`,
+  college: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="6" y="22" width="46" height="46" rx="8" fill="#003087"/>
+      <path d="M17 42 L29 36 L41 42 L29 48 Z" fill="#fff"/>
+      <path d="M22 45 V52 Q29 56 36 52 V45" fill="none" stroke="#fff" stroke-width="2.5"/>
+      <text x="60" y="51" text-anchor="middle" font-size="16" font-weight="900" fill="var(--muted)">×</text>
+      <rect x="68" y="22" width="46" height="46" rx="8" fill="#CE1141"/>
+      <circle cx="91" cy="45" r="11" fill="none" stroke="#fff" stroke-width="3"/>
+      <path d="M80 45 H102 M91 34 V56" stroke="#fff" stroke-width="2"/>
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

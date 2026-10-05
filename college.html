@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Draft Day · NBA Minigames</title>
-  <meta name="description" content="A draft year and a pick number. Name who was taken. Every miss reveals a clue.">
+  <title>College Connect · NBA Minigames</title>
+  <meta name="description" content="A college and an NBA team. Name a player who played for both. Keep the streak alive.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NBA Minigames">
-  <meta property="og:title" content="Draft Day · NBA Minigames">
-  <meta property="og:description" content="A draft year and a pick number. Name who was taken. Every miss reveals a clue.">
-  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/draftday.html">
+  <meta property="og:title" content="College Connect · NBA Minigames">
+  <meta property="og:description" content="A college and an NBA team. Name a player who played for both. Keep the streak alive.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/college.html">
   <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -33,16 +33,16 @@
     <div class="rule"></div>
 
     <header class="topbar">
-      <span class="eyebrow">Draft Day</span>
+      <span class="eyebrow">College Connect</span>
       <span id="state" class="state">Loading</span>
     </header>
 
     <nav class="difficulty" aria-label="Difficulty">
-      <button type="button" data-level="easy">Easy · lottery picks</button>
-      <button type="button" data-level="hard">Hard · whole first round</button>
+      <button type="button" data-level="easy">Easy · big programs</button>
+      <button type="button" data-level="hard">Hard · any school</button>
     </nav>
 
-    <p id="status" class="status">Loading drafts…</p>
+    <p id="status" class="status">Loading colleges…</p>
 
     <section id="game" hidden>
       <div class="numbers hl-numbers">
@@ -51,24 +51,18 @@
       </div>
 
       <div class="cp-head">
-        <span id="season" class="side-label"></span>
-        <h1 id="answer" class="giant">Who went here?</h1>
+        <span class="side-label">Name a player who played for both</span>
       </div>
 
-      <div id="line" class="dd-card"></div>
-
-      <section class="cp-clues">
-        <span class="label">Clues · one unlocks with every miss</span>
-        <ol id="clues"></ol>
-      </section>
+      <div id="pair" class="cc-pair"></div>
 
       <form id="guess-form" class="guess" autocomplete="off">
-        <label for="guess" class="label">Your guess · <span id="left">4</span> left</label>
+        <label for="guess" class="label">Your guess · <span id="left">3</span> left</label>
         <div class="guess-row">
-          <input id="guess" list="all-players" placeholder="Start typing a player…">
+          <input id="guess" list="cc-players" placeholder="Start typing a player…">
           <button type="submit" id="guess-btn" class="primary">Guess</button>
         </div>
-        <datalist id="all-players"></datalist>
+        <datalist id="cc-players"></datalist>
         <p id="message" class="message"></p>
         <div class="actions">
           <button type="button" id="give-up" class="ghost">Give up</button>
@@ -78,26 +72,25 @@
 
       <section id="result" class="result" hidden>
         <span id="result-kicker" class="label"></span>
-        <div class="cp-reveal">
-          <span id="result-photo"></span>
-          <h2 id="result-title" class="giant"></h2>
-        </div>
+        <h2 id="result-title" class="giant"></h2>
         <p id="result-text" class="meta"></p>
         <div class="result-actions">
-          <button type="button" id="next" class="primary">Next pick</button>
+          <button type="button" id="next" class="primary">Next pair</button>
           <button type="button" id="share" class="ghost">Share</button>
           <button type="button" id="save-image" class="ghost">Save image</button>
         </div>
         <p id="share-msg" class="message good"></p>
       </section>
+
+      <section id="answers" class="ag-answers" hidden></section>
     </section>
 
     <footer>
-      <span class="brand">Draft Day</span>
-      <span>With the next pick in the NBA Draft…</span>
+      <span class="brand">College Connect</span>
+      <span>From campus to the league.</span>
     </footer>
   </main>
   <script src="common.js?v=202610050936"></script>
-  <script src="draftday.js?v=202610050936"></script>
+  <script src="college.js?v=202610050936"></script>
 </body>
 </html>

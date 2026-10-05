@@ -1893,3 +1893,14 @@ a.primary:hover { filter: brightness(1.06); }
 .dd-pick { font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 900; color: var(--accent); line-height: 1; display: flex; align-items: baseline; gap: 8px; }
 .dd-pick small { color: var(--muted); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 .dd-round { color: var(--muted); font-weight: 700; font-size: 0.85rem; }
+
+/* ---------- College Connect ---------- */
+.cc-pair { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 10px; margin-bottom: 8px; }
+.cc-side { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 20px; border-radius: 16px; background: var(--surface-2); animation: pop 0.25s ease-out; min-width: 0; }
+.cc-side b { font-size: clamp(1.4rem, 5vw, 2.2rem); font-weight: 900; line-height: 1.05; overflow-wrap: anywhere; }
+.cc-side small { color: inherit; opacity: 0.75; font-size: 0.72rem; font-weight: 700; }
+.cc-team { background: var(--team); color: #fff; }
+.cc-team .label { color: rgba(255, 255, 255, 0.8); }
+.cc-college { background: color-mix(in srgb, var(--accent) 16%, var(--surface-2)); }
+.cc-x { align-self: center; font-size: 2rem; font-weight: 900; color: var(--muted); }
+@media (max-width: 480px) { .cc-pair { grid-template-columns: 1fr; } .cc-x { justify-self: center; line-height: 0.6; } }
