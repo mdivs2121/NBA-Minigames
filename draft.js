@@ -2,7 +2,7 @@
 // 10 it should have been, knowing how the careers turned out. Scored against
 // career Win Shares.
 
-const BEST_KEY = "dr-best";   // { "2014": 72, ... }
+const BEST_KEY = eraKey("dr-best");   // { "2014": 72, ... }
 
 Object.assign(data, {
   classes: {},      // "2014" -> [{ pick, round, team, id, name, college, ws, g, ppg, rpg, apg, seasons }]
@@ -21,7 +21,7 @@ const game = {
 
 async function loadData() {
   const [, classes] = await Promise.all([loadCommon(), fetchJson("draft")]);
-  data.classes = classes;
+  data.classes = MODERN ? Object.fromEntries(Object.entries(classes).filter(([y]) => Number(y) >= MODERN_DRAFT)) : classes;
   // Many drafted players never played after 2005, so add their names for avatar().
   for (const list of Object.values(classes)) {
     for (const p of list) data.players[p.id] ||= { name: p.name };

@@ -6,7 +6,7 @@
 // so a puzzle is only accepted if no player in the grid fits a second group.
 // That guarantees exactly one answer.
 
-const STORAGE_KEY = "cx-v1";
+const STORAGE_KEY = eraKey("cx-v1");
 const MISTAKES = 4;
 const RANK_EMOJI = { 1: "🟩", 2: "🟨", 3: "🟧", 4: "🟥" };   // easiest group to hardest
 
@@ -43,6 +43,11 @@ async function loadData() {
   const [, cx] = await Promise.all([loadCommon(), fetchJson("connections")]);
   for (const [id, n] of Object.entries(cx.players)) data.players[id] ||= { name: n };
   data.categories = cx.categories.map((c) => ({ ...c, members: new Set(c.members), details: c.details || {} }));
+  // Modern tab: only modern players, and only categories that still have enough of them.
+  if (MODERN) {
+    for (const c of data.categories) c.members = new Set([...c.members].filter(isModern));
+    data.categories = data.categories.filter((c) => c.members.size >= MODERN_MIN_MEMBERS);
+  }
   data.fame = cx.fame;
 }
 
@@ -55,6 +60,7 @@ async function loadData() {
 // Earlier days keep their original puzzles (people already played them).
 
 const NEW_RULES_FROM = "2026-10-01";
+const MODERN_MIN_MEMBERS = 6;   // a modern category needs this many modern players
 const NO_REPEAT_DAYS = 7;
 
 // Which kind of category a label is. Two categories of the same family feel alike.
@@ -214,12 +220,14 @@ function addDays(key, n) {
 const dailyCache = {};
 function dailyPuzzle(day) {
   if (dailyCache[day]) return dailyCache[day];
-  const seed = (d) => rng(hash(`hoop-connections:${d}`));
-  if (day < NEW_RULES_FROM) return (dailyCache[day] = legacyPuzzle(seed(day)));
+  const seed = (d) => rng(hash(eraSeed(`hoop-connections:${d}`)));
+  // Modern puzzles use the new rules from day one, so there are no old-style days.
+  const rulesFrom = MODERN ? FIRST_DAY : NEW_RULES_FROM;
+  if (day < rulesFrom) return (dailyCache[day] = legacyPuzzle(seed(day)));
   const week = [];   // each recent day's category labels, oldest first
   // Seed the window with the old-style days just before the new rules started…
-  let d = addDays(NEW_RULES_FROM, -(NO_REPEAT_DAYS - 1));
-  for (; d < NEW_RULES_FROM; d = addDays(d, 1)) week.push(dailyPuzzle(d).groups.map((g) => g.label));
+  let d = MODERN ? FIRST_DAY : addDays(NEW_RULES_FROM, -(NO_REPEAT_DAYS - 1));
+  for (; d < rulesFrom; d = addDays(d, 1)) week.push(dailyPuzzle(d).groups.map((g) => g.label));
   // …then build every day up to the one asked for.
   for (; d <= day; d = addDays(d, 1)) {
     if (!dailyCache[d]) {
@@ -227,7 +235,7 @@ function dailyPuzzle(day) {
       const yesterdayFamilies = new Set((week.at(-1) || []).map(familyOf));
       const twoDaysFamilies = new Set((week.at(-2) || []).map(familyOf));
       const puzzle = makePuzzle(seed(d), { recentLabels, yesterdayFamilies, twoDaysFamilies });
-      dailyCache[d] = d >= COLORS_BY_DIFFICULTY_FROM ? orderByDifficulty(puzzle) : puzzle;
+      dailyCache[d] = MODERN || d >= COLORS_BY_DIFFICULTY_FROM ? orderByDifficulty(puzzle) : puzzle;
     }
     week.push(dailyCache[d].groups.map((g) => g.label));
   }

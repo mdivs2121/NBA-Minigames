@@ -3,7 +3,7 @@
 // fits both. Nine guesses, each player once. Originality scores how deep a cut
 // each pick was among everyone who fit (0 = the most famous answer).
 
-const STORAGE_KEY = "ag-v1";   // { history: { day: result }, archive, progress: { day, cells, guesses } }
+const STORAGE_KEY = eraKey("ag-v1");   // { history: { day: result }, archive, progress: { day, cells, guesses } }
 const GUESSES = 9;
 const KNOWN_WS = 15;      // a "known" answer has 15+ career Win Shares
 const MIN_KNOWN = 2;      // every square needs at least this many known answers
@@ -37,6 +37,7 @@ async function loadData() {
   const counts = {};
   for (const [, n] of file.players) counts[n] = (counts[n] || 0) + 1;
   for (const [id, n, from, to, fame, cats] of file.players) {
+    if (!inEra(id)) continue;   // Modern tab: modern players only
     data.byId[id] = { name: n, from, to, fame, cats: new Set(cats) };
     data.players[id] ||= { name: n };
     data.labelToId[counts[n] > 1 ? `${n} (${from} – ${to})` : n] = id;
@@ -114,7 +115,7 @@ function start() {
   const done = save.history[day] || save.archive?.[day];
   // A finished day keeps the grid it was played with, even if the data changes.
   let grid = done?.rows && { rows: done.rows.map((k) => data.catIndex[k]), cols: done.cols.map((k) => data.catIndex[k]) };
-  if (!grid || [...grid.rows, ...grid.cols].some((c) => c == null)) grid = makeGrid(rng(hash(`awards-grid:${day}`)));
+  if (!grid || [...grid.rows, ...grid.cols].some((c) => c == null)) grid = makeGrid(rng(hash(eraSeed(`awards-grid:${day}`))));
   Object.assign(play, {
     day, past, number: dayNumber(day), ...grid, selected: null, peek: null,
     answers: grid.rows.flatMap((r) => grid.cols.map((c) => answersFor(r, c))),

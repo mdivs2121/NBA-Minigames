@@ -5,7 +5,7 @@
 const FIRST_SEASON = "2005-06";   // oldest season a season category can use
 const RECOGNIZABLE_PPG = 15;      // a player needs one 15+ PPG season (20+ games) to appear
 const SEASON_MIN_GAMES = 40;
-const STORAGE_KEY = "r5-v1";
+const STORAGE_KEY = eraKey("r5-v1");
 
 const count = (v) => Math.round(v).toLocaleString("en-US");
 const perGame = (v) => v.toFixed(1);
@@ -64,10 +64,10 @@ async function loadData() {
   for (const [id, s] of Object.entries(stats)) {
     for (const season of Object.keys(s.seasons)) seasons.add(season);
     const scorer = Object.values(s.seasons).some((x) => x.ppg >= RECOGNIZABLE_PPG && x.g >= 20);
-    if (scorer && data.players[id]) data.pool.push(id);
+    if (scorer && data.players[id] && inEra(id)) data.pool.push(id);
   }
   data.pool.sort();   // same order on every device, so the daily pick matches
-  data.seasonList = [...seasons].filter((s) => s >= FIRST_SEASON).sort();
+  data.seasonList = [...seasons].filter((s) => s >= (MODERN ? "2009-10" : FIRST_SEASON)).sort();
 }
 
 // ---------- puzzle generation ----------
@@ -124,7 +124,7 @@ function startDaily() {
   play.past = past;   // a past day from the archive
   play.day = day;
   play.number = dayNumber(play.day);
-  play.puzzle = makePuzzle(rng(hash(`rank-the-five:${play.day}`)));
+  play.puzzle = makePuzzle(rng(hash(eraSeed(`rank-the-five:${play.day}`))));
   play.result = null;
 
   const done = save.history[play.day] || save.archive?.[play.day];

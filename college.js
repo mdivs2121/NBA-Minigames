@@ -2,11 +2,11 @@
 // for both (from 1979-80 on). Three guesses a pair; run out and the streak is
 // over. Afterward you see everyone who fit, best-known first.
 
-const SAVE_KEY = "cc-v1";   // { level, easy: { streak, best }, hard: { streak, best } }
+const SAVE_KEY = eraKey("cc-v1");   // { level, easy: { streak, best }, hard: { streak, best } }
 const GUESSES = 3;
 const KNOWN_WS = 15;   // a "known" answer has 15+ career Win Shares
 const LEVELS = {
-  easy: { minCollege: 30, minKnown: 3 },   // big programs, several well-known answers
+  easy: { minCollege: MODERN ? 12 : 30, minKnown: MODERN ? 2 : 3 },   // big programs, several well-known answers
   hard: { minCollege: 0, minKnown: 1 },    // any school, at least one well-known answer
 };
 
@@ -33,6 +33,7 @@ async function loadData() {
   const counts = {};
   for (const [, n] of file.players) counts[n] = (counts[n] || 0) + 1;
   for (const [id, n, fame, colleges, teams] of file.players) {
+    if (!inEra(id)) continue;
     data.byId[id] = { name: n, fame, colleges: new Set(colleges), teams: new Set(teams) };
     data.players[id] ||= { name: n };
     for (const c of colleges) data.collegeSize[c]++;

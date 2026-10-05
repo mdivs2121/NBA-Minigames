@@ -3,7 +3,7 @@
 // at the end the names (and hidden Win Shares) are revealed. Your score is
 // your team's Win Shares as a share of the best five you could have drafted.
 
-const SAVE_KEY = "bd-v1";   // { played, best, perfect }
+const SAVE_KEY = eraKey("bd-v1");   // { played, best, perfect }
 const ROUNDS = [["PG", "Point guard"], ["SG", "Shooting guard"], ["SF", "Small forward"], ["PF", "Power forward"], ["C", "Center"]];
 const OPTIONS = 4;
 const PPG_RANGE = 3;      // every option scores within 3 PPG of the first
@@ -21,9 +21,9 @@ const game = { round: 0, rounds: [], picks: [], over: false };
 
 async function loadData() {
   const [, file, index] = await Promise.all([loadCommon(), fetchJson("blind_draft"), fetchJson("player/index")]);
-  data.seasons = file.seasons;
+  data.seasons = file.seasons.filter((s) => inEra(s[0], s[1]));
   data.index = index;
-  for (const s of file.seasons) {
+  for (const s of data.seasons) {
     (data.byPos[s[2]] ||= []).push(s);
     data.players[s[0]] ||= { name: index[s[0]][0] };
   }

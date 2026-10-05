@@ -1996,3 +1996,13 @@ button .icon, a .icon { margin-right: 0.15em; }
 /* Results tinted with the answer's team color. */
 .result.tinted { background-image: radial-gradient(700px 260px at 0% 0%, color-mix(in srgb, var(--result-tint) 30%, transparent), transparent 72%); }
 .result.tinted:not(.lose) { border-top-color: var(--result-tint); }
+
+/* ---------- All eras | Modern tabs ---------- */
+.era-tabs { display: inline-flex; gap: 4px; padding: 4px; margin: -4px 0 16px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.era-tabs button {
+  display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 14px; border: 0; border-radius: 999px; background: transparent;
+  color: var(--muted); font: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer;
+}
+.era-tabs button small { font-size: 0.68rem; font-weight: 700; opacity: 0.8; }
+.era-tabs button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.modern-era .era-tabs button[aria-pressed="true"] { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: var(--on-accent); }

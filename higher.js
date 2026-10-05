@@ -4,7 +4,7 @@
 
 const RECOGNIZABLE_PPG = 15;    // a player needs one 15+ PPG season (20+ games) to appear
 const MIN_CAREER_GAMES = 100;   // enough games that per-game career stats mean something
-const BEST_KEY = "hl-best";     // mixed stats; one stat mode saves "hl-best:pts" and so on
+const BEST_KEY = eraKey("hl-best");     // mixed stats; one stat mode saves "hl-best:pts" and so on
 const MODE_KEY = "hl-mode";     // "mixed" or a stat like "pts"
 
 const count = (v) => Math.round(v).toLocaleString("en-US");
@@ -51,7 +51,7 @@ async function loadData() {
     if (!c.g) continue;
     data.career[id] = { ...c, ppg: c.pts / c.g, rpg: c.trb / c.g, apg: c.ast / c.g };
     const scorer = Object.values(s.seasons).some((x) => x.ppg >= RECOGNIZABLE_PPG && x.g >= 20);
-    if (scorer && c.g >= MIN_CAREER_GAMES && data.players[id]) data.pool.push(id);
+    if (scorer && c.g >= MIN_CAREER_GAMES && data.players[id] && inEra(id)) data.pool.push(id);
   }
 }
 

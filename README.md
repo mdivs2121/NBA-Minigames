@@ -25,3 +25,5 @@ Python scripts in [`scripts/`](scripts/) from the Kaggle dataset "NBA Stats (194
 see that folder's README to rebuild it.
 
 To run locally: `python3 -m http.server` in this folder, then open http://localhost:8000.
+
+Every game also has a **Modern** tab: only players from the 2003 draft class on, and for season-based games, seasons from 2009-10 on. Modern play keeps its own scores and daily puzzles.

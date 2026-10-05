@@ -6,7 +6,7 @@
 // as many of its players as you can in 60 seconds. Misses don't count.
 
 const MISSES = 3;
-const SAVE_KEY = "nt-v1";   // { type: "All-NBA", streak, best, [type]: { played, passed } }
+const SAVE_KEY = eraKey("nt-v1");   // { type: "All-NBA", streak, best, [type]: { played, passed } }
 
 // How many of a five-man team you need to pass (scaled for 6- and 7-man teams).
 const PASS_MARK = { "All-NBA": 4, "All-Defense": 3, "All-Rookie": 2 };
@@ -38,8 +38,9 @@ const game = {
 
 async function loadData() {
   const [, teams, index, seasons] = await Promise.all([loadCommon(), fetchJson("season_teams"), fetchJson("player/index"), fetchJson("rosters/index")]);
-  data.teams = teams;
-  data.rosterSeasons = seasons;
+  const endYear = (s) => Number(String(s).slice(0, 4)) + 1;
+  data.teams = teams.filter((t) => !MODERN || endYear(t.season) >= MODERN_SEASON);
+  data.rosterSeasons = seasons.filter((s) => !MODERN || endYear(s) >= MODERN_SEASON);
   data.index = index;
   for (const t of teams) for (const p of t.players) data.players[p.id] ||= { name: p.name };
   // Anyone can be guessed. Names shared by two players get their years.

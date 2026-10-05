@@ -22,6 +22,7 @@ async function loadCommon() {
   ]);
   data.players = players;
   data.photos = photos;
+  if (MODERN) data.modern = new Set((await fetchJson("modern")).ids);
 }
 
 function name(id) {
@@ -245,6 +246,50 @@ const BALL_ICON = `
 
 const HERE = location.pathname.split("/").pop() || "index.html";   // index.html is the home page
 const THIS_GAME = GAMES.find((g) => g.page === HERE || g.pages?.includes(HERE));
+
+// ---------- Modern tab ----------
+// Every game can be played "modern": only players from LeBron's 2003 draft
+// class on (or undrafted players who debuted from 2003-04 on), and for games
+// built on single seasons, only seasons from 2009-10 on. The choice is saved
+// per page, and modern play keeps its own saves (eraKey) and its own daily
+// puzzles (eraSeed), so normal streaks are never touched.
+const MODERN_SEASON = 2010;   // first season (2009-10) for season-based games
+const MODERN_DRAFT = 2003;
+const ERA_KEY = `era:${HERE}`;
+const MODERN = (() => {
+  try {
+    const asked = new URLSearchParams(location.search).get("era");
+    if (asked) localStorage.setItem(ERA_KEY, asked === "modern" ? "modern" : "all");
+    return localStorage.getItem(ERA_KEY) === "modern";
+  } catch { return false; }
+})();
+data.modern = new Set();       // filled by loadCommon in modern mode
+const isModern = (id) => data.modern.has(id);
+const eraKey = (key) => (MODERN ? `${key}:modern` : key);
+const eraSeed = (seed) => (MODERN ? `modern:${seed}` : seed);
+// Keep a player (id), or a player-season (id, season), in the current era.
+const inEra = (id, season) => !MODERN || (isModern(id) && (season == null || season >= MODERN_SEASON));
+
+function setEra(modern) {
+  try { localStorage.setItem(ERA_KEY, modern ? "modern" : "all"); } catch {}
+  const url = new URL(location.href);
+  url.searchParams.delete("era");
+  location.href = url.toString();   // reload: every game starts fresh in the new era
+}
+
+function renderEraTabs() {
+  const topbar = document.querySelector(".topbar");
+  if (!THIS_GAME || !topbar || document.querySelector(".era-tabs")) return;
+  topbar.insertAdjacentHTML("afterend", `
+    <nav class="era-tabs" aria-label="Era">
+      <button type="button" data-era="all" aria-pressed="${!MODERN}">All eras</button>
+      <button type="button" data-era="modern" aria-pressed="${MODERN}">Modern <small>2003 class on</small></button>
+    </nav>`);
+  for (const btn of document.querySelectorAll(".era-tabs button")) {
+    btn.addEventListener("click", () => { if ((btn.dataset.era === "modern") !== MODERN) setEra(btn.dataset.era === "modern"); });
+  }
+  if (MODERN) document.documentElement.classList.add("modern-era");
+}
 
 // Small drawings of each game, in the site's colors (home page cards and how-to popups).
 const GAME_ART = {
@@ -617,7 +662,13 @@ function setupHowTo() {
 // The game's link goes at the end so friends can tap straight in.
 
 async function shareResult(text, messageEl) {
-  const link = location.href.split(/[?#]/)[0];
+  let link = location.href.split(/[?#]/)[0];
+  // Modern results say so, and the link opens the Modern tab for friends.
+  if (MODERN) {
+    const [first, ...rest] = text.split("\n");
+    text = [`${first} · Modern`, ...rest].join("\n");
+    link += "?era=modern";
+  }
   const full = `${text}\n${link}`;
   if (navigator.share && matchMedia("(pointer: coarse)").matches) {
     try { await navigator.share({ text: full }); return; }
@@ -819,6 +870,7 @@ renderNav();
 renderTabs();
 setupHowTo();
 decorateHeader();
+renderEraTabs();
 decorateButtons();
 
 // ---------- drag to reorder ----------
@@ -951,7 +1003,7 @@ function shareDayImage(messageEl) {
 
 // The bar on a daily game's page, shown once today's puzzle is done there.
 function updateNextDaily() {
-  if (!THIS_GAME?.daily || !document.getElementById("result")) return;
+  if (!THIS_GAME?.daily || MODERN || !document.getElementById("result")) return;
   let bar = document.getElementById("next-daily");
   const show = !$("result").hidden && !puzzleDay().past && todaysResult(THIS_GAME);
   if (!show) { if (bar) bar.hidden = true; return; }

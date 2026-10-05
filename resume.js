@@ -29,7 +29,7 @@ function playerHeader(p, revealed, letter, subtitle = "") {
 const MODES = {
   careers: {
     file: "blind_resume",
-    bestKey: "br-best",
+    bestKey: eraKey("br-best"),
     question: "Which career was worth more?",
     title: "Pick one. No names.",
     intro: "Both play similar positions and scored about the same, so look deeper. The answer is whoever finished with more career Win Shares.",
@@ -55,7 +55,7 @@ const MODES = {
   },
   seasons: {
     file: "blind_seasons",
-    bestKey: "br-best-seasons",
+    bestKey: eraKey("br-best-seasons"),
     question: "Which season was better?",
     title: "One year each. No names.",
     intro: "Two single seasons, similar positions, similar scoring. The answer is the higher Box Plus/Minus (BPM): how many points per 100 possessions he added over an average player.",
@@ -81,7 +81,7 @@ const MODES = {
   },
   teams: {
     file: "blind_teams",
-    bestKey: "br-best-teams",
+    bestKey: eraKey("br-best-teams"),
     question: "Which team won more?",
     title: "Same season. No names.",
     intro: "Two teams from the same season, shown by the Four Factors that decide games (shooting, turnovers, rebounding, free throws) on both ends. Records are hidden. Pick the one with the better win %.",
@@ -142,7 +142,12 @@ function savedMode() {
 // Each mode's stat lines load the first time that mode is played.
 async function loadLines(name) {
   if (!data.lines[name]) {
-    data.lines[name] = await fetchJson(MODES[name].file);
+    const endYear = (season) => Number(String(season).slice(0, 4)) + 1;
+    const lines = await fetchJson(MODES[name].file);
+    // Modern tab: modern players (seasons from 2009-10 on), or teams from 2009-10 on.
+    data.lines[name] = !MODERN ? lines
+      : name === "teams" ? lines.filter((t) => endYear(t.season) >= MODERN_SEASON)
+      : lines.filter((p) => inEra(p.id, name === "seasons" ? endYear(p.season) : null));
     if (name !== "teams") for (const p of data.lines[name]) data.players[p.id] ||= { name: p.name };
   }
   return data.lines[name];

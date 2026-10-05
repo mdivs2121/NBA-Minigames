@@ -11,7 +11,7 @@ const TRAPS = 2;                            // 20+ PPG seasons with few Win Shar
 const LINEUP = ["G", "G", "F", "F", "C"];
 const SLOT_NAMES = { G: "Guard", F: "Forward", C: "Center" };
 const BOT_DELAY = 750;
-const RECORD_KEY = "sd-record";             // { rookie: { w, l }, ... }
+const RECORD_KEY = eraKey("sd-record");             // { rookie: { w, l }, ... }
 
 // How each computer GM values a season. The Rookie GM falls for big scoring
 // numbers; the others see Win Shares, with less guesswork the better they are.
@@ -58,7 +58,8 @@ const game = {
 
 async function loadData() {
   const [, seasons] = await Promise.all([loadCommon(), fetchJson("snake")]);
-  data.seasons = seasons;
+  const endYear = (s) => Number(String(s).slice(0, 4)) + 1;
+  data.seasons = seasons.filter((s) => inEra(s.id, endYear(s.season)));
   // Older players aren't in players.json; add their names for avatar().
   for (const s of seasons) data.players[s.id] ||= { name: s.name };
 }

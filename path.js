@@ -5,7 +5,7 @@
 const GUESSES = 6;
 const EASY_POOL = 150;             // Easy picks from the 150 best-known players…
 const EASY_SINCE = 2000;           // …who were still playing in 2000 or later
-const SAVE_KEY = "cp-v1";          // { easy: { streak, best }, hard: { ... } }
+const SAVE_KEY = eraKey("cp-v1");          // { easy: { streak, best }, hard: { ... } }
 
 
 Object.assign(data, {
@@ -32,8 +32,9 @@ async function loadData() {
   data.careers = cp.players;
   data.index = index;
   for (const c of cp.players) data.players[c.id] ||= { name: c.name };
-  const byFame = [...cp.players].filter((c) => c.path.at(-1)[2] >= EASY_SINCE).sort((a, b) => b.fame - a.fame);
-  data.pools = { easy: byFame.slice(0, EASY_POOL), hard: cp.players };
+  const careers = cp.players.filter((c) => inEra(c.id));
+  const byFame = careers.filter((c) => c.path.at(-1)[2] >= EASY_SINCE).sort((a, b) => b.fame - a.fame);
+  data.pools = { easy: byFame.slice(0, MODERN ? 100 : EASY_POOL), hard: careers };
 
   // Anyone can be guessed. Names shared by two players get their years.
   const counts = {};

@@ -2,7 +2,7 @@
 // Four guesses; every miss reveals a clue (team, then age and position, then
 // initials). A run keeps going until you miss one, and no player repeats.
 
-const SAVE_KEY = "sl-v1";   // { level, easy: { streak, best }, hard: { streak, best } }
+const SAVE_KEY = eraKey("sl-v1");   // { level, easy: { streak, best }, hard: { streak, best } }
 const GUESSES = 4;
 const POS_NAMES = { PG: "point guard", SG: "shooting guard", SF: "small forward", PF: "power forward", C: "center" };
 
@@ -22,7 +22,7 @@ const game = {
 
 async function loadData() {
   const [, file, index] = await Promise.all([loadCommon(), fetchJson("stat_lines"), fetchJson("player/index")]);
-  data.lines = file.lines;
+  data.lines = file.lines.filter((l) => inEra(l[0], l[1]));   // Modern tab: 2009-10 on, 2003 class on
   data.index = index;
   for (const [id] of file.lines) data.players[id] ||= { name: index[id][0] };
   // Anyone can be guessed. Names shared by two players get their years.

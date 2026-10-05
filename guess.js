@@ -6,8 +6,8 @@
 
 // Each mode saves { history: { day: result }, archive, progress: { day, guesses, hints } }.
 const MODES = {
-  normal: { key: "gp-v1", seed: "guess-the-player:order", pool: "answer", title: "Guess the Player" },
-  hard: { key: "gp-hard-v1", seed: "guess-the-player-hard:order", pool: "hard", title: "Guess the Player (Hard)" },
+  normal: { key: eraKey("gp-v1"), seed: eraSeed("guess-the-player:order"), pool: "answer", title: "Guess the Player" },
+  hard: { key: eraKey("gp-hard-v1"), seed: eraSeed("guess-the-player-hard:order"), pool: "hard", title: "Guess the Player (Hard)" },
 };
 const MODE_KEY = "gp-mode";
 const MAX_GUESSES = 8;
@@ -47,7 +47,7 @@ async function loadData() {
   }
   // The answer order is a fixed shuffle, so no player repeats until all have been used.
   for (const [mode, { seed, pool }] of Object.entries(MODES)) {
-    const ids = file.players.filter((p) => p[pool]).map((p) => p.id).sort();
+    const ids = file.players.filter((p) => p[pool] && inEra(p.id)).map((p) => p.id).sort();
     const random = rng(hash(seed));
     for (let i = ids.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));

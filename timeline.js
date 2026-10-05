@@ -2,7 +2,7 @@
 // first All-Star picks). Put them in order, oldest on top. A perfect order
 // scores a point; anything less costs one of three lives.
 
-const SAVE_KEY = "tl-v1";   // { level, easy: { best }, hard: { best } }
+const SAVE_KEY = eraKey("tl-v1");   // { level, easy: { best }, hard: { best } }
 const LIVES = 3;
 const PER_ROUND = 5;
 const MIN_GAP = { easy: 4, hard: 1 };   // years between any two events in a round
@@ -22,7 +22,8 @@ const game = {
 
 async function loadData() {
   const [, file] = await Promise.all([loadCommon(), fetchJson("timeline")]);
-  data.events = file.events;
+  // Modern tab: from 2004 on, and only modern players' moments.
+  data.events = file.events.filter(([, year, , pid]) => !MODERN || (year >= MODERN_DRAFT + 1 && (!pid || isModern(pid))));
   for (const [, , , pid, , n] of file.events) if (pid) data.players[pid] ||= { name: n };
 }
 
@@ -38,7 +39,7 @@ function writeSaved(saved) {
 
 // Five unseen events, from different years at least MIN_GAP apart, about five different players.
 function pickRound() {
-  const gap = MIN_GAP[game.level];
+  const gap = MODERN && game.level === "easy" ? 3 : MIN_GAP[game.level];   // modern years are closer together
   for (let attempt = 0; attempt < 500; attempt++) {
     if (game.seen.size > data.events.length - 40) game.seen.clear();
     const pool = data.events.map((e, i) => i).filter((i) => !game.seen.has(i));

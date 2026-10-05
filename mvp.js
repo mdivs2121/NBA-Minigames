@@ -1,7 +1,7 @@
 // MVP Ballot - a season's top five MVP vote-getters, shuffled. Put them back
 // in the order the voters had them. Scored like Rank the Five.
 
-const BEST_KEY = "mvp-best";   // { "2015-16": 83, ... }
+const BEST_KEY = eraKey("mvp-best");   // { "2015-16": 83, ... }
 
 Object.assign(data, {
   races: {},        // "2015-16" -> five players, in real voting order
@@ -18,7 +18,8 @@ const game = {
 
 async function loadData() {
   const [, races] = await Promise.all([loadCommon(), fetchJson("mvp")]);
-  data.races = races;
+  const endYear = (s) => Number(String(s).slice(0, 4)) + 1;
+  data.races = MODERN ? Object.fromEntries(Object.entries(races).filter(([s]) => endYear(s) >= MODERN_SEASON)) : races;
   for (const race of Object.values(races)) {
     for (const p of race) data.players[p.id] ||= { name: p.name };
   }

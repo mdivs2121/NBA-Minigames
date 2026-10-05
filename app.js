@@ -66,7 +66,7 @@ async function loadData() {
   }
   for (const [level, { minPpg }] of Object.entries(LEVELS)) {
     data.pools[level] = Object.keys(graph).filter((id) =>
-      (data.seasons[id] || []).some((s) => s.stats.ppg >= minPpg && s.stats.games >= MIN_GAMES)
+      inEra(id) && (data.seasons[id] || []).some((s) => s.stats.ppg >= minPpg && s.stats.games >= MIN_GAMES)
     );
   }
   options.sort();

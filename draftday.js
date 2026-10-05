@@ -3,7 +3,7 @@
 // position, then initials). A run keeps going until you miss one, and no
 // player repeats in a run.
 
-const SAVE_KEY = "dd-v1";   // { level, easy: { streak, best }, hard: { streak, best } }
+const SAVE_KEY = eraKey("dd-v1");   // { level, easy: { streak, best }, hard: { streak, best } }
 const GUESSES = 4;
 
 Object.assign(data, {
@@ -22,7 +22,7 @@ const game = {
 
 async function loadData() {
   const [, file, index] = await Promise.all([loadCommon(), fetchJson("draft_day"), fetchJson("player/index")]);
-  data.picks = file.picks;
+  data.picks = file.picks.filter((p) => !MODERN || p[1] >= MODERN_DRAFT);
   data.index = index;
   for (const [id] of file.picks) data.players[id] ||= { name: index[id][0] };
   const counts = {};
