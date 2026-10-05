@@ -87,7 +87,7 @@ const teamColor = (abbr) => TEAM_COLORS[abbr] || "#3a3f4d";
 // ---------- games ----------
 // Every game, in menu order. The home page cards, the Games menu, and each
 // game's how-to popup all come from here, so a new game needs one entry.
-//   isNew: shows a "New" badge on the home page and in the Games menu
+//   isNew: shows a "New" badge on the home page and in the Games menu (keep it to the two newest games)
 //   daily: the localStorage key of a daily puzzle's saved results
 //   summary: (result) => short text for one day's result, like "83/100"
 //   emoji: one emoji for the "share your day" card
@@ -104,7 +104,7 @@ const GAMES = [
     ],
   },
   {
-    page: "connections.html", emoji: "🧩", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1", isNew: true,
+    page: "connections.html", emoji: "🧩", title: "Hoop Connections", tag: "Daily puzzle", art: "connections", daily: "cx-v1",
     summary: (r) => (r.won ? (r.mistakes ? `Solved · ${r.mistakes} miss${r.mistakes === 1 ? "" : "es"}` : "Perfect") : `${r.found ?? 0} of 4`),
     blurb: "Sixteen players, four hidden groups: colleges, teams, awards, career facts, even names. Find all four.",
     howto: [
@@ -114,7 +114,7 @@ const GAMES = [
     ],
   },
   {
-    page: "guess.html", emoji: "🕵️", title: "Guess the Player", tag: "Daily puzzle", art: "guess", daily: "gp-v1", isNew: true,
+    page: "guess.html", emoji: "🕵️", title: "Guess the Player", tag: "Daily puzzle", art: "guess", daily: "gp-v1",
     summary: (r) => (r.won ? `${r.guesses}/8` : "X/8"),
     blurb: "One mystery player a day. Every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.",
     howto: [
@@ -124,7 +124,7 @@ const GAMES = [
     ],
   },
   {
-    page: "awards.html", emoji: "🏆", title: "Awards Grid", tag: "Daily puzzle", art: "awards", daily: "ag-v1", isNew: true,
+    page: "awards.html", emoji: "🏆", title: "Awards Grid", tag: "Daily puzzle", art: "awards", daily: "ag-v1",
     summary: (r) => `${r.score}/9`,
     blurb: "A 3×3 grid of teams, awards, and milestones. Name a player who fits both sides of every square.",
     howto: [
@@ -143,7 +143,7 @@ const GAMES = [
     ],
   },
   {
-    page: "path.html", title: "Career Path", tag: "Guess who", art: "path", isNew: true,
+    page: "path.html", title: "Career Path", tag: "Guess who", art: "path",
     blurb: "Name the player from nothing but the teams he played for. Every miss unlocks a clue.",
     howto: [
       ["Read the path", "You see every team a player suited up for, in order, with the years."],
@@ -152,7 +152,7 @@ const GAMES = [
     ],
   },
   {
-    page: "stat.html", title: "Stat Line", tag: "Guess who", art: "stat", isNew: true,
+    page: "stat.html", title: "Stat Line", tag: "Guess who", art: "stat",
     blurb: "One real season's stat line, no name. Who put it up? Every miss unlocks a clue.",
     howto: [
       ["Read the line", "You see one real season: points, rebounds, assists, shooting, games, and minutes."],
@@ -188,7 +188,7 @@ const GAMES = [
     ],
   },
   {
-    page: "timeline.html", title: "Timeline", tag: "Endless", art: "timeline", isNew: true,
+    page: "timeline.html", title: "Timeline", tag: "Endless", art: "timeline",
     blurb: "MVPs, #1 picks, titles, first All-Star nods. Put five moments in order, oldest to newest. Three lives.",
     howto: [
       ["Five moments", "Award wins, #1 draft picks, championships, and first All-Star selections, all from 1980 on."],
@@ -197,7 +197,7 @@ const GAMES = [
     ],
   },
   {
-    page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume", isNew: true,
+    page: "resume.html", title: "Blind Résumé", tag: "10 rounds", art: "resume",
     blurb: "Two anonymous stat lines, side by side: whole careers, single seasons, or whole teams. Pick the better one, then see who they were.",
     howto: [
       ["Pick a mode", "Careers: judged by career Win Shares. Seasons: one year each, judged by Box Plus/Minus. Teams: two teams from the same season, judged by win %."],
@@ -216,7 +216,7 @@ const GAMES = [
     ],
   },
   {
-    page: "blind.html", title: "Blind Draft", tag: "Solo draft", art: "blind", isNew: true,
+    page: "blind.html", title: "Blind Draft", tag: "Solo draft", art: "blind",
     blurb: "Draft a starting five from anonymous stat lines. Hidden Win Shares reveal who you really picked.",
     howto: [
       ["One position a round", "Point guard, shooting guard, small forward, power forward, center. Each round shows four real seasons with no names."],
