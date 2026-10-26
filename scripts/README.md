@@ -31,7 +31,7 @@ python3 build_season_teams.py      # Name the Team (All-NBA, All-Defense, All-Ro
 python3 build_connections_data.py  # Hoop Connections
 python3 build_player_pages.py      # player pages
 python3 build_career_path.py       # Career Path (reads connections.json)
-python3 build_guess_player.py      # Guess the Player (reads connections.json)
+python3 build_guess_player.py      # Guess the Player (reads connections.json; 2026-27 teams from current_teams.py)
 python3 build_awards_grid.py       # Awards Grid
 python3 build_timeline.py          # Timeline (after build_awards_grid.py)
 python3 build_rosters.py           # Full Roster tab of Name the Team

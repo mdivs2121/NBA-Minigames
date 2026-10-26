@@ -10,8 +10,9 @@ Everyone who played from 2000-01 on with 150+ games can be guessed. About 250
 of the best-known (still playing in 2008 or later) can be the answer. Hard mode
 draws from everyone else with 500+ games or an All-Star pick, older players
 included (the "hard" flag).
-  team      players from the last two seasons: their most recent team (so a
-            player who missed 2025-26 hurt, like Fred VanVleet, still shows the
+  team      2026-27 team from current_teams.py when listed there (offseason
+            moves). Otherwise, players from the last two seasons: their most
+            recent team (so Fred VanVleet, hurt all of 2025-26, still shows the
             Rockets). Retired: the team he played the most games for
             (relocated franchises count as one team)
   pos       G, F, C, or a combo like G-F
@@ -25,9 +26,11 @@ Run after build_connections_data.py:  python3 build_guess_player.py
 """
 import json
 import re
+from collections import defaultdict
 
 import pandas as pd
 
+from current_teams import CURRENT_TEAM
 from paths import OUT_DIR, STATS_DIR
 
 SUMMARY_TEAM = re.compile(r"^(TOT|\dTM)$")
@@ -35,11 +38,14 @@ GUESSABLE_SINCE, MIN_GAMES = 2001, 150
 ANSWERS, ANSWERS_SINCE = 250, 2008
 HARD_GAMES = 500
 SAME_TEAM = {"NOK": "NOH"}   # the Katrina-era Hornets
-# Players who changed teams without playing a game since (so the stats can't
-# show it). Add to this when a hurt player moves in the offseason.
-OFFSEASON_MOVES = {
-    "lillada01": "POR",   # Damian Lillard: waived by Milwaukee, re-signed with Portland in July 2025 (Achilles, out 2025-26)
-}
+
+
+def name_key(name):
+    """Compare names loosely: no accents, apostrophes, periods, or case."""
+    import unicodedata
+    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
+    plain = re.sub(r"\s+(Jr\.?|Sr\.?|II|III|IV)$", "", plain.strip())   # "Robert Williams III" = "Robert Williams"
+    return re.sub(r"[^a-z]", "", plain.lower())
 # Relocated and renamed teams, for counting games with one franchise.
 FRANCHISE = {"NJN": "BRK", "SEA": "OKC", "VAN": "MEM", "NOH": "NOP", "NOK": "NOP", "CHA": "CHO", "CHH": "CHO", "WSB": "WAS"}
 
@@ -73,6 +79,24 @@ def main():
     all_stars = pd.read_csv(STATS_DIR / "All-Star Selections.csv")
     star_count = all_stars[all_stars["lg"] == "NBA"].groupby("player_id").size()
 
+    # 2026-27 teams from current_teams.py, for players active in the last two seasons.
+    recent_ids = set(seasons[seasons["max"] >= latest - 1].index)
+    by_name = defaultdict(list)
+    for pid in recent_ids:
+        if pid in info.index:
+            by_name[name_key(info.at[pid, "player"])].append(pid)
+    everyone = defaultdict(list)   # for players returning after a gap (like Mario Hezonja from Europe)
+    for pid in seasons.index:
+        if pid in info.index:
+            everyone[name_key(info.at[pid, "player"])].append(pid)
+    moved, unmatched = {}, []
+    for player, team in CURRENT_TEAM.items():
+        ids = by_name.get(name_key(player)) or everyone.get(name_key(player), [])
+        if len(ids) == 1:
+            moved[ids[0]] = team
+        else:
+            unmatched.append(player)
+
     out = []
     for pid, (first, last) in seasons.iterrows():
         if last < GUESSABLE_SINCE or games.get(pid, 0) < MIN_GAMES or pid not in info.index:
@@ -85,7 +109,7 @@ def main():
         initials = " ".join(f"{w[0]}." for w in re.sub(r"\b(Jr\.|Sr\.|II|III|IV)$", "", i["player"]).split())
         out.append({
             "id": pid, "name": i["player"], "pos": i["pos"],
-            "team": OFFSEASON_MOVES.get(pid) or (last_team[pid] if last >= latest - 1 else main_team.get(pid, last_team[pid])),
+            "team": moved.get(pid) or (last_team[pid] if last >= latest - 1 else main_team.get(pid, last_team[pid])),
             "ht": int(i["ht_in_in"]), "debut": int(first), "last": int(last),
             "pick": int(draft[pid]) if pid in draft.index else None,
             "allStars": int(star_count.get(pid, 0)), "games": int(games.get(pid, 0)),
@@ -105,6 +129,9 @@ def main():
     path = OUT_DIR / "guess_player.json"
     with open(path, "w", encoding="utf-8") as f:
         json.dump({"players": out}, f, separators=(",", ":"), ensure_ascii=False)
+    print(f"  2026-27 teams applied: {len(moved)} players; not found in the stats (rookies or new names): {len(unmatched)}")
+    if unmatched:
+        print("   ", ", ".join(unmatched))
     print(f"wrote {path} ({path.stat().st_size / 1024:.0f} KB): {len(out)} guessable, {len(answer_ids)} possible answers, {sum(p['hard'] for p in out)} more in hard mode")
     print("  least famous answers:", ", ".join(p["name"] for p in candidates[-6:]))
     for pid in ["jamesle01", "gasolma01", "malonka01", "paytoga01", "piercpa01"]:
