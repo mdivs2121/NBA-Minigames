@@ -4,7 +4,15 @@ build_trivia.py - the question bank for Trivia Wager.
 Writes data/trivia.json:
 
   { "cats": [ [id, name], ... ],
-    "questions": [ [cat, question, answer, [three wrong answers], note], ... ] }
+    "questions": [ [cat, question, answer, kind, [accepted forms], note], ... ] }
+
+Answers are typed, not picked. kind tells the game how to judge them:
+  player  full names (the game also accepts last names) plus nicknames
+  team    full name, nickname, city, abbreviation, slang (Cavs, Sixers)
+  num     the number has to appear
+  year    the year, or just its last two digits
+  text    any of the forms, typos forgiven
+  all     every part has to appear (parts separated by |-alternatives)
 
 Hand-written categories come from trivia_curated.py (history, jersey numbers,
 trades, coaches, what year, playoff stat lines, some records). Everything
@@ -25,7 +33,7 @@ import pandas as pd
 
 from build_awards_grid import CHAMPIONS, award_winners
 from paths import OUT_DIR, STATS_DIR
-from trivia_curated import CURATED
+from trivia_curated import ACCEPT, CURATED
 
 SUMMARY_TEAM = re.compile(r"^(TOT|\dTM)$")
 CURRENT = 2026   # the 2025-26 season
@@ -37,8 +45,41 @@ CATS = [
     ("playoffs", "Memorable Playoff Stat Lines"), ("season", "2025-26 Season"), ("jerseys", "Jersey Numbers"),
     ("trades", "Trades & Free Agency"), ("records", "Records"), ("draft", "The Draft"), ("year", "What Year?"),
     ("guess", "Guess the Player"), ("coaches", "Coaches & GMs"), ("teammates", "Teammate Guess"),
-    ("college", "Guess the College"),
+    ("college", "Guess the College"), ("fmvp", "Finals MVP"),
 ]
+
+# Nicknames people actually type.
+PLAYER_ALIASES = {
+    "LeBron James": ["LeBron", "LBJ", "King James", "Bron"], "Giannis Antetokounmpo": ["Giannis", "Greek Freak"],
+    "Shaquille O'Neal": ["Shaq"], "Kobe Bryant": ["Kobe"], "Magic Johnson": ["Magic"], "Kareem Abdul-Jabbar": ["Kareem"],
+    "Wilt Chamberlain": ["Wilt"], "Hakeem Olajuwon": ["Hakeem", "The Dream"], "Michael Jordan": ["MJ"], "Kevin Durant": ["KD"],
+    "Anthony Davis": ["AD"], "Chris Paul": ["CP3"], "Shai Gilgeous-Alexander": ["SGA", "Shai"], "Victor Wembanyama": ["Wemby"],
+    "Nikola Jokić": ["Joker"], "Luka Dončić": ["Luka"], "Stephen Curry": ["Steph"], "Dirk Nowitzki": ["Dirk"],
+    "Carmelo Anthony": ["Melo"], "Damian Lillard": ["Dame"], "Karl-Anthony Towns": ["KAT"], "Dwyane Wade": ["D-Wade", "DWade"],
+    "Allen Iverson": ["AI"], "Tim Duncan": ["Timmy"], "Kawhi Leonard": ["Kawhi"], "Karl Malone": ["Mailman", "The Mailman"],
+    "Charles Barkley": ["Chuck"], "Kevin Garnett": ["KG"], "Russell Westbrook": ["Russ"], "Tracy McGrady": ["T-Mac", "TMac"],
+    "Vince Carter": ["Vinsanity"], "Jimmy Butler": ["Jimmy Buckets"], "Zion Williamson": ["Zion"], "Ja Morant": ["Ja"],
+    "Klay Thompson": ["Klay"], "Draymond Green": ["Draymond", "Dray"], "Manu Ginóbili": ["Manu"], "Yao Ming": ["Yao"],
+    "Kyrie Irving": ["Kyrie"], "Pau Gasol": ["Pau"], "Isiah Thomas": ["Zeke"], "Dennis Rodman": ["The Worm"],
+    "Paul Pierce": ["The Truth"], "Joel Embiid": ["Jojo"], "Scottie Pippen": ["Pip"], "Patrick Ewing": ["Ewing"],
+    # coaches and executives
+    "Gregg Popovich": ["Pop", "Coach Pop"], "Phil Jackson": ["Zen Master"], "Red Auerbach": ["Red"], "Pat Riley": ["Riles"],
+    "Erik Spoelstra": ["Spo"], "Steve Kerr": ["Kerr"], "Rudy Tomjanovich": ["Rudy T"], "Mike D'Antoni": ["Dantoni"],
+}
+TEAM_SLANG = {
+    "76ers": ["Sixers"], "Cavaliers": ["Cavs"], "Mavericks": ["Mavs"], "Timberwolves": ["Wolves", "T-Wolves"],
+    "SuperSonics": ["Sonics"], "Trail Blazers": ["Blazers"], "Warriors": ["Dubs"], "Celtics": ["Celts"],
+    "Pelicans": ["Pels"], "Clippers": ["Clips", "LA Clippers"], "Lakers": ["LA Lakers"], "Knicks": ["NY Knicks"],
+}
+COLLEGE_ALIASES = {
+    "UNC": ["North Carolina", "Carolina", "Tar Heels"], "UConn": ["Connecticut", "Huskies"], "Kentucky": ["UK", "Wildcats"],
+    "Michigan State": ["Michigan St", "MSU", "Spartans"], "LSU": ["Louisiana State"], "USC": ["Southern California", "Southern Cal"],
+    "NC State": ["North Carolina State"], "UNLV": ["Nevada Las Vegas"], "Duke": ["Blue Devils"], "Kansas": ["KU", "Jayhawks"],
+    "Ohio State": ["Ohio St"], "Arizona State": ["Arizona St", "ASU"], "Florida State": ["Florida St", "FSU"],
+    "Oklahoma State": ["Oklahoma St"], "Georgia Tech": ["GA Tech"], "Texas A&M": ["Texas AM", "A&M"], "Gonzaga": ["Zags"],
+    "Villanova": ["Nova"], "Memphis": ["Memphis State"], "Wake Forest": ["Wake"], "Saint Joseph's": ["St Josephs", "St Joes"],
+}
+SUFFIXES = {"Jr.", "Sr.", "II", "III", "IV"}
 
 # Finals losers by season (1991 = the 1990-91 season).
 FINALS_LOSERS = {
@@ -68,13 +109,15 @@ def pick_wrong(answer, pool, n=3):
 
 
 def main():
-    qs = [list(q[:3]) + [list(q[3]), q[4]] for q in CURATED]
+    qs = [[q[0], q[1], q[2], None, q[4]] for q in CURATED]   # kind and forms get filled in at the end
     counts = Counter()
 
-    def add(cat, q, answer, wrong, note=""):
+    def add(cat, q, answer, wrong, note="", accept=None):
+        # wrong answers aren't shown any more (answers are typed), but they still
+        # guard quality: a question needs three believable alternatives to exist.
         if wrong is None or len(wrong) < 3:
             return
-        qs.append([cat, q, str(answer), [str(w) for w in wrong[:3]], note])
+        qs.append([cat, q, str(answer), accept, note])
         counts[cat] += 1
 
     # ---------- shared data ----------
@@ -134,6 +177,19 @@ def main():
         add("draft", f"Who was the #1 overall pick in the {year} draft?", first["player"], pick_wrong(first["player"], list(d.player[1:6])),
             f"The {tm} took him. {d.iloc[1]['player']} went second.")
 
+    # ---------- The draft: where big stars were picked ----------
+    curated_draft = {q[1] for q in CURATED if q[0] == "draft"}
+    by_player = draft.drop_duplicates("player_id").set_index("player_id")
+    big = [pid for pid in star_count[star_count >= 7].index if pid in by_player.index and by_player.at[pid, "season"] >= 1985]
+    for pid in sorted(big, key=lambda p: -star_count[p])[:16]:
+        row = by_player.loc[pid]
+        q = f"At which pick was {row.player} drafted in {int(row.season)}?"
+        if any(row.player in c for c in curated_draft):
+            continue
+        pick = int(row.overall_pick)
+        add("draft", q, pick, [pick + 2, pick + 7, max(1, pick - 1) if pick > 1 else pick + 4],
+            f"{team_name.get((int(row.season) + 1, row.tm), row.tm)} took him.")
+
     # ---------- Guess the college: modern All-Stars with one college ----------
     first_season = seasons_one.groupby("player_id")["season"].min()
     all_colleges = info["colleges"].dropna()
@@ -156,6 +212,9 @@ def main():
     squads = defaultdict(set)   # (season, team) -> famous players
     for r in team_rows[team_rows.player_id.isin(famous)].itertuples():
         squads[(r.season, r.team)].add(r.player_id)
+    all_squads = defaultdict(set)   # (season, team) -> everyone on the roster
+    for r in team_rows[team_rows.season >= 1975].itertuples():
+        all_squads[(r.season, r.team)].add(r.player_id)
     mates = defaultdict(set)
     shared = {}   # (a, b) -> (season, team) they shared, the earliest one
     for (season, team), players in sorted(squads.items()):
@@ -172,8 +231,10 @@ def main():
         era = [p for p in famous if p != a and p not in mates[a] and span.loc[p, "max"] >= lo and span.loc[p, "min"] <= hi]
         R.shuffle(era)
         season, team = shared[(a, b)]
-        add("teammates", f"Which of these players was a teammate of {nm(a)}?", nm(b), [nm(p) for p in era[:3]] if len(era) >= 3 else None,
-            f"They played together on the {team_name.get((season, team), team)} in {season_text(season)}.")
+        everyone = sorted({nm(p) for (s_, t_), ps in all_squads.items() if a in ps for p in ps if p != a})
+        add("teammates", f"Name any player who was ever a teammate of {nm(a)}.", nm(b), [nm(p) for p in era[:3]] if len(era) >= 3 else None,
+            f"One example: {nm(b)}, on the {team_name.get((season, team), team)} in {season_text(season)}. Any real teammate counts.",
+            accept=("player", everyone))
 
     # ---------- Memorable stat lines: scoring titles and triple-double seasons ----------
     full = seasons_one[seasons_one.g >= 40]
@@ -263,9 +324,50 @@ def main():
     add("records", "Who has been selected to the most All-Star Games?", nm(sc.index[0]), [nm(p) for p in sc.index[1:4]],
         f"{nm(sc.index[0])} has {sc.iloc[0]} selections.")
 
+    # ---------- how each answer is judged ----------
+    player_names = set(info["player"])
+    full_team_names = set(teams.team)
+    abbrs = defaultdict(set)
+    for r in teams.itertuples():
+        abbrs[r.team].add(r.abbreviation)
+
+    def team_forms(full):
+        nick = "Trail Blazers" if full.endswith("Trail Blazers") else full.split()[-1]
+        city = full[: -len(nick)].strip()
+        forms = [full, nick] + TEAM_SLANG.get(nick, []) + sorted(abbrs[full])
+        if city and city != "Los Angeles":
+            forms.append(city)
+        return forms
+
+    def player_forms(name):
+        return [name] + PLAYER_ALIASES.get(name, [])
+
+    def judge(cat, answer, accept):
+        if accept:
+            return accept
+        if answer in ACCEPT:
+            spec = ACCEPT[answer]
+            return ("all", spec["all"]) if isinstance(spec, dict) else ("text", spec)
+        if cat == "year":
+            return ("year", [answer])
+        if re.fullmatch(r"\d+", answer):
+            return ("num", [answer])
+        if answer in full_team_names:
+            return ("team", team_forms(answer))
+        if cat == "college":
+            return ("text", [answer] + COLLEGE_ALIASES.get(answer, []))
+        if answer in player_names or answer in PLAYER_ALIASES or cat == "coaches":
+            return ("player", player_forms(answer))
+        return ("text", [answer])
+
+    rows = []
+    for cat, q, answer, accept, note in qs:
+        kind, forms = judge(cat, answer, accept)
+        rows.append([cat, q, answer, kind, forms, note])
+
     # ---------- write ----------
     seen, unique = set(), []
-    for q in qs:
+    for q in rows:
         if q[1] not in seen:
             seen.add(q[1]); unique.append(q)
     path = OUT_DIR / "trivia.json"

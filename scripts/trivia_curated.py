@@ -235,3 +235,60 @@ CURATED = [
     ("records", "Who averaged a triple-double for a full season decades before Russell Westbrook?", "Oscar Robertson", ["Wilt Chamberlain", "Magic Johnson", "Jerry West"], "Robertson did it in 1961-62."),
     ("records", "Who holds the record for points in a playoff game, with 63?", "Michael Jordan", ["Elgin Baylor", "Donovan Mitchell", "Wilt Chamberlain"], "Against Boston in 1986."),
 ]
+
+CURATED += [
+    # ---------- Finals MVP (new category) ----------
+    ("fmvp", "Who was the 2010 Finals MVP?", "Kobe Bryant", ["Pau Gasol", "Paul Pierce", "Ray Allen"], "The Lakers beat Boston in seven."),
+    ("fmvp", "Who was the 2011 Finals MVP?", "Dirk Nowitzki", ["Jason Terry", "LeBron James", "Dwyane Wade"], "Dallas beat the Heat in six."),
+    ("fmvp", "Who was the 2012 Finals MVP?", "LeBron James", ["Dwyane Wade", "Kevin Durant", "Chris Bosh"], "His first title, over Oklahoma City."),
+    ("fmvp", "Who was the 2013 Finals MVP?", "LeBron James", ["Dwyane Wade", "Ray Allen", "Tim Duncan"], "Miami beat San Antonio in seven."),
+    ("fmvp", "Who was the 2014 Finals MVP?", "Kawhi Leonard", ["Tim Duncan", "Tony Parker", "Manu Ginóbili"], "He was 22."),
+    ("fmvp", "Who was the 2015 Finals MVP?", "Andre Iguodala", ["Stephen Curry", "Klay Thompson", "Draymond Green"], "He came off the bench most of the season."),
+    ("fmvp", "Who was the 2016 Finals MVP?", "LeBron James", ["Kyrie Irving", "Kevin Love", "Stephen Curry"], "Cleveland came back from 3-1 down."),
+    ("fmvp", "Who was the 2017 Finals MVP?", "Kevin Durant", ["Stephen Curry", "LeBron James", "Klay Thompson"], "His first season in Golden State."),
+    ("fmvp", "Who was the 2018 Finals MVP?", "Kevin Durant", ["Stephen Curry", "LeBron James", "Draymond Green"], "Golden State swept Cleveland."),
+    ("fmvp", "Who was the 2019 Finals MVP?", "Kawhi Leonard", ["Kyle Lowry", "Pascal Siakam", "Fred VanVleet"], "Toronto's first title."),
+    ("fmvp", "Who was the 2020 Finals MVP?", "LeBron James", ["Anthony Davis", "Jimmy Butler", "Bam Adebayo"], "His fourth, with his third team."),
+    ("fmvp", "Who was the 2021 Finals MVP?", "Giannis Antetokounmpo", ["Khris Middleton", "Jrue Holiday", "Devin Booker"], "He scored 50 in the clincher."),
+    ("fmvp", "Who was the 2022 Finals MVP?", "Stephen Curry", ["Klay Thompson", "Andrew Wiggins", "Jayson Tatum"], "His first Finals MVP."),
+    ("fmvp", "Who was the 2023 Finals MVP?", "Nikola Jokić", ["Jamal Murray", "Jimmy Butler", "Aaron Gordon"], "Denver's first title."),
+    ("fmvp", "Who was the 2024 Finals MVP?", "Jaylen Brown", ["Jayson Tatum", "Jrue Holiday", "Luka Dončić"], "Boston beat Dallas in five."),
+    ("fmvp", "Who was the 2025 Finals MVP?", "Shai Gilgeous-Alexander", ["Jalen Williams", "Tyrese Haliburton", "Chet Holmgren"], "He also won MVP that season."),
+
+    # ---------- more records, history, trades ----------
+    ("records", "Who is the only player to win MVP, Defensive Player of the Year, and Finals MVP in the same season?", "Hakeem Olajuwon", ["Michael Jordan", "Tim Duncan", "Giannis Antetokounmpo"], "He did it in 1993-94."),
+    ("records", "Who scored 4,029 points in one season, still the record?", "Wilt Chamberlain", ["Michael Jordan", "Elgin Baylor", "Kobe Bryant"], "He averaged 50.4 points in 1961-62."),
+    ("records", "Who has scored the most points in NBA playoff history?", "LeBron James", ["Michael Jordan", "Kareem Abdul-Jabbar", "Kobe Bryant"], "He passed Michael Jordan in 2017."),
+    ("records", "Who made a three-pointer in a record 268 straight regular-season games?", "Stephen Curry", ["Klay Thompson", "Kyle Korver", "Ray Allen"], "The streak ran from 2014 to 2018."),
+    ("history", "Which team won the first NBA In-Season Tournament, in 2023?", "Los Angeles Lakers", ["Indiana Pacers", "Milwaukee Bucks", "Boston Celtics"], "LeBron James was the tournament MVP."),
+    ("history", "Which team won the 2024 NBA Cup?", "Milwaukee Bucks", ["Oklahoma City Thunder", "Los Angeles Lakers", "Houston Rockets"], "They beat Oklahoma City in the final."),
+    ("history", "Who was picked #2 in the 1984 draft, between Hakeem Olajuwon and Michael Jordan?", "Sam Bowie", ["Charles Barkley", "Sam Perkins", "John Stockton"], "Portland took Bowie; Chicago took Jordan third."),
+    ("trades", "Who did Dallas trade to Atlanta on draft night in 2018 to get Luka Dončić?", "Trae Young", ["Kevin Huerter", "Jalen Brunson", "Dennis Smith Jr."], "Atlanta also got a future first-round pick."),
+    ("trades", "Which team drafted Kawhi Leonard in 2011 and traded him to San Antonio that night?", "Indiana Pacers", ["Sacramento Kings", "Charlotte Bobcats", "Detroit Pistons"], "The Spurs gave up George Hill."),
+    ("trades", "Which player did the Celtics draft #3 in 2017 after trading down from #1?", "Jayson Tatum", ["Jaylen Brown", "Markelle Fultz", "Lonzo Ball"], "Philadelphia took Markelle Fultz first."),
+    ("draft", "At which pick was Nikola Jokić drafted in 2014?", "41", ["27", "13", "57"], "Denver took him in the second round."),
+    ("draft", "At which pick was Manu Ginóbili drafted in 1999?", "57", ["28", "41", "35"], "The Spurs took him in the second round."),
+    ("draft", "At which pick was Tony Parker drafted in 2001?", "28", ["15", "41", "9"], "The Spurs took him late in the first round."),
+    ("draft", "At which pick was Draymond Green drafted in 2012?", "35", ["15", "22", "42"], "Golden State took him in the second round."),
+]
+
+# Accepted typed answers for hand-written answers that aren't a plain player,
+# team, number, or year. A list means any of these counts; a dict with "all"
+# means every part has to appear (in any order).
+ACCEPT = {
+    "The NBL": ["NBL", "National Basketball League"],
+    "1979-80": ["1979-80", "1979", "1980", "79-80"],
+    "1946-47": ["1946-47", "1946", "1947"],
+    "Nuggets, Pacers, Nets, Spurs": {"all": ["Nuggets|Denver", "Pacers|Indiana", "Nets|New York|New Jersey", "Spurs|San Antonio"]},
+    "24 seconds": ["24", "24 seconds"],
+    "Raptors and Grizzlies": {"all": ["Raptors|Toronto", "Grizzlies|Vancouver|Memphis"]},
+    "Hershey, Pennsylvania": ["Hershey", "Hershey PA", "Hershey Pennsylvania"],
+    "The Malice at the Palace": ["Malice at the Palace", "Malice in the Palace", "Malice"],
+    "Madison Square Garden": ["Madison Square Garden", "MSG", "The Garden"],
+    "8 and 24": {"all": ["8", "24"]},
+    "73-9": ["73-9", "73 9", "73 and 9", "73"],
+    "33 games": ["33"],
+    "186-184": ["186-184", "186 184"],
+    "Baseball": ["baseball", "minor league baseball"],
+    "New York Nets": ["New York Nets", "Nets"],
+}

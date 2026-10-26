@@ -10,7 +10,7 @@ A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (an
 - **Blind Draft**: draft a starting five from anonymous stat lines; hidden Win Shares score it.
 - **College Connect**: name a player who went to a given college and played for a given team.
 - **Draft Day**: given a draft year and pick number, name who was taken.
-- **Trivia Wager** (daily + unlimited): ten NBA trivia questions; wager 1-10 on each category, each number once.
+- **Trivia Wager** (daily + unlimited): ten NBA trivia questions; wager 1-10 on each category (each number once), then type the answer. Typos are forgiven.
 - **Stat Line**: name the player from one real season's stat line; misses unlock clues.
 - **Timeline**: put five moments from NBA history in order; three lives.
 - **Awards Grid** (daily): a 3×3 grid of teams, awards, and milestones; name a player for every square.

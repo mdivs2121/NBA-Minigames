@@ -2088,3 +2088,8 @@ button.primary.tw-next { justify-self: start; padding: 13px 22px; }
   .tw-track { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .tw-card { padding: 16px; }
 }
+.tw-form { display: grid; gap: 8px; }
+.tw-form input { width: 100%; }
+.tw-skip { justify-self: start; }
+.tw-feedback i { font-style: normal; font-weight: 700; color: var(--text); }
+.tw-feedback .tw-answer b { color: var(--text); }

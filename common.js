@@ -135,13 +135,13 @@ const GAMES = [
     ],
   },
   {
-    page: "trivia.html", emoji: "🧠", title: "Trivia Wager", tag: "Daily puzzle", art: "trivia", daily: "tw-v1", isNew: true, noEra: true,
+    page: "trivia.html", emoji: "🧠", title: "Trivia Wager", tag: "Daily puzzle", art: "trivia", daily: "tw-v2", isNew: true, noEra: true,
     summary: (r) => `${r.score}/55`,
     blurb: "Ten NBA trivia questions. See the category, bet 1 to 10 on yourself, then answer. Each number once.",
     howto: [
       ["See the category", "Each question comes from a different category: MVPs, Finals, jersey numbers, trades, the 2025-26 season, and more."],
       ["Wager 1 to 10", "Bet big on categories you know and small on ones you don't. Each number can only be used once, so the most you can score is 55."],
-      ["Answer and compare", "Pick from four answers. Everyone gets the same ten each day, so share your score with friends. Unlimited mode deals ten more anytime."],
+      ["Type your answer", "No multiple choice. Spelling doesn't have to be perfect: last names, nicknames (Shaq, KD), team cities, and close misspellings all count. Everyone gets the same ten each day, so compare scores with friends. Unlimited deals ten more anytime."],
     ],
   },
   {

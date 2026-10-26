@@ -36,7 +36,7 @@ const PROGRESS = {
     return { text: played ? `Today's grid is ready · ${played} played` : "Today's grid is ready", fresh: true };
   },
   trivia() {
-    const history = saved("tw-v1")?.history || {};
+    const history = saved("tw-v2")?.history || {};
     const today = history[todayKey()];
     const played = Object.keys(history).length;
     if (today) return { text: `Today: ${today.score}/55 ✓`, done: true };
