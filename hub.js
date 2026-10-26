@@ -150,11 +150,12 @@ function renderToday() {
 
 // The games, grouped. Keyed by each game's art name; a game that isn't listed
 // lands in "More games", so a new game always shows up somewhere.
+// The last field is the section's color (see "visual refresh" in style.css).
 const SECTIONS = [
-  ["Daily puzzles", "Same puzzle for everyone, new every day", ["rank", "connections", "guess", "awards", "trivia"]],
-  ["Guess who", "Name the player from the clues", ["path", "stat", "draftday"]],
-  ["Streaks", "One more round, as long as you last", ["higher", "timeline", "college", "chain"]],
-  ["Rounds & drafts", "Pick, draft, and rewrite history", ["resume", "blind", "snake", "hindsight"]],
+  ["Daily puzzles", "Same puzzle for everyone, new every day", ["rank", "connections", "guess", "awards", "trivia"], "orange"],
+  ["Guess who", "Name the player from the clues", ["path", "stat", "draftday"], "blue"],
+  ["Streaks", "One more round, as long as you last", ["higher", "timeline", "college", "chain"], "mint"],
+  ["Rounds & drafts", "Pick, draft, and rewrite history", ["resume", "blind", "snake", "hindsight"], "violet"],
 ];
 
 function gameCard(g) {
@@ -192,13 +193,13 @@ setInterval(() => {
 function renderHub() {
   renderToday();
   const listed = new Set(SECTIONS.flatMap(([, , arts]) => arts));
-  const sections = [...SECTIONS, ["More games", "", GAMES.filter((g) => !listed.has(g.art)).map((g) => g.art)]];
+  const sections = [...SECTIONS, ["More games", "", GAMES.filter((g) => !listed.has(g.art)).map((g) => g.art), "orange"]];
   $("hub").innerHTML = sections
-    .map(([title, sub, arts]) => {
+    .map(([title, sub, arts, tone]) => {
       const games = arts.map((a) => GAMES.find((g) => g.art === a)).filter(Boolean);
       if (!games.length) return "";
       return `
-        <section class="hub-section">
+        <section class="hub-section" data-tone="${tone}">
           <div class="hub-section-head"><h2>${escapeHtml(title)}</h2>${sub ? `<span>${escapeHtml(sub)}</span>` : ""}</div>
           <ol class="hub ${games.length % 4 === 0 ? "four" : ""}" style="--cols: ${games.length % 4 === 0 ? 4 : 3}">${games.map(gameCard).join("")}</ol>
         </section>`;

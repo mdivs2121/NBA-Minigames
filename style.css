@@ -2093,3 +2093,57 @@ button.primary.tw-next { justify-self: start; padding: 13px 22px; }
 .tw-skip { justify-self: start; }
 .tw-feedback i { font-style: normal; font-weight: 700; color: var(--text); }
 .tw-feedback .tw-answer b { color: var(--text); }
+
+/* ---------- visual refresh (Oct 2026): section colors, glowing Today box, hero spotlight ----------
+   Remove this whole block (plus data-tone in hub.js and .hero-pop in index.html) to undo it. */
+:root { --tone-orange: #ff7a2e; --tone-blue: #4ea1ff; --tone-mint: #36e2a4; --tone-violet: #a98bff; }
+:root[data-theme="light"] { --tone-orange: #e8620f; --tone-blue: #2b7be0; --tone-mint: #12a774; --tone-violet: #7357d6; }
+.hub-section { --tone: var(--tone-orange); }
+.hub-section[data-tone="blue"] { --tone: var(--tone-blue); }
+.hub-section[data-tone="mint"] { --tone: var(--tone-mint); }
+.hub-section[data-tone="violet"] { --tone: var(--tone-violet); }
+
+/* Section headers: a glowing dot in the section's color. */
+.hub-section-head h2 { display: inline-flex; align-items: center; gap: 10px; }
+.hub-section-head h2::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--tone);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 22%, transparent), 0 0 14px var(--tone);
+}
+
+/* Cards: a soft wash of the section color, art on a tinted tile, matching glow on hover. */
+.hub-card {
+  background: linear-gradient(155deg, color-mix(in srgb, var(--tone) 11%, var(--surface)) 0%, var(--surface) 60%);
+  border-color: color-mix(in srgb, var(--tone) 22%, var(--line));
+}
+.hub-card:hover, .hub-card:focus-visible {
+  border-color: var(--tone);
+  background-color: var(--surface);
+  box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--tone) 70%, transparent);
+}
+.hub-art {
+  align-self: start; aspect-ratio: 1; padding: 8px; border-radius: 12px;
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--tone) 26%, var(--surface-2)), var(--surface-2) 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 25%, transparent);
+}
+.hub-card .new-badge { background: var(--tone); color: var(--on-tile); }
+
+/* Today: the main event, with a glowing orange-to-gold edge. */
+.today {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(125deg, var(--accent), var(--accent-2) 35%, color-mix(in srgb, var(--accent-2) 10%, var(--line)) 70%) border-box;
+  box-shadow: 0 18px 50px -24px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Hero: a soft arena spotlight, and "ball." in a hot gradient. */
+.hub-head { position: relative; isolation: isolate; }
+.hub-head::before {
+  content: ""; position: absolute; z-index: -1; inset: -120px -15% -90px -15%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 16%, transparent), transparent) 18% 55% / 620px 260px no-repeat;
+  pointer-events: none;
+}
+.hero-pop {
+  background: linear-gradient(100deg, var(--accent) 10%, var(--accent-2) 90%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
