@@ -56,7 +56,7 @@ async function showPlayer(id) {
   const p = shard[id];
   if (!p) throw new Error(`no player with id ${id}`);
   data.players[id] = { name: p.name };
-  document.title = `${p.name} · NBA Minigames`;
+  document.title = `${p.name} · HoopGames`;
   $("profile").innerHTML = profileHtml(id, p);
   $("profile").hidden = false;
 }

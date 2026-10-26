@@ -1,4 +1,4 @@
-# NBA Minigames
+# HoopGames
 
 A growing collection of browser games built on NBA stats, 2005-06 to 2025-26 (and further back for Draft Redo and Snake Draft). The home page lists every game. Games so far:
 

@@ -560,7 +560,7 @@ function renderNav() {
   const nav = document.querySelector(".site-nav");
   if (!nav) return;
   nav.innerHTML = `
-    <a href="index.html" class="site-brand">${BALL_ICON}<span>NBA <b>Minigames</b></span></a>
+    <a href="index.html" class="site-brand">${BALL_ICON}<span>Hoop<b>Games</b></span></a>
     <div class="nav-right">
       <div class="games-menu">
         <button type="button" id="games-button" class="menu-button" aria-expanded="false" aria-controls="games-panel">
@@ -800,8 +800,8 @@ async function resultCanvas({ title, kicker = "", big, grid = [], lines = [] }) 
 
   let y = 210;
   ctx.fillStyle = color("--text"); ctx.font = font(800, 44);
-  ctx.fillText("NBA", 90, y);
-  ctx.fillStyle = color("--accent"); ctx.fillText("Minigames", 90 + ctx.measureText("NBA ").width, y);
+  ctx.fillText("Hoop", 90, y);
+  ctx.fillStyle = color("--accent"); ctx.fillText("Games", 90 + ctx.measureText("Hoop").width, y);
 
   y += 100;
   ctx.fillStyle = color("--accent"); ctx.font = font(800, 34);
@@ -1009,7 +1009,7 @@ function dayShareText() {
     const r = todaysResult(g);
     return `${g.emoji} ${g.title}: ${r ? g.summary(r) : "—"}`;
   });
-  return { date, done: done.length, lines, text: `NBA Minigames · ${date} · ${done.length}/${DAILIES.length} dailies\n${lines.join("\n")}` };
+  return { date, done: done.length, lines, text: `HoopGames · ${date} · ${done.length}/${DAILIES.length} dailies\n${lines.join("\n")}` };
 }
 
 async function shareDay(messageEl) {

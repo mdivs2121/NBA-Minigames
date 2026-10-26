@@ -245,8 +245,8 @@ function renderInstall() {
     <div class="install-body">
       <span class="label">Get the app</span>
       <p>${installPrompt
-        ? "Put NBA Minigames on your home screen. It opens full-screen, like any other app."
-        : "Put NBA Minigames on your home screen: tap <b>Share</b> <span aria-hidden=\"true\">⬆️</span> at the bottom of Safari, then <b>Add to Home Screen</b>."}</p>
+        ? "Put HoopGames on your home screen. It opens full-screen, like any other app."
+        : "Put HoopGames on your home screen: tap <b>Share</b> <span aria-hidden=\"true\">⬆️</span> at the bottom of Safari, then <b>Add to Home Screen</b>."}</p>
       <span class="install-actions">
         ${installPrompt ? `<button type="button" id="install-btn" class="primary">Install</button>` : ""}
         <button type="button" id="install-no" class="ghost">Not now</button>

@@ -1,6 +1,6 @@
 {
-  "name": "NBA Minigames",
-  "short_name": "NBA Games",
+  "name": "HoopGames",
+  "short_name": "HoopGames",
   "description": "Daily puzzles and quick games built on real NBA stats.",
   "id": "./",
   "start_url": "./",
