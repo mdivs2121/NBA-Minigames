@@ -1,0 +1,455 @@
+# 2026-27 NBA uniform numbers, as pasted by the site owner on Oct 26, 2026
+# (from Basketball-Reference's 2026-27 Uniform Numbers page).
+# A line with just a number starts that number's group; each other line is
+# "Player Name TEAM".
+00
+Jordan Clarkson NYK
+Scoot Henderson POR
+Josh Minott BRK
+Royce O'Neale CHO
+Labaron Philon Jr. PHI
+Jericho Sims MIL
+Cam Whitmore DEN
+0
+Anthony Black ORL
+Christian Braun DEN
+Mikel Brown Jr. BRK
+Brayden Burries MIL
+Max Christie DAL
+Bilal Coulibaly WAS
+Luguentz Dort ATL
+Andre Drummond NYK
+Ryan Dunn PHO
+Jalen Duren DET
+Jeremiah Fears NOP
+Simone Fontecchio MIA
+Tyrese Haliburton IND
+Damian Lillard POR
+Tyrese Maxey PHI
+Jordan McLaughlin SAS
+Malik Monk SAC
+Gary Payton II GSW
+Naz Reid CHO
+Jayson Tatum BOS
+Jaylen Wells MEM
+1
+LaMelo Ball MIN
+Kentavious Caldwell-Pope PHI
+Walter Clayton DAL
+Keon Ellis BRK
+James Harden CLE
+Jalen Johnson ATL
+Yaxel Lendeborg GSW
+Tre Mann WAS
+Ja Morant POR
+Scotty Pippen Jr. MEM
+Jamal Shead TOR
+Amen Thompson HOU
+Obi Toppin IND
+Keaton Wagler LAC
+Victor Wembanyama SAS
+Zion Williamson NOP
+2
+Jevon Carter ORL
+Cade Cunningham DET
+Noa Essengue CHI
+Kyle Filipowski UTA
+Shai Gilgeous-Alexander OKC
+Dylan Harper SAS
+Ty Jerome MEM
+Herbert Jones NOP
+Kawhi Leonard TOR
+Miles McBride NYK
+Davion Mitchell MIA
+Andrew Nembhard IND
+Brandin Podziemski GSW
+Bruce Thornton HOU
+Aaron Wiggins ATL
+Danny Wolf BRK
+3
+Marvin Bagley III DEN
+Desmond Bane ORL
+Dillon Brooks PHO
+Keyonte George UTA
+Josh Giddey CHI
+Jerami Grant MEM
+Josh Hart NYK
+Keldon Johnson SAS
+Naji Marshall DAL
+Jared McCain OKC
+CJ McCollum ATL
+Jaden McDaniels MIN
+Jordan Poole NOP
+Will Richard GSW
+Myles Turner MIL
+Trae Young WAS
+4
+Scottie Barnes TOR
+Ryan Conwell MIA
+Kingston Flemings ATL
+De'Aaron Fox SAS
+Jalen Green PHO
+Sion James CHO
+Evan Mobley CLE
+Drake Powell BRK
+Mitchell Robinson BOS
+Kobe Sanders LAC
+Terrence Shannon Jr. MIN
+Jalen Suggs ORL
+Matisse Thybulle LAL
+5
+Darius Acuff Jr. SAC
+Jose Alvarado NYK
+Christian Anderson Jr. CHO
+Paolo Banchero ORL
+Stephon Castle SAS
+Dyson Daniels ATL
+Anthony Edwards MIN
+Josh Green UTA
+Quentin Grimes LAL
+Jrue Holiday POR
+Ron Holland DET
+Derrick Jones Jr. LAC
+Tyus Jones DEN
+Nikola Jović MIA
+Sam Merrill CLE
+Dejounte Murray NOP
+Immanuel Quickley TOR
+Anfernee Simons PHI
+Fred VanVleet HOU
+Jarace Walker IND
+6
+DeAndre Jordan NOP
+Jaylin Williams OKC
+7
+Nickeil Alexander-Walker ATL
+Giannis Antetokounmpo MIA
+Trevon Brazile DEN
+Jaylen Brown PHI
+Bub Carrington WAS
+Jaylen Clark MIN
+Kevin Durant HOU
+Jaden Hardy LAL
+Buddy Hield CHI
+Chet Holmgren OKC
+Luke Kornet SAS
+Paul Reed DET
+8
+Grayson Allen CHO
+OG Anunoby NYK
+Deni Avdija POR
+Deandre Ayton WAS
+Jaden Bradley TOR
+Jamal Cain ORL
+Isaiah Collier UTA
+Egor Dëmin BRK
+Kris Dunn LAC
+Dorian Finney-Smith ATL
+Bones Hyland MIN
+Luke Kennard PHO
+Zach LaVine SAC
+Caleb Love PHI
+De'Anthony Melton GSW
+Nick Richards MIA
+Marcus Sasser DAL
+Jae'Sean Tate HOU
+Peyton Watson CLE
+Jalen Williams OKC
+Caleb Wilson CHI
+9
+Precious Achiuwa SAC
+RJ Barrett TOR
+Alex Caruso OKC
+Justin Champagnie WAS
+Gradey Dick LAC
+Jett Howard DAL
+Bronny James LAL
+Joshua Jefferson BRK
+Pelle Larsson MIA
+Ryan Nembhard DEN
+Craig Porter Jr. CLE
+Micah Potter POR
+Ausar Thompson DET
+Nikola Vučević ORL
+Kel'el Ware MIL
+Derrick White BOS
+Cody Williams MIN
+10
+Nique Clifford SAC
+DeMar DeRozan DEN
+Darius Garland LAC
+Tim Hardaway Jr. MIA
+Khaman Maluach PHO
+Svi Mykhailiuk UTA
+Kelly Oubre Jr. IND
+Tarris Reed Jr. SAS
+Zaccharie Risacher DAL
+Collin Sexton LAL
+Jabari Smith Jr. HOU
+Nolan Traoré BRK
+11
+Jalen Brunson NYK
+Carter Bryant SAS
+Alpha Diallo DEN
+Justin Edwards PHI
+Jaxson Hayes UTA
+Tyler Herro MIL
+Oso Ighodaro PHO
+Kyrie Irving DAL
+Ryan Kalkbrenner CHO
+Brook Lopez LAC
+Leonard Miller CHI
+Payton Pritchard BOS
+Jase Richardson ORL
+Domantas Sabonis SAC
+Klay Thompson MIA
+Ziaire Williams LAL
+12
+Steven Adams HOU
+Zach Collins CHI
+Collin Gillespie PHO
+Tre Johnson WAS
+Jake LaRavia LAL
+Nick Martinelli LAC
+Dru Smith MIA
+Brandon Williams GSW
+13
+Bam Adebayo MIA
+Kyle Anderson TOR
+Ayo Dosunmu MIN
+Paul George BOS
+Bryce Hopkins DEN
+Tyler Kolek NYK
+Keegan Murray SAC
+Ryan Rollins MIL
+Moritz Wagner BRK
+14
+Jaden Akins NYK
+Matas Buzelis CHI
+Colin Castleton ORL
+Moussa Diabaté CHO
+Zach Edey MEM
+DaRon Holmes DEN
+Morez Johnson Jr. DAL
+Walker Kessler LAL
+Asa Newell ATL
+Bennett Stirtz OKC
+Ja'Kobe Walter TOR
+15
+Nate Ament MIL
+Devin Booker PHO
+Maliq Brown SAS
+Myron Gardner MIA
+De'Andre Hunter SAC
+Nikola Jokić DEN
+Aday Mara OKC
+Zyon Pullin MIN
+Austin Reaves LAL
+Gui Santos GSW
+Reed Sheppard HOU
+16
+Anthony Gill WAS
+PJ Hall CHO
+Yang Hansen POR
+17
+Jamaree Bouyea PHO
+Tari Eason HOU
+Ja'Kobi Gillespie SAS
+Isaiah Joe DET
+Karlo Matković NOP
+Kris Murray MEM
+Onyeka Okongwu ATL
+Michael Porter Jr. BRK
+Dennis Schröder CHO
+18
+LJ Cryer GSW
+Kyshawn George WAS
+Kyle Kuzma MIL
+Baba Miller LAC
+Koa Peat PHO
+Jalen Slawson IND
+19
+Tobe Awaka CHI
+Ace Bailey UTA
+Joan Beringer MIN
+Leaky Black SAC
+Jakob Poeltl TOR
+20
+John Collins DET
+Zuby Ejiofor ATL
+Rasheer Fleming PHO
+A.J. Green MIL
+Al Horford GSW
+Jaren Jackson Jr. UTA
+Alex Sarr WAS
+Day'Ron Sharpe BRK
+Jaylon Tyson CLE
+21
+Noah Clowney BRK
+Ousmane Dieng MIL
+Joel Embiid PHI
+Daniel Gafford DAL
+Yves Missi NOP
+Josh Okogie UTA
+Jalen Pickett LAC
+22
+Miles Bridges PHO
+Allen Graves TOR
+Taylor Hendricks MEM
+Khris Middleton WAS
+Jonathan Mogbo SAC
+Larry Nance Jr. IND
+Darryn Peterson UTA
+Derik Queen NOP
+Jaylin Sellers CHI
+Hannes Steinbach CHO
+Franz Wagner ORL
+Cason Wallace OKC
+Andrew Wiggins MIA
+23
+Brooks Barnhizer OKC
+Donovan Clingan POR
+Cedric Coward MEM
+Tristan Da Silva ORL
+Anthony Davis WAS
+Jordan Goodwin PHO
+Draymond Green GSW
+Isaiah Jackson LAC
+LeBron James PHI
+Cameron Johnson DEN
+Lauri Markkanen UTA
+Aaron Nesmith IND
+Ebuka Okorie DET
+24
+Kobe Brown IND
+Cam Christie LAC
+Jaime Jaquez Jr. MIL
+Daniss Jenkins DET
+Corey Kispert ATL
+Jonathan Kuminga MIN
+Bennedict Mathurin NOP
+Brandon Miller CHO
+Norman Powell CHI
+Tyrese Proctor CLE
+Cam Spencer MEM
+Devin Vassell SAS
+25
+Mikal Bridges NYK
+Kasparas Jakučionis MIL
+David Jones García SAS
+Ajay Mitchell OKC
+Trey Murphy III NOP
+Jalen Smith CHI
+P.J. Washington DAL
+26
+Reece Beekman WAS
+Duop Reath PHO
+Ben Sheppard IND
+27
+Cameron Boozer MEM
+Isaiah Crawford HOU
+Rudy Gobert MIN
+Kevin Huerter DET
+Vít Krejčí POR
+Jamal Murray DEN
+Will Riley WAS
+Jordan Walsh BOS
+28
+Charles Bassey GSW
+Hugo González BOS
+Rui Hachimura LAC
+Alperen Şengün HOU
+Brice Sensabaugh UTA
+Isaiah Stewart MEM
+29
+Quenton Jackson IND
+Jayson Kent POR
+Daeqwon Plowden SAC
+30
+Adem Bona PHI
+Clint Capela HOU
+Julian Champagnie SAS
+Moussa Cissé DAL
+Stephen Curry GSW
+Sam Hauser BOS
+Tre Jones CHI
+Chris Mañon LAL
+Alex Morales ORL
+Collin Murray-Boyles TOR
+Julius Randle BRK
+31
+Jarrett Allen CLE
+Bogdan Bogdanović HOU
+Javonte Green DET
+Chaney Johnson BRK
+Jock Landale ATL
+Tidjane Salaün CHO
+32
+Cooper Flagg DAL
+Aaron Gordon DEN
+Jay Huff IND
+Trayce Jackson-Davis TOR
+Georges Niang GSW
+Karl-Anthony Towns NYK
+33
+Toumani Camara POR
+Isaiah Evans MIN
+Mario Hezonja CLE
+Alex Karaban SAC
+Tobi Lawal DAL
+Malevy Leons GSW
+Liam McNeeley CHO
+Jabari Walker PHI
+34
+Wendell Carter Jr. ORL
+Felix Okpara WAS
+Emanuel Sharp SAC
+Kenrich Williams OKC
+35
+Goga Bitadze ORL
+Isaac Okoro CHI
+Tolu Smith DET
+Robert Williams POR
+James Wiseman NYK
+36
+Marcus Smart HOU
+40
+Harrison Barnes SAS
+Ivica Zubac IND
+41
+Saddiq Bey NOP
+Trey Lyles MIN
+Quinten Post MEM
+43
+Pascal Siakam IND
+44
+Landry Shamet NYK
+45
+Graham Ike GSW
+GG Jackson II MEM
+Donovan Mitchell CLE
+Dean Wade PHI
+52
+Luka Garza BOS
+54
+Sandro Mamukelashvili LAL
+55
+Sergio de Larrea DAL
+Isaiah Hartenstein OKC
+Kevon Looney LAL
+Alijah Martin TOR
+Duncan Robinson DET
+Baylor Scheierman BOS
+61
+Pat Spencer PHO
+77
+Jamison Battle TOR
+Luka Dončić LAL
+VJ Edgecombe PHI
+Ben Saraf BRK
+88
+Neemias Queta BOS
+91
+Sidy Cissoko POR
+95
+Bobby Portis MIA

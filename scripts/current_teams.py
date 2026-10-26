@@ -56,3 +56,45 @@ EARLIER_MOVES = {
 
 CURRENT_TEAM = {name: team for team, names in MOVES_2026.items() for name in names}
 CURRENT_TEAM.update({k: v for k, v in EARLIER_MOVES.items() if k not in CURRENT_TEAM})
+
+
+# ---------- 2026-27 uniform numbers (and teams) ----------
+# The uniform list covers every player on a roster this season, so where it
+# and MOVES_2026 disagree, the uniform list (newer, per player) wins.
+
+def _read_uniforms():
+    from pathlib import Path
+    numbers, current = {}, None
+    for line in (Path(__file__).with_name("uniform_numbers_2026_27.txt")).read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.isdigit():
+            current = line
+            continue
+        name, team = line.rsplit(" ", 1)
+        numbers[name] = (current, team)
+    return numbers
+
+UNIFORMS = _read_uniforms()   # name -> (number as written, e.g. "00", team)
+CONFLICTS = {n: (CURRENT_TEAM[n], t) for n, (_, t) in UNIFORMS.items() if n in CURRENT_TEAM and CURRENT_TEAM[n] != t}
+CURRENT_TEAM.update({n: t for n, (_, t) in UNIFORMS.items()})
+
+
+# ---------- well-known numbers the data doesn't have ----------
+# Retired stars, with the team each one is best known with (the team Guess the
+# Player shows). Only used when that team matches. Numbers anyone would check
+# against a jersey; no guesses for players with two famous numbers there.
+KNOWN_NUMBERS = {
+    "Allen Iverson": ("3", "PHI"), "Carmelo Anthony": ("15", "DEN"), "Chris Bosh": ("4", "TOR"), "Ray Allen": ("34", "MIL"),
+    "Dwight Howard": ("12", "ORL"), "Tracy McGrady": ("1", "HOU"), "Jason Kidd": ("5", "NJN"), "Joe Johnson": ("2", "ATL"),
+    "Blake Griffin": ("32", "LAC"), "LaMarcus Aldridge": ("12", "POR"), "Chris Webber": ("4", "SAC"), "Pau Gasol": ("16", "MEM"),
+    "John Wall": ("2", "WAS"), "DeMarcus Cousins": ("15", "SAC"), "Derrick Rose": ("1", "CHI"), "Kemba Walker": ("15", "CHO"),
+    "Chauncey Billups": ("1", "DET"), "Anfernee Hardaway": ("1", "ORL"), "Antawn Jamison": ("4", "WAS"), "Rasheed Wallace": ("30", "POR"),
+    "Marc Gasol": ("33", "MEM"), "Paul Millsap": ("24", "UTA"), "Victor Oladipo": ("5", "ORL"), "Lou Williams": ("23", "PHI"),
+    "Baron Davis": ("1", "CHH"), "Rashard Lewis": ("7", "SEA"), "Rajon Rondo": ("9", "BOS"), "Jamal Crawford": ("11", "LAC"),
+    "Caron Butler": ("3", "WAS"), "Goran Dragić": ("7", "MIA"), "Luol Deng": ("9", "CHI"), "Gordon Hayward": ("20", "UTA"),
+    "Zydrunas Ilgauskas": ("11", "CLE"), "Josh Howard": ("5", "DAL"), "Sam Cassell": ("10", "MIL"), "Joakim Noah": ("13", "CHI"),
+    "Tyreke Evans": ("13", "SAC"), "Al Jefferson": ("25", "UTA"), "Andre Iguodala": ("9", "PHI"), "Chris Paul": ("3", "LAC"),
+    "Eddie Jones": ("6", "MIA"), "Juwan Howard": ("5", "WAS"),
+}

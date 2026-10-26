@@ -103,11 +103,15 @@ function compareAll(guess, answer) {
     // Undrafted only matches undrafted; it's never "close" to a real pick.
     { text: guess.pick ? `#${guess.pick}` : "Undrafted", ...(guess.pick && answer.pick ? number(gPick, aPick, 2) : gPick === aPick ? { color: "green", arrow: "" } : { color: "", arrow: aPick > gPick ? "⬆️" : "⬇️" }) },
     { text: String(guess.allStars), ...number(guess.allStars, answer.allStars, 2) },
+    // Jersey number: compared like the other numbers, unless either one is unknown.
+    guess.num == null || answer.num == null
+      ? { text: guess.num ?? "?", color: "", arrow: "", unknown: true }
+      : { text: `#${guess.num}`, ...(guess.num === answer.num ? { color: "green", arrow: "" } : number(Number(guess.num), Number(answer.num), 2)) },
   ];
 }
 
 const SQUARE = { green: "🟩", near: "🟨", conf: "🟧", "": "⬛" };
-const emojiRow = (id) => (id === play.answer ? "🟩".repeat(6) : compare(data.byId[id], data.byId[play.answer]).map((c) => SQUARE[c.color]).join(""));
+const emojiRow = (id) => (id === play.answer ? "🟩".repeat(7) : compare(data.byId[id], data.byId[play.answer]).map((c) => SQUARE[c.color]).join(""));
 
 // ---------- saving ----------
 
@@ -270,7 +274,7 @@ function render() {
     $("result-photo").innerHTML = avatar(play.answer, "md");
     tintResult(answer.team);
     $("result-title").innerHTML = playerLink(play.answer, answer.name);
-    $("result-text").textContent = `${answer.team} · ${answer.pos} · ${feet(answer.ht)} · debut ${answer.debut - 1} · ${answer.pick ? `pick #${answer.pick}` : "undrafted"} · ${answer.allStars} All-Star pick${answer.allStars === 1 ? "" : "s"}.`;
+    $("result-text").textContent = `${answer.team} · ${answer.pos} · ${feet(answer.ht)} · debut ${answer.debut - 1} · ${answer.pick ? `pick #${answer.pick}` : "undrafted"} · ${answer.allStars} All-Star pick${answer.allStars === 1 ? "" : "s"}${answer.num != null ? ` · wears #${answer.num}` : ""}.`;
     $("result-grid").textContent = play.guesses.map(emojiRow).join("\n");
     const milestone = !play.past && streakMilestone(streaks(loadSave().history).current);
     $("milestone").hidden = !milestone;

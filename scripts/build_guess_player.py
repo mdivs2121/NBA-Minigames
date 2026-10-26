@@ -20,6 +20,10 @@ included (the "hard" flag).
   debut     the year his first season ended (2004 = 2003-04)
   pick      overall draft pick, or null if undrafted
   allStars  All-Star selections
+  num       jersey number as a string ("00", "23"), or null when unknown:
+            2026-27 number for active players (uniform_numbers_2026_27.txt);
+            for others, the number from the older NBA database's player info,
+            only when it was worn for the same team this file shows
   hints     [career "PPG / RPG / APG" line, college or "", initials] for the Hint button
 
 Run after build_connections_data.py:  python3 build_guess_player.py
@@ -30,8 +34,8 @@ from collections import defaultdict
 
 import pandas as pd
 
-from current_teams import CURRENT_TEAM
-from paths import OUT_DIR, STATS_DIR
+from current_teams import CURRENT_TEAM, KNOWN_NUMBERS, UNIFORMS
+from paths import ARCHIVE_DIR, OUT_DIR, STATS_DIR
 
 SUMMARY_TEAM = re.compile(r"^(TOT|\dTM)$")
 GUESSABLE_SINCE, MIN_GAMES = 2001, 150
@@ -97,6 +101,33 @@ def main():
         else:
             unmatched.append(player)
 
+    # Jersey numbers: 2026-27 list first, then the older database.
+    uniform_by_key = {name_key(n): num for n, (num, _) in UNIFORMS.items()}
+    known_by_key = {name_key(n): v for n, v in KNOWN_NUMBERS.items()}
+    old_numbers = {}   # name key -> [(number, franchise)]
+    db_path = ARCHIVE_DIR / "nba.sqlite"
+    if db_path.exists():
+        import sqlite3
+        nba_abbr = {"PHX": "PHO", "BKN": "BRK", "CHA": "CHO", "NOH": "NOP", "NOK": "NOP", "NJN": "BRK", "SEA": "OKC",
+                    "VAN": "MEM", "CHH": "CHO", "WSB": "WAS"}
+        for full, jersey, team in sqlite3.connect(db_path).execute(
+                "select display_first_last, jersey, team_abbreviation from common_player_info where jersey is not null and jersey <> ''"):
+            if str(jersey).strip().isdigit():
+                old_numbers.setdefault(name_key(full), []).append((str(jersey).strip(), nba_abbr.get(team, team)))
+    franchise = lambda t: {"NJN": "BRK", "SEA": "OKC", "VAN": "MEM", "NOH": "NOP", "NOK": "NOP", "CHA": "CHO", "CHH": "CHO", "WSB": "WAS"}.get(t, t)
+
+    def jersey(pid, team):
+        key = name_key(info.at[pid, "player"])
+        if key in uniform_by_key and len(by_name.get(key, []) or everyone.get(key, [])) == 1:
+            return uniform_by_key[key]
+        old = old_numbers.get(key, [])
+        if len(old) == 1 and franchise(old[0][1]) == franchise(team):
+            return old[0][0]
+        known = known_by_key.get(key)
+        if known and franchise(known[1]) == franchise(team):
+            return known[0]
+        return None
+
     out = []
     for pid, (first, last) in seasons.iterrows():
         if last < GUESSABLE_SINCE or games.get(pid, 0) < MIN_GAMES or pid not in info.index:
@@ -113,6 +144,7 @@ def main():
             "ht": int(i["ht_in_in"]), "debut": int(first), "last": int(last),
             "pick": int(draft[pid]) if pid in draft.index else None,
             "allStars": int(star_count.get(pid, 0)), "games": int(games.get(pid, 0)),
+            "num": None,
             "hints": [f"{c['pts'] / c['g']:.1f} PPG / {c['trb'] / c['g']:.1f} RPG / {c['ast'] / c['g']:.1f} APG", colleges, initials],
         })
 
@@ -121,6 +153,7 @@ def main():
                         key=lambda p: (-fame[p["id"]], p["id"]))[:ANSWERS]
     answer_ids = {p["id"] for p in candidates}
     for p in out:
+        p["num"] = jersey(p["id"], p["team"])
         p["answer"] = p["id"] in answer_ids
         p["hard"] = not p["answer"] and (p["games"] >= HARD_GAMES or p["allStars"] > 0)
         del p["last"], p["games"]
@@ -129,6 +162,9 @@ def main():
     path = OUT_DIR / "guess_player.json"
     with open(path, "w", encoding="utf-8") as f:
         json.dump({"players": out}, f, separators=(",", ":"), ensure_ascii=False)
+    for pool in ("answer", "hard"):
+        ps = [p for p in out if p[pool]]
+        print(f"  jersey numbers known: {sum(p['num'] is not None for p in ps)}/{len(ps)} {pool} players")
     print(f"  2026-27 teams applied: {len(moved)} players; not found in the stats (rookies or new names): {len(unmatched)}")
     if unmatched:
         print("   ", ", ".join(unmatched))

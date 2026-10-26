@@ -1726,7 +1726,7 @@ main { animation: page-in 0.3s ease-out; }
 .gp-head { margin-bottom: 8px; }
 .gp-head .giant { margin-top: 6px; }
 .gp-table-wrap { margin-top: 22px; overflow-x: auto; }
-.gp-labels, .gp-cells { display: grid; grid-template-columns: repeat(6, minmax(58px, 1fr)); gap: 6px; }
+.gp-labels, .gp-cells { display: grid; grid-template-columns: repeat(7, minmax(52px, 1fr)); gap: 6px; }
 .gp-labels { padding-left: 0; margin-bottom: 8px; color: var(--muted); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
 .gp-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .gp-row { display: grid; gap: 6px; animation: pop 0.25s ease-out; }
@@ -1743,7 +1743,7 @@ main { animation: page-in 0.3s ease-out; }
 .gp-row.right .gp-who b { color: var(--green); }
 .gp-emoji { line-height: 1.25; font-size: 1.1rem; }
 @media (max-width: 480px) {
-  .gp-labels, .gp-cells { grid-template-columns: repeat(6, minmax(48px, 1fr)); gap: 4px; }
+  .gp-labels, .gp-cells { grid-template-columns: repeat(7, minmax(42px, 1fr)); gap: 4px; }
   .gp-cell { font-size: 0.74rem; min-height: 42px; }
 }
 

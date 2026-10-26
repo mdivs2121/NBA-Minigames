@@ -120,7 +120,7 @@ const GAMES = [
     blurb: "One mystery player a day. Every guess shows if you're warmer on team, position, height, debut, draft pick, and All-Stars.",
     howto: [
       ["Guess anyone", "Type any player from the last 25 years. You get eight guesses."],
-      ["Read the clues", "🟩 matches the mystery player. 🟨 is close: same division, an overlapping position, or a number within 2. 🟧 on the team means same conference, different division. Arrows point toward his number."],
+      ["Read the clues", "Seven clues: team, position, height, debut, draft pick, All-Star picks, and jersey number. 🟩 matches. 🟨 is close: same division, an overlapping position, or a number within 2. 🟧 on the team means same conference. Arrows point toward his number."],
       ["Stuck?", "Hint reveals his career averages, then his college, then his initials. Retired players' team is the one they played the most games for. Hard mode is a second daily with deeper cuts and only 🟩 colors."],
     ],
   },
