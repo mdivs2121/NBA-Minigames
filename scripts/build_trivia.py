@@ -264,8 +264,10 @@ def main():
     for p in pool[:45]:
         ft = f"{p['ht'] // 12}'{p['ht'] % 12}\""
         drafted = f"was drafted #{p['pick']}" if p["pick"] else "went undrafted"
-        # Active players: their current team. Retired: the team they played the most games for.
-        where = "plays for" if last_season.get(p["id"], 0) == CURRENT else "is best known with"
+        # Active players: their current team. Missed last season (injury): their most recent team.
+        # Retired: the team they played the most games for.
+        played = last_season.get(p["id"], 0)
+        where = "plays for" if played == CURRENT else "last played for" if played == CURRENT - 1 else "is best known with"
         stars_txt = f"{p['allStars']} All-Star team{'s' if p['allStars'] != 1 else ''}" if p["allStars"] else "no All-Star teams"
         clue = f"A {ft} {POS.get(p['pos'][0], 'player')} who debuted in {p['debut'] - 1}, {drafted}, made {stars_txt}, and {where} the {latest_name.get(p['team'], p['team'])}. Who is he?"
         similar = [q["name"] for q in pool if q is not p and q["pos"][0] == p["pos"][0] and abs(q["debut"] - p["debut"]) <= 5]

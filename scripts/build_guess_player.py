@@ -10,8 +10,10 @@ Everyone who played from 2000-01 on with 150+ games can be guessed. About 250
 of the best-known (still playing in 2008 or later) can be the answer. Hard mode
 draws from everyone else with 500+ games or an All-Star pick, older players
 included (the "hard" flag).
-  team      active players: his current team. Retired: the team he played
-            the most games for (relocated franchises count as one team)
+  team      players from the last two seasons: their most recent team (so a
+            player who missed 2025-26 hurt, like Fred VanVleet, still shows the
+            Rockets). Retired: the team he played the most games for
+            (relocated franchises count as one team)
   pos       G, F, C, or a combo like G-F
   ht        height in inches
   debut     the year his first season ended (2004 = 2003-04)
@@ -33,6 +35,11 @@ GUESSABLE_SINCE, MIN_GAMES = 2001, 150
 ANSWERS, ANSWERS_SINCE = 250, 2008
 HARD_GAMES = 500
 SAME_TEAM = {"NOK": "NOH"}   # the Katrina-era Hornets
+# Players who changed teams without playing a game since (so the stats can't
+# show it). Add to this when a hurt player moves in the offseason.
+OFFSEASON_MOVES = {
+    "lillada01": "POR",   # Damian Lillard: waived by Milwaukee, re-signed with Portland in July 2025 (Achilles, out 2025-26)
+}
 # Relocated and renamed teams, for counting games with one franchise.
 FRANCHISE = {"NJN": "BRK", "SEA": "OKC", "VAN": "MEM", "NOH": "NOP", "NOK": "NOP", "CHA": "CHO", "CHH": "CHO", "WSB": "WAS"}
 
@@ -78,7 +85,7 @@ def main():
         initials = " ".join(f"{w[0]}." for w in re.sub(r"\b(Jr\.|Sr\.|II|III|IV)$", "", i["player"]).split())
         out.append({
             "id": pid, "name": i["player"], "pos": i["pos"],
-            "team": last_team[pid] if last == latest else main_team.get(pid, last_team[pid]),
+            "team": OFFSEASON_MOVES.get(pid) or (last_team[pid] if last >= latest - 1 else main_team.get(pid, last_team[pid])),
             "ht": int(i["ht_in_in"]), "debut": int(first), "last": int(last),
             "pick": int(draft[pid]) if pid in draft.index else None,
             "allStars": int(star_count.get(pid, 0)), "games": int(games.get(pid, 0)),
