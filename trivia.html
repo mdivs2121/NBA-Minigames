@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trivia Wager · NBA Minigames</title>
+  <meta name="description" content="Ten NBA trivia questions a day. See the category, bet 1 to 10 on yourself, then answer. Each number once.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NBA Minigames">
+  <meta property="og:title" content="Trivia Wager · NBA Minigames">
+  <meta property="og:description" content="Ten NBA trivia questions a day. See the category, bet 1 to 10 on yourself, then answer. Each number once.">
+  <meta property="og:url" content="https://mdivs2121.github.io/NBA-Minigames/trivia.html">
+  <meta property="og:image" content="https://mdivs2121.github.io/NBA-Minigames/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0e1015">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="NBA Games">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=202610260902">
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Games"></nav>
+    <div class="rule"></div>
+
+    <header class="topbar">
+      <span class="eyebrow">Trivia Wager</span>
+      <span id="state" class="state">Loading</span>
+    </header>
+
+    <nav class="difficulty tw-modes" aria-label="Mode">
+      <button type="button" data-mode="daily">Daily</button>
+      <button type="button" data-mode="unlimited">Unlimited</button>
+    </nav>
+
+    <p id="status" class="status">Loading questions…</p>
+
+    <section id="game" hidden>
+      <div class="numbers hl-numbers">
+        <div><span class="label">Score</span><b id="score">0</b></div>
+        <div class="right"><span class="label">Still possible</span><b id="possible" class="green">55</b></div>
+      </div>
+
+      <ol id="track" class="tw-track" aria-label="Your ten questions"></ol>
+
+      <div id="stage" class="tw-stage"></div>
+
+      <section id="result" class="result" hidden>
+        <span id="result-kicker" class="label"></span>
+        <h2 id="result-title" class="giant"></h2>
+        <pre id="result-grid" class="cx-emoji tw-emoji" aria-hidden="true"></pre>
+        <p id="result-text" class="meta"></p>
+        <div class="result-actions">
+          <button type="button" id="share" class="primary">Share result</button>
+          <button type="button" id="save-image" class="ghost">Save image</button>
+          <button type="button" id="again" class="ghost" hidden>Play 10 more</button>
+        </div>
+        <p id="milestone" class="milestone" hidden></p>
+        <p id="share-msg" class="message good"></p>
+        <p id="next" class="meta next"></p>
+      </section>
+
+      <section id="review" class="tw-review" hidden></section>
+    </section>
+
+    <section id="stats" class="stats-wrap" hidden></section>
+
+    <footer>
+      <span class="brand">Trivia Wager</span>
+      <span>Bet on what you know.</span>
+    </footer>
+  </main>
+  <script src="common.js?v=202610260902"></script>
+  <script src="trivia.js?v=202610260902"></script>
+</body>
+</html>

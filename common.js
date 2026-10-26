@@ -91,6 +91,7 @@ const teamColor = (abbr) => TEAM_COLORS[abbr] || "#3a3f4d";
 //   daily: the localStorage key of a daily puzzle's saved results
 //   summary: (result) => short text for one day's result, like "83/100"
 //   emoji: one emoji for the "share your day" card
+//   noEra: true for a game with no Modern tab (its content isn't about one era)
 //   howto: three [title, text] steps for the "How to play" popup
 const GAMES = [
   {
@@ -134,6 +135,16 @@ const GAMES = [
     ],
   },
   {
+    page: "trivia.html", emoji: "🧠", title: "Trivia Wager", tag: "Daily puzzle", art: "trivia", daily: "tw-v1", isNew: true, noEra: true,
+    summary: (r) => `${r.score}/55`,
+    blurb: "Ten NBA trivia questions. See the category, bet 1 to 10 on yourself, then answer. Each number once.",
+    howto: [
+      ["See the category", "Each question comes from a different category: MVPs, Finals, jersey numbers, trades, the 2025-26 season, and more."],
+      ["Wager 1 to 10", "Bet big on categories you know and small on ones you don't. Each number can only be used once, so the most you can score is 55."],
+      ["Answer and compare", "Pick from four answers. Everyone gets the same ten each day, so share your score with friends. Unlimited mode deals ten more anytime."],
+    ],
+  },
+  {
     page: "chain.html", title: "Teammate Chain", tag: "Puzzle", art: "chain",
     blurb: "Connect two players through guys who played with them. Find the link in as few guesses as you can.",
     howto: [
@@ -161,7 +172,7 @@ const GAMES = [
     ],
   },
   {
-    page: "draftday.html", title: "Draft Day", tag: "Guess who", art: "draftday", isNew: true,
+    page: "draftday.html", title: "Draft Day", tag: "Guess who", art: "draftday",
     blurb: "A draft year and a pick number. Who went there? Every miss unlocks a clue.",
     howto: [
       ["Year and pick", "You see a draft year and a first-round pick number, like 2003, #5."],
@@ -279,7 +290,7 @@ function setEra(modern) {
 
 function renderEraTabs() {
   const topbar = document.querySelector(".topbar");
-  if (!THIS_GAME || !topbar || document.querySelector(".era-tabs")) return;
+  if (!THIS_GAME || THIS_GAME.noEra || !topbar || document.querySelector(".era-tabs")) return;
   topbar.insertAdjacentHTML("afterend", `
     <nav class="era-tabs" aria-label="Era">
       <button type="button" data-era="all" aria-pressed="${!MODERN}">All eras</button>
@@ -368,6 +379,14 @@ const GAME_ART = {
       <rect x="68" y="22" width="46" height="46" rx="8" fill="#CE1141"/>
       <circle cx="91" cy="45" r="11" fill="none" stroke="#fff" stroke-width="3"/>
       <path d="M80 45 H102 M91 34 V56" stroke="#fff" stroke-width="2"/>
+    </svg>`,
+  trivia: `
+    <svg viewBox="0 0 120 90" aria-hidden="true">
+      <rect x="8" y="10" width="104" height="30" rx="6" fill="var(--surface-2)"/>
+      <text x="60" y="30" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">NBA MVP?</text>
+      ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n, i) => `
+        <rect x="${8 + (i % 5) * 21}" y="${48 + Math.floor(i / 5) * 20}" width="17" height="16" rx="4" fill="${n === 10 ? "var(--accent)" : [2, 5, 7].includes(n) ? "var(--line)" : "var(--surface-2)"}"/>
+        <text x="${16.5 + (i % 5) * 21}" y="${60 + Math.floor(i / 5) * 20}" text-anchor="middle" font-size="9" font-weight="800" fill="${n === 10 ? "var(--on-accent)" : "var(--muted)"}">${n}</text>`).join("")}
     </svg>`,
   chain: `
     <svg viewBox="0 0 120 90" aria-hidden="true" fill="none">

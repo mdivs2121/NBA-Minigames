@@ -1271,7 +1271,7 @@ a.plink:hover { text-decoration-color: currentColor; }
 .today-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .today-streak { color: var(--muted); font-size: 0.85rem; font-weight: 800; }
 .today-streak.on { color: var(--accent-2); }
-.today-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.today-tiles { display: grid; grid-template-columns: repeat(var(--tiles, 4), minmax(0, 1fr)); gap: 10px; }
 .today-tile {
   display: grid; grid-template-rows: auto auto auto; gap: 6px; padding: 14px; border-radius: var(--radius);
   background: var(--surface-2); color: var(--text); text-decoration: none; border: 2px solid transparent;
@@ -2042,3 +2042,49 @@ button .icon, a .icon { margin-right: 0.15em; }
 .cc-clues li { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius); border: 1px dashed var(--line); color: var(--muted); font-weight: 600; }
 .cc-clues li.open { border: 1px solid transparent; background: var(--surface-2); color: var(--text); font-weight: 700; animation: pop 0.25s ease-out; }
 .cc-clues li.open .cp-clue-n { background: var(--accent-2); color: var(--on-accent); }
+
+/* ---------- Trivia Wager ---------- */
+.tw-track { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; }
+.tw-track li { display: grid; justify-items: center; gap: 2px; padding: 7px 2px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.tw-track b { font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.tw-track span { font-size: 0.6rem; font-weight: 700; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-track li.current { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.tw-track li.right { background: color-mix(in srgb, var(--green) 22%, var(--surface)); border-color: transparent; }
+.tw-track li.wrong { background: color-mix(in srgb, var(--red) 18%, var(--surface)); border-color: transparent; }
+.tw-card { display: grid; gap: 14px; padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); animation: pop 0.25s ease-out; }
+.tw-cat { margin: 0; font-size: clamp(1.8rem, 6vw, 2.8rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1; color: var(--accent); }
+.tw-wagers { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.tw-wager { padding: 14px 0; border-radius: 12px; border: 2px solid var(--line); background: var(--surface-2); color: var(--text); font: inherit; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: transform 0.12s, border-color 0.12s; }
+.tw-wager:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); }
+.tw-wager:disabled { opacity: 0.25; cursor: default; text-decoration: line-through; }
+.tw-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tw-bet { padding: 5px 10px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 900; font-size: 0.85rem; }
+.tw-question { margin: 0; font-size: clamp(1.25rem, 3.6vw, 1.6rem); font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; }
+.tw-options { display: grid; gap: 8px; }
+.tw-options .opt { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+.tw-options .opt:hover:not(:disabled) { border-color: var(--accent); }
+.tw-options .opt .key { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--surface); font-weight: 900; font-size: 0.85rem; }
+.tw-options .opt:disabled { cursor: default; }
+.tw-options .opt.right { background: var(--green); color: var(--on-tile); border-color: transparent; }
+.tw-options .opt.wrong { background: var(--red); color: var(--on-tile); border-color: transparent; }
+.tw-feedback { display: grid; gap: 4px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); }
+.tw-feedback.good b { color: var(--green); }
+.tw-feedback.bad b { color: var(--red); }
+.tw-feedback span { color: var(--muted); font-size: 0.92rem; }
+button.primary.tw-next { justify-self: start; padding: 13px 22px; }
+.tw-options .opt.right .key, .tw-options .opt.wrong .key { background: rgba(255, 255, 255, 0.4); color: var(--on-tile); }
+.tw-track li:not(.right):not(.wrong):not(.current) b { color: var(--muted); }
+.tw-emoji { font-size: 1.1rem; line-height: 1.5; white-space: pre-wrap; }
+.tw-review { margin-top: 18px; padding: 16px; border-radius: 12px; background: var(--surface); }
+.tw-review-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.tw-review-list li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.tw-review-list .tw-pts { font-weight: 900; font-variant-numeric: tabular-nums; }
+.tw-review-list li.right .tw-pts { color: var(--green); }
+.tw-review-list li.wrong .tw-pts { color: var(--red); }
+.tw-review-list small { display: block; color: var(--muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.tw-review-list b { font-weight: 700; }
+.tw-review-list em { display: block; font-style: normal; color: var(--green); font-weight: 700; font-size: 0.9rem; }
+@media (max-width: 560px) {
+  .tw-track { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .tw-card { padding: 16px; }
+}

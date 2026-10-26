@@ -35,6 +35,13 @@ const PROGRESS = {
     if (today) return { text: `Today: ${today.score}/9 · originality ${today.originality} ✓`, done: true };
     return { text: played ? `Today's grid is ready · ${played} played` : "Today's grid is ready", fresh: true };
   },
+  trivia() {
+    const history = saved("tw-v1")?.history || {};
+    const today = history[todayKey()];
+    const played = Object.keys(history).length;
+    if (today) return { text: `Today: ${today.score}/55 ✓`, done: true };
+    return { text: played ? `Today's ten are ready · ${played} played` : "Today's ten are ready", fresh: true };
+  },
   chain() {
     let level = null;
     try { level = localStorage.getItem("tc-level"); } catch {}   // saved as plain text, not JSON
@@ -130,7 +137,7 @@ function renderToday() {
       <span class="label">Today · ${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
       <span class="today-streak ${streak ? "on" : ""}">${streak ? `${icon("flame")} ${streak}-day streak` : "Start a streak today"}</span>
     </div>
-    <div class="today-tiles">${chips.join("")}</div>
+    <div class="today-tiles" style="--tiles: ${dailies.length}">${chips.join("")}</div>
     <div class="today-actions">
       ${nextDaily() ? `<a class="primary" href="${nextDaily().page}">${dailies.some((g) => saved(g.daily)?.history?.[today]) ? "Keep going" : "Play all dailies"} →</a>` : ""}
       ${dailies.some((g) => saved(g.daily)?.history?.[today]) ? `<button type="button" class="ghost" id="share-day">Share your day</button>` : ""}
@@ -144,7 +151,7 @@ function renderToday() {
 // The games, grouped. Keyed by each game's art name; a game that isn't listed
 // lands in "More games", so a new game always shows up somewhere.
 const SECTIONS = [
-  ["Daily puzzles", "Same puzzle for everyone, new every day", ["rank", "connections", "guess", "awards"]],
+  ["Daily puzzles", "Same puzzle for everyone, new every day", ["rank", "connections", "guess", "awards", "trivia"]],
   ["Guess who", "Name the player from the clues", ["path", "stat", "draftday"]],
   ["Streaks", "One more round, as long as you last", ["higher", "timeline", "college", "chain"]],
   ["Rounds & drafts", "Pick, draft, and rewrite history", ["resume", "blind", "snake", "hindsight"]],
@@ -193,7 +200,7 @@ function renderHub() {
       return `
         <section class="hub-section">
           <div class="hub-section-head"><h2>${escapeHtml(title)}</h2>${sub ? `<span>${escapeHtml(sub)}</span>` : ""}</div>
-          <ol class="hub ${games.length >= 4 ? "four" : ""}" style="--cols: ${Math.min(4, Math.max(3, games.length))}">${games.map(gameCard).join("")}</ol>
+          <ol class="hub ${games.length % 4 === 0 ? "four" : ""}" style="--cols: ${games.length % 4 === 0 ? 4 : 3}">${games.map(gameCard).join("")}</ol>
         </section>`;
     })
     .join("");
